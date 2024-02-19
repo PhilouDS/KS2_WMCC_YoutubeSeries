@@ -1,0 +1,103 @@
+use { CONSOLE, color } from ksp::console
+use { yield } from ksp::game
+use { find_body, Body } from ksp::orbit
+use { sqrt, asin, floor, PI } from core::math
+use { vec2 } from ksp::math
+use { format } from core::str
+use { screen_size, open_centered_window, open_window, Align } from ksp::ui
+
+pub fn main_editor () -> Unit = {
+  CONSOLE.clear()
+
+  create_window()
+}
+
+
+fn create_window(scale: float=2.0/3.0) -> Unit = {
+  const myScreen = screen_size()
+  const button_font_size = 20
+  const text_font_size = 15
+  const canva_font_size = 20
+  const text_color = color(1, 1, 0.5) //color(1,0.498,0.208)
+  const window_width = myScreen.x/4
+  const window_height = myScreen.y/3
+  const main_window = open_window("<b>GEOSTATIONARY ALTITUDE</b>",
+    (myScreen.x-window_width)/2,
+    myScreen.y - 20,
+    window_width,
+    window_height)
+
+  const main_box = main_window.add_vertical(10.0, Align.Stretch)
+
+  const body_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const body_label = body_box.add_label(" Body:", Align.Start)
+  body_label.font_size = text_font_size
+  const body_value = body_box.add_string_input(Align.Start, 10.0)
+  body_value.value = "Kerbin"
+
+  const phase_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const phase_label = phase_box.add_label("Phase:", Align.Start)
+  phase_label.font_size = text_font_size
+  const phase_value = phase_box.add_float_input(Align.Start, 10.0)
+  phase_value.value = scale
+
+  
+  const convert_button = main_box.add_button("Compute altitude", Align.Center)
+  convert_button.font_size = button_font_size
+
+  const answer_canvas = main_window.add_canvas(window_width - 10, window_height/1.25, Align.Center)
+
+  
+  convert_button.on_click(fn() -> {
+    answer_canvas.clear()
+    const can_height = answer_canvas.height
+    const can_width = answer_canvas.width
+
+    const bod = find_body(body_value.value).value
+    const phase = phase_value.value
+    const mu = bod.grav_parameter
+    const rot_period = bod.rotation_period
+    const R = bod.radius
+
+    // geostationary altitude from body's center of mass
+    const geo = ((mu * rot_period**2) / (4 * PI**2))**(1.0/3)
+    // geostationary altitude above sea level
+    const geo_sealevel = geo - R
+
+    // ship's velocity in a circular orbit at geostationary altitude
+    const geo_velocity = (2 * PI * geo) / rot_period
+
+    // phase orbit to create a comm network
+    const geo_phase_period = phase * rot_period
+    const SMA = mu**(1.0/3) * (geo_phase_period / (2 * PI))**(2.0/3) //-> Semi Major Axis
+    const geo_phase_periapsis = 2 * SMA - geo
+
+    const RV = R + geo_sealevel // ship's altitude from body's center of mass
+    const RP = R + geo_phase_periapsis // ship's periapsis from body's center of mass
+    const RA = R + geo_sealevel // ship's apoapsis from body's center of mass
+    const phase_SMA = (RA + RP) / 2 // Semi-Major Axis
+
+    const init_vel = sqrt(mu * (2/RV - 1/phase_SMA))
+    const delta_v = geo_velocity - init_vel
+
+    if (geo > bod.SOI_radius) {
+      answer_canvas.add_text(vec2(0, can_height - canva_font_size - 10), "Geostationary orbit is impossible (out of SOI).", canva_font_size, text_color)
+    }
+    else {
+      answer_canvas.add_text(vec2(0, can_height - canva_font_size - 10), "Geostationary altitude above sea level:", canva_font_size, text_color)
+      answer_canvas.add_text(vec2(20, can_height - 2*canva_font_size - 10), format("{0:N2} m", geo_sealevel), canva_font_size, text_color)
+
+      answer_canvas.add_text(vec2(0, can_height - 4*canva_font_size - 10), "Geostationary velocity:", canva_font_size, text_color)
+      answer_canvas.add_text(vec2(20, can_height - 5*canva_font_size - 10), format("{0:N2} m/s", geo_velocity), canva_font_size, text_color)
+
+      answer_canvas.add_text(vec2(0, can_height - 7*canva_font_size - 10), "Geostationary phase orbit:", canva_font_size, text_color)
+      answer_canvas.add_text(vec2(20, can_height - 8*canva_font_size - 10), format("   Period: {0:N2} s", geo_phase_period), canva_font_size, text_color)
+      answer_canvas.add_text(vec2(20, can_height - 9*canva_font_size - 10), format("Periapsis: {0:N2} m", geo_phase_periapsis), canva_font_size, text_color)
+      answer_canvas.add_text(vec2(20, can_height - 10*canva_font_size - 10), format(" Velocity: {0:N2} m/s", init_vel), canva_font_size, text_color)
+
+      answer_canvas.add_text(vec2(0, can_height - 12*canva_font_size - 10), format("Delta-v needed to circularize: {0:N2} m/s", delta_v), canva_font_size, text_color)
+    }
+  })
+
+  while (true) {yield()}
+}

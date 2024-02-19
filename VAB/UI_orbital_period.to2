@@ -1,0 +1,79 @@
+use { CONSOLE, color } from ksp::console
+use { yield } from ksp::game
+use { find_body } from ksp::orbit
+use { sqrt, asin, floor, PI } from core::math
+use { vec2 } from ksp::math
+use { screen_size, open_centered_window, open_window, Align } from ksp::ui
+
+pub fn main_editor () -> Unit = {
+  CONSOLE.clear()
+
+  create_window()
+}
+
+
+fn create_window() -> Unit = {
+  const myScreen = screen_size()
+  const button_font_size = 20
+  const text_font_size = 15
+  const canva_font_size = 25
+  const text_color = color(1, 1, 0.5) //color(1,0.498,0.208)
+  const window_width = myScreen.x/5
+  const window_height = myScreen.y/4
+  const main_window = open_window("<b>ORBITAL PERIOD</b>",
+    (myScreen.x-window_width)/2,
+    myScreen.y - 20,
+    window_width,
+    window_height)
+
+  const main_box = main_window.add_vertical(10.0, Align.Stretch)
+
+  const body_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const body_label = body_box.add_label("     Body:", Align.Start)
+  body_label.font_size = text_font_size
+  const body_value = body_box.add_string_input(Align.Start, 10.0)
+  body_value.value = "Kerbin"
+
+  const peri_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const peri_label = peri_box.add_label("Periapsis:", Align.Start)
+  peri_label.font_size = text_font_size
+  const peri_value = peri_box.add_float_input(Align.Start, 10.0)
+  peri_value.value = 90000.0
+
+  const apo_box = main_box.add_horizontal(10.0,Align.Stretch, 10.0)
+  const apo_label = apo_box.add_label(" Apoapsis:", Align.Start)
+  apo_label.font_size = text_font_size
+  const apo_value = apo_box.add_float_input(Align.Start, 10.0)
+  apo_value.value = 90000.0
+  
+  const compute_button = main_box.add_button("Compute Period", Align.Center)
+  compute_button.font_size = button_font_size
+
+  const answer_canvas = main_window.add_canvas(window_width - 10, window_height/3, Align.Center)
+
+  compute_button.on_click(fn() -> {
+    answer_canvas.clear()
+    const can_height = answer_canvas.height
+    const can_width = answer_canvas.width
+
+    const bod = find_body(body_value.value).value
+    const Pe = peri_value.value
+    const Ap = apo_value.value
+    const R = bod.radius
+    const Mu = bod.grav_parameter
+    const r_p = R + Pe
+    const r_a = R + Ap
+    const a = (r_a + r_p)/2 // semi-major axis
+
+
+    const period = 2 * PI * sqrt(a**3 / Mu)
+    const period_min = floor(period / 60)
+    const period_sec = period % 60
+
+    answer_canvas.add_text(vec2(0, can_height - canva_font_size - 10), "Orbital Period: ", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(can_width / 2, can_height - canva_font_size - 10), period.to_fixed(1) + " s", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(can_width / 2, can_height - 2*canva_font_size - 10), period_min.to_fixed(0) + "'" + period_sec.to_fixed(1) + "''", canva_font_size, text_color)
+  })
+
+  while (true) {yield()}
+}

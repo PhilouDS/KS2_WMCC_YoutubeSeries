@@ -1,0 +1,59 @@
+use { CONSOLE, color } from ksp::console
+use { yield } from ksp::game
+use { sqrt, floor } from core::math
+use { vec2 } from ksp::math
+use { format } from core::str
+use { screen_size, open_centered_window, open_window, Align } from ksp::ui
+
+pub fn main_editor () -> Unit = {
+  CONSOLE.clear()
+
+  create_window()
+}
+
+
+fn create_window(scale: float=2.5) -> Unit = {
+  const myScreen = screen_size()
+  const button_font_size = 20
+  const text_font_size = 15
+  const canva_font_size = 20
+  const text_color = color(1, 1, 0.5) //color(1,0.498,0.208)
+  const window_width = myScreen.x/5.5
+  const window_height = myScreen.y/4
+  const main_window = open_window("<b>DELTA-V CONVERTOR</b>",
+    (myScreen.x-window_width)/2,
+    myScreen.y - 20,
+    window_width,
+    window_height)
+
+  const main_box = main_window.add_vertical(10.0, Align.Stretch)
+  const scale_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const scale_label = scale_box.add_label("          Scale:", Align.Start)
+  scale_label.font_size = text_font_size
+  const scale_value = scale_box.add_float_input(Align.Start, 10.0)
+  scale_value.value = scale
+
+  const oldDeltaV_box = main_box.add_horizontal(10.0,Align.Stretch, 10.0)
+  const oldDeltaV_label = oldDeltaV_box.add_label("Initial Delta-v:", Align.Start)
+  oldDeltaV_label.font_size = text_font_size
+  const oldDeltaV_value = oldDeltaV_box.add_float_input(Align.Start, 10.0)
+  oldDeltaV_value.value = 3400.0
+  
+  const convert_button = main_box.add_button("Convert", Align.Center)
+  convert_button.font_size = button_font_size
+
+  const answer_canvas = main_window.add_canvas(window_width - 10, window_height/4, Align.Center)
+
+  convert_button.on_click(fn() -> {
+    answer_canvas.clear()
+    const can_height = answer_canvas.height
+    const can_width = answer_canvas.width
+    answer_canvas.add_text(vec2(0, can_height - canva_font_size - 10), "   Stock delta-v:", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(can_width / 2, can_height - canva_font_size - 10), oldDeltaV_value.value.to_fixed(2) + " m/s", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(0, 10), "  Scaled delta-v:", canva_font_size, text_color)
+    const converted_deltaV = scale_value.value * oldDeltaV_value.value
+    answer_canvas.add_text(vec2(can_width / 2, 10), converted_deltaV.to_fixed(2) + " m/s", canva_font_size, text_color)
+  })
+
+  while (true) {yield()}
+}

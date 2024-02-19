@@ -1,0 +1,22 @@
+//____________________________________________________
+// LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use { Vessel, AutopilotMode, DeltaVSituation } from ksp::vessel
+use { CONSOLE } from ksp::console
+use { sqrt, max, min, abs, round } from core::math
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { Orbit } from ksp::orbit
+use { print_title } from lib::misc
+use { printScience, runScience } from lib::science
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel) -> Unit = {
+  CONSOLE.clear()
+
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
+}

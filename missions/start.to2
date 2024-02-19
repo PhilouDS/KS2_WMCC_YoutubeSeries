@@ -1,0 +1,38 @@
+//____________________________________________________
+// LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use { Vessel, AutopilotMode, DeltaVSituation } from ksp::vessel
+use { CONSOLE } from ksp::console
+use { sqrt, max, min, abs, round } from core::math
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { Orbit } from ksp::orbit
+use { print_title, end_of_mission } from lib::misc
+use { printScience, runScience } from lib::science
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel) -> Unit = {
+  CONSOLE.clear()
+
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
+
+  printScience(ship)
+  sleep(0.5)
+  runScience(ship, true)
+  sleep(1)
+
+  wait_until(fn() -> ship.staging.ready)
+  ship.staging.next()
+  CONSOLE.clear()
+
+  wait_until(fn() -> ship.altitude_sealevel > 5000)
+
+  runScience(ship, false)
+
+  wait_until(fn() -> ship.altitude_sealevel > 25000)
+  end_of_mission()
+}

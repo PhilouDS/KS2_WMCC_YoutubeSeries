@@ -1,0 +1,112 @@
+//____________________________________________________
+// LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use { Vessel, ModuleScienceExperiment } from ksp::vessel
+use { CONSOLE } from ksp::console
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { sqrt, max, min, abs, round, floor } from core::math
+use { format } from core::str
+use { Experiment, ExperimentState } from ksp::science
+use { print_title } from lib::misc
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+fn listOfScienceExp (craft: Vessel) -> Experiment[] = {
+  let scienceList: Experiment[] = []
+  for (PRT in craft.parts) {
+    if (PRT.is_science_experiment) {
+      scienceList += PRT.science_experiment.value.experiments
+    }
+  }
+  scienceList
+}
+
+pub fn runScience (craft: Vessel, waitExp: bool) -> Unit = {
+  const sciencePart = listOfScienceExp(craft)
+  let max_time = -1.0
+  let idx_science = -1
+  let exp_time = -1.0
+  let time_line = -1.0
+  const msg = "EXPERIMENT READY: PRESS SCIENCE BUTTON"
+  let printMsg = false
+
+  for (i in 0..sciencePart.length) {
+    if (sciencePart[i].current_experiment_state == ExperimentState.READY && sciencePart[i].current_situation_is_valid) {
+      printMsg = true
+      if (sciencePart[i].time_to_complete > max_time) {
+        max_time = sciencePart[i].time_to_complete
+        idx_science = i
+      }
+    }
+  }
+
+  if (printMsg) {
+    print_title(msg, CONSOLE.cursor_row, false)
+    const science_row = CONSOLE.cursor_row+2
+
+    if (waitExp) {
+      while(sciencePart[idx_science].current_experiment_state != ExperimentState.RUNNING) {yield()}
+      CONSOLE.print_line ("Please wait the end of experiment...")
+      while(sciencePart[idx_science].current_running_time > 0) {
+        exp_time = (sciencePart[idx_science].time_to_complete-sciencePart[idx_science].current_running_time)/sciencePart[idx_science].time_to_complete
+        time_line = round(floor(exp_time*100)/5)
+
+        print_title("Collecting Science...", science_row)
+        CONSOLE.print_at(science_row+3, 0, format("|| {0:P2}", exp_time))
+        CONSOLE.print_at(science_row+3, time_line.to_int+11, "|")
+        yield()
+      }
+      CONSOLE.print_at(science_row+3, 0, "|| 100 % |||")
+      sleep(2)
+      for (i in 1..4) CONSOLE.clear_line(science_row+i)
+      CONSOLE.print_line("All experiments done.")
+    }
+  }
+}
+
+pub fn printScience (craft: Vessel) -> Unit = {
+  CONSOLE.clear()
+  let expList: Experiment[] = []
+
+  for (PRT in craft.parts) {
+    if (PRT.is_science_experiment) {
+      print_title (PRT.part_name, CONSOLE.cursor_row, false)
+      expList = PRT.science_experiment.value.experiments
+
+      for (exp in expList) {
+        print_title("*** " + exp.definition.id + " ***", CONSOLE.cursor_row, false)
+        CONSOLE.print_line(format("{1,-25} {0:N2}",
+          (exp.time_to_complete, "--> Time to complete:")))
+
+        CONSOLE.print_line(format("{1,-25} {0:N2}",
+          (exp.definition.sample_value, "--> Sample value:")))
+
+        CONSOLE.print_line(format("{1,-25} {0:N2}",
+          (exp.definition.data_value, "--> Data value:")))
+
+        CONSOLE.print_line(format("{1,-25} {0:N2}",
+          (exp.definition.transmission_size, "--> Transmission size:")))
+
+        CONSOLE.print_line(format("{1,-25} {0}",
+          (exp.current_situation_is_valid, "--> Situation valid?")))
+
+        CONSOLE.print_line(format("{1,-25} {0}",
+          (exp.current_experiment_state, "--> Current state:")))
+
+        // CONSOLE.print_line(format("  --> Nbr of Valid Locations: {0:N0}",
+        //   exp.valid_locations.length))
+
+        // for (loc in exp.valid_locations) {
+        //   CONSOLE.print("- " + loc.science_situation.to_string() + " ")
+        // }
+        CONSOLE.print_line(" ")
+        CONSOLE.print_line("-------------------------------  ")
+      }
+    }
+  }
+  expList = []
+}

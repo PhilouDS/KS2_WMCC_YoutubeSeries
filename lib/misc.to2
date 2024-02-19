@@ -1,0 +1,22 @@
+//____________________________________________________
+// LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use { CONSOLE } from ksp::console
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=true) -> Unit = {
+  // for (i in 0..msg.length) {CONSOLE.print_at (row,i,"-")}
+  CONSOLE.print_at (row,0,msg)
+  for (i in 0..msg.length) {CONSOLE.print_at (row+1,i,"‾")}
+  if (!cursor_back) {CONSOLE.move_cursor(row+2,0)}
+}
+
+pub fn end_of_mission () -> Unit = {
+  CONSOLE.clear()
+  print_title("End of the mission.", CONSOLE.cursor_row, false)
+  CONSOLE.print_line("Nothing more to do. You can close this window.")
+}

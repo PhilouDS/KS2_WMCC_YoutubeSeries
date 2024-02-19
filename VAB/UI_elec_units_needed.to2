@@ -1,0 +1,104 @@
+use { CONSOLE, color } from ksp::console
+use { yield } from ksp::game
+use { find_body } from ksp::orbit
+use { sqrt, asin, floor } from core::math
+use { vec2 } from ksp::math
+use { screen_size, open_centered_window, open_window, Align } from ksp::ui
+
+// https://wiki.kerbalspaceprogram.com/wiki/Orbit_darkness_time
+
+pub fn main_editor () -> Unit = {
+  CONSOLE.clear()
+
+  create_window()
+}
+
+
+fn create_window() -> Unit = {
+  const myScreen = screen_size()
+  const button_font_size = 20
+  const text_font_size = 15
+  const canva_font_size = 25
+  const text_color = color(1, 1, 0.5) //color(1,0.498,0.208)
+  const window_width = myScreen.x/5
+  const window_height = myScreen.y/3
+  const main_window = open_window("<b>ELECTRICITY UNITS</b>",
+    (myScreen.x-window_width)/2,
+    myScreen.y - 20,
+    window_width,
+    window_height)
+
+  const main_box = main_window.add_vertical(10.0, Align.Stretch)
+
+  const body_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const body_label = body_box.add_label("               Body:", Align.Start)
+  body_label.font_size = text_font_size
+  const body_value = body_box.add_string_input(Align.Start, 10.0)
+  body_value.value = "Kerbin"
+
+  const peri_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const peri_label = peri_box.add_label("          Periapsis:", Align.Start)
+  peri_label.font_size = text_font_size
+  const peri_value = peri_box.add_float_input(Align.Start, 10.0)
+  peri_value.value = 90000.0
+
+  const apo_box = main_box.add_horizontal(10.0,Align.Stretch, 10.0)
+  const apo_label = apo_box.add_label("           Apoapsis:", Align.Start)
+  apo_label.font_size = text_font_size
+  const apo_value = apo_box.add_float_input(Align.Start, 10.0)
+  apo_value.value = 90000.0
+
+  const elec_box = main_box.add_horizontal(10.0,Align.Stretch, 10.0)
+  const elec_label = elec_box.add_label(" Max Consumption /s:", Align.Start)
+  elec_label.font_size = text_font_size
+  const unit_per_second = elec_box.add_float_input(Align.Start, 10.0)
+  unit_per_second.value = 0.0
+  
+  const compute_button = main_box.add_button("Compute Electricty Units", Align.Center)
+  compute_button.font_size = button_font_size
+
+  const answer_canvas = main_window.add_canvas(window_width - 10, window_height/3, Align.Center)
+
+  compute_button.on_click(fn() -> {
+    answer_canvas.clear()
+    const can_height = answer_canvas.height
+    const can_width = answer_canvas.width
+
+    const bod = find_body(body_value.value).value
+    const Pe = peri_value.value
+    const Ap = apo_value.value
+    const R = bod.radius
+    const Mu = bod.grav_parameter
+    const r_p = R + Pe
+    const r_a = R + Ap
+    const a = (r_a + r_p)/2 // semi-major axis
+    const b = sqrt(r_a * r_p) // semi minor axis
+    const e = (r_a - r_p)/(r_a + r_p) // eccentricity
+    const l = (2 * r_a * r_p) / (r_a + r_p) // the semi-latus rectum of the orbital ellipse
+    const h = sqrt(l * Mu) // specific angular momentum
+
+    const T_dark = (2/h)*(a*b) * (asin(R / b) + e * R / b)
+
+    const T_dark_min = floor(T_dark / 60)
+    const T_dark_sec = T_dark % 60
+
+    const unit_needed = T_dark * unit_per_second.value
+
+    let space = 1
+    answer_canvas.add_text(vec2(0, can_height - space*canva_font_size - 10), "  Time in shadow: ", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(can_width / 2 + 20, can_height - space*canva_font_size - 10), T_dark.to_fixed(1) + " s", canva_font_size, text_color)
+
+    space += 1
+    answer_canvas.add_text(vec2(can_width / 2 + 20, can_height - space*canva_font_size - 10), T_dark_min.to_fixed(0) + "'" + T_dark_sec.to_fixed(1) + "''", canva_font_size, text_color)
+
+    space += 1
+    answer_canvas.add_text(vec2(0, can_height - space*canva_font_size - 10), " Max consumption: ", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(can_width / 2 + 20, can_height - space*canva_font_size - 10), unit_per_second.value.to_fixed(2) + " U/s", canva_font_size, text_color)
+
+    space += 1
+    answer_canvas.add_text(vec2(0, can_height - space*canva_font_size - 10), "Max Units needed: ", canva_font_size, text_color)
+    answer_canvas.add_text(vec2(can_width / 2 + 20, can_height - space*canva_font_size - 10), unit_needed.to_fixed(2) + " U", canva_font_size, text_color)
+  })
+
+  while (true) {yield()}
+}
