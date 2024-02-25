@@ -51,9 +51,9 @@ fn create_window(scale: float=2.5) -> Unit = {
     answer_canvas.add_text(vec2(0, can_height - canva_font_size - 10), "   Stock delta-v:", canva_font_size, text_color)
     answer_canvas.add_text(vec2(can_width / 2, can_height - canva_font_size - 10), oldDeltaV_value.value.to_fixed(2) + " m/s", canva_font_size, text_color)
     answer_canvas.add_text(vec2(0, 10), "  Scaled delta-v:", canva_font_size, text_color)
-    const converted_deltaV = scale_value.value * oldDeltaV_value.value
+    const converted_deltaV = sqrt(scale_value.value) * oldDeltaV_value.value
     answer_canvas.add_text(vec2(can_width / 2, 10), converted_deltaV.to_fixed(2) + " m/s", canva_font_size, text_color)
   })
 
-  while (true) {yield()}
+  while (!main_window.is_closed) {yield()}
 }

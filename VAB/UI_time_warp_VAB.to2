@@ -1,0 +1,81 @@
+use { CONSOLE } from ksp::console
+use { yield, current_time } from ksp::game
+use { warp_to } from ksp::game::warp
+use { floor } from core::math
+use { screen_size, open_window, Align } from ksp::ui
+
+pub fn main_editor () -> Unit = {
+  CONSOLE.clear()
+
+  create_window()
+}
+
+
+fn create_window() -> Unit = {
+  const myScreen = screen_size()
+  const window_width = myScreen.x/5
+  const window_height = 50
+  const main_window = open_window("<b>CURRENT TIME</b>",
+    (myScreen.x-window_width)/2,
+    myScreen.y - 20,
+    window_width,
+    window_height)
+  
+  const hours_per_day = 6
+
+  const now_time: Cell<float> = Cell(current_time())
+
+  const now_time_days: Cell<float> = Cell(0)
+    now_time_days.value = floor(now_time.value / (hours_per_day*3600))
+  const days_in_game: Cell<float> = Cell(0)
+    days_in_game.value = now_time_days.value + 1
+  const now_time_hours: Cell<float> = Cell(0)
+    now_time_hours.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600)) / 3600)
+  const now_time_minutes: Cell<float> = Cell(0)
+    now_time_minutes.value = floor((now_time.value - now_time_hours.value*3600) / 60)
+  const now_time_seconds: Cell<float> = Cell(0) 
+    now_time_seconds.value = floor(now_time.value - now_time_hours.value*3600 - now_time_minutes.value*60)
+
+  const main_box = main_window.add_vertical(10.0, Align.Stretch)
+  const detail_box = main_window.add_horizontal(10.0, Align.Center)
+  main_window.add_spacer(20,0)
+  const warp_box = main_window.add_vertical(10.0, Align.Stretch)
+
+  const now_time_label = main_box.add_label("Current time (s):", Align.Stretch, now_time.value)
+  now_time_label.bind(now_time, "Current time: {0:N2} s")
+
+  const days_label = detail_box.add_label("day:", Align.Center)
+  days_label.bind(days_in_game, "{0:N0} d")
+
+  const hours_label = detail_box.add_label("hour:", Align.Center)
+  hours_label.bind(now_time_hours, "{0:N0} h")
+
+  const minutes_label = detail_box.add_label("min:", Align.Center)
+  minutes_label.bind(now_time_minutes, "{0:N0} min")
+  
+  const seconds_label = detail_box.add_label("sec:", Align.Center)
+  seconds_label.bind(now_time_seconds, "{0:N0} s")
+
+  const warp_input_box = warp_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const warp_label = warp_input_box.add_label("Warp (in seconds):", Align.Start)
+  const warp_value = warp_input_box.add_float_input(Align.Start, 10.0)
+  warp_value.value = 0
+
+  const warp_button = warp_box.add_button("WARP", Align.Center)
+  warp_button.on_click(fn() -> {
+    const now = current_time()
+    const deltaT = warp_value.value
+    warp_to(now + deltaT)
+  })
+  
+
+  while(!main_window.is_closed) {
+    now_time.value = current_time()
+    now_time_days.value = floor(now_time.value / (hours_per_day*3600))
+    days_in_game.value = now_time_days.value + 1
+    now_time_hours.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600)) / 3600)
+    now_time_minutes.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600) - now_time_hours.value*3600) / 60)
+    now_time_seconds.value = floor(now_time.value - now_time_days.value*(hours_per_day*3600) - now_time_hours.value*3600 - now_time_minutes.value*60)
+    yield()
+  }
+}
