@@ -26,7 +26,7 @@ pub fn main_flight (ship: Vessel) -> Unit = {
   sleep(0.5)
 
   ship.autopilot.enabled = false // SAS
-  vessel.autopilot.mode = AutopilotMode.Autopilot
+  ship.autopilot.mode = AutopilotMode.Autopilot
   ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
 
   end_of_mission(ship)
