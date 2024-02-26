@@ -1,5 +1,5 @@
 use { CONSOLE, color } from ksp::console
-use { yield } from ksp::game
+use { yield, wait_until } from ksp::game
 use { find_body } from ksp::orbit
 use { sqrt, asin, floor } from core::math
 use { vec2 } from ksp::math
@@ -10,11 +10,13 @@ use { screen_size, open_centered_window, open_window, Align } from ksp::ui
 pub fn main_editor () -> Unit = {
   CONSOLE.clear()
 
-  create_window()
+  const myWindow = create_window()
+
+  wait_until(fn() -> myWindow.is_closed)
 }
 
 
-fn create_window() -> Unit = {
+fn create_window() -> ksp::ui::Window = {
   const myScreen = screen_size()
   const button_font_size = 20
   const text_font_size = 15
@@ -81,5 +83,5 @@ fn create_window() -> Unit = {
     answer_canvas.add_text(vec2(can_width / 2, can_height - 2*canva_font_size - 10), T_dark_min.to_fixed(0) + "'" + T_dark_sec.to_fixed(1) + "''", canva_font_size, text_color)
   })
 
-  while (true) {yield()}
+  main_window
 }

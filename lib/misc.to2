@@ -3,6 +3,9 @@
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { wait_until, sleep } from ksp::game
+use { Vessel } from ksp::vessel
 
 //____________________________________________________
 // FUNCTIONS
@@ -15,8 +18,19 @@ pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=
   if (!cursor_back) {CONSOLE.move_cursor(row+2,0)}
 }
 
-pub fn end_of_mission () -> Unit = {
+pub fn end_of_mission (craft: Vessel) -> Unit = {
   CONSOLE.clear()
+  craft.set_throttle(0)
   print_title("End of the mission.", CONSOLE.cursor_row, false)
-  CONSOLE.print_line("Nothing more to do. You can close this window.")
+  CONSOLE.print_line("Window will be closed in:")
+  for (i in 0..3) {
+    CONSOLE.print_at(CONSOLE.cursor_row,0, (3-i).to_string())
+    sleep(1)
+  }
+  CONSOLE.clear()
+  CONSOLE_WINDOW.close()
+}
+
+pub fn wait_alt (craft: Vessel, alt: float) -> Unit = {
+  wait_until(fn() -> craft.altitude_sealevel > alt)
 }
