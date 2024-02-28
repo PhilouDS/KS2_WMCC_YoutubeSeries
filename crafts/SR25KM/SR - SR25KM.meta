@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SR - SR25KM",
+  "VehicleName": "SR25KM",
+  "Description": "Objective 25 km",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SR - SR25KM.png",
+  "Mass": 0.389375,
+  "SaveTime": 638444774157748819,
+  "Parts": 8,
+  "Stages": 1,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

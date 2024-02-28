@@ -1,0 +1,2789 @@
+{
+  "Metadata": {
+    "VersionString": "0.2",
+    "Name": "SR - SR25KM",
+    "VehicleName": "SR25KM",
+    "Description": "Objective 25 km",
+    "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SR - SR25KM.png",
+    "Mass": 0.389375,
+    "SaveTime": 638444774157748819,
+    "Parts": 8,
+    "Stages": 1,
+    "IsAutoSave": false,
+    "CampaignName": "WMCC+KS2_2.5x",
+    "IsBackupWorkspace": false,
+    "CriticalConcernLocTerms": []
+  },
+  "ActionType": "None",
+  "oabOrientation": "VAB",
+  "Assemblies": [
+    {
+      "assembly": "",
+      "Assembly": {
+        "Version": "0.1",
+        "Guid": {
+          "Guid": "00000000-0000-0000-0000-000000000000",
+          "DebugName": null
+        },
+        "OwnerPlayerGuidString": "",
+        "OwnerPlayerId": 0,
+        "AuthorityPlayerId": 0,
+        "AssemblyOABConfig": {
+          "RootGuid": {
+            "Guid": "4364fe62-c424-462d-99d7-98f11fe30054",
+            "DebugName": null
+          },
+          "StagingState": {
+            "availableStages": [
+              {
+                "partGuids": null,
+                "PartIds": [
+                  {
+                    "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+                    "DebugName": null
+                  },
+                  {
+                    "Guid": "e11983cf-5c73-48b1-91a9-bd036000c280",
+                    "DebugName": null
+                  }
+                ],
+                "StageID": 0,
+                "IsActive": false,
+                "DeltaVSituation": {
+                  "CelestialBody": "Kerbin",
+                  "IsAtmosphere": false,
+                  "Altitude": 0.0
+                }
+              }
+            ],
+            "unassignedParts": null,
+            "totalStageCount": 0
+          },
+          "PartRelationshipData": [],
+          "SymmetrySets": [
+            {
+              "Version": "0.1",
+              "SymmetryType": "Radial",
+              "Anchor": {
+                "Guid": "901e0854-c82e-48cb-a383-802d152a0d45",
+                "DebugName": null
+              },
+              "AllParts": [
+                {
+                  "Guid": "901e0854-c82e-48cb-a383-802d152a0d45",
+                  "DebugName": null
+                },
+                {
+                  "Guid": "b8585ac6-ed0c-446c-8fdf-a15ed924d366",
+                  "DebugName": null
+                }
+              ]
+            },
+            {
+              "Version": "0.1",
+              "SymmetryType": "Radial",
+              "Anchor": {
+                "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+                "DebugName": null
+              },
+              "AllParts": [
+                {
+                  "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+                  "DebugName": null
+                },
+                {
+                  "Guid": "e11983cf-5c73-48b1-91a9-bd036000c280",
+                  "DebugName": null
+                }
+              ]
+            }
+          ]
+        },
+        "AssemblyDefinition": {
+          "assemblyName": "SR25KM",
+          "localizationNameKey": "",
+          "version": "1",
+          "description": "Objective 25 km",
+          "simulationObjectType": "Vessel",
+          "offsetToGround": 1.42999816
+        },
+        "stagingState": {
+          "availableStages": [
+            {
+              "partGuids": null,
+              "PartIds": [
+                {
+                  "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+                  "DebugName": null
+                },
+                {
+                  "Guid": "e11983cf-5c73-48b1-91a9-bd036000c280",
+                  "DebugName": null
+                }
+              ],
+              "StageID": 0,
+              "IsActive": false,
+              "DeltaVSituation": {
+                "CelestialBody": "Kerbin",
+                "IsAtmosphere": false,
+                "Altitude": 0.0
+              }
+            }
+          ],
+          "unassignedParts": null,
+          "totalStageCount": 0
+        },
+        "partOwnerState": {
+          "virtualConnections": null
+        },
+        "maneuverPlanState": {
+          "maneuvers": null
+        },
+        "vesselState": {
+          "launchTime": null,
+          "landedAtBase": null,
+          "landedAtBaseTime": null,
+          "flightCtrlState": null,
+          "speedMode": null,
+          "autoSpeedMode": null,
+          "altimeterMode": null,
+          "autopilotMode": null,
+          "autoPilotState": null,
+          "isKerbalEVA": null,
+          "isRCSEnabled": null,
+          "flightControlsMode": null,
+          "actionGroupStates": null,
+          "PhysicsMode": null,
+          "currentTargetID": {
+            "Guid": "00000000-0000-0000-0000-000000000000",
+            "DebugName": null
+          },
+          "launchLocation": "Invalid",
+          "SubVessels": null,
+          "Situation": null,
+          "ControlState": null,
+          "CommandModulesState": null,
+          "MaxAltitudeReachedDuringFlight": null,
+          "CurrentControlOwnerPart": null
+        },
+        "kerbalState": {
+          "CurrentLadderPartId": null,
+          "LadderUpPosOffsetSigned": null,
+          "IsCarryingFlag": null
+        },
+        "scienceStorageState": {
+          "ResearchReports": null,
+          "ActiveTransmittingReports": null
+        },
+        "IsDebris": false,
+        "SymmetrySets": [
+          {
+            "Version": "0.1",
+            "SymmetryType": "Radial",
+            "Anchor": {
+              "Guid": "901e0854-c82e-48cb-a383-802d152a0d45",
+              "DebugName": null
+            },
+            "AllParts": [
+              {
+                "Guid": "901e0854-c82e-48cb-a383-802d152a0d45",
+                "DebugName": null
+              },
+              {
+                "Guid": "b8585ac6-ed0c-446c-8fdf-a15ed924d366",
+                "DebugName": null
+              }
+            ]
+          },
+          {
+            "Version": "0.1",
+            "SymmetryType": "Radial",
+            "Anchor": {
+              "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+              "DebugName": null
+            },
+            "AllParts": [
+              {
+                "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+                "DebugName": null
+              },
+              {
+                "Guid": "e11983cf-5c73-48b1-91a9-bd036000c280",
+                "DebugName": null
+              }
+            ]
+          }
+        ],
+        "location": {
+          "LocationType": "None",
+          "serializedOrbit": null,
+          "surfaceLocation": null,
+          "rigidbodyState": null,
+          "originatingSimObject": {
+            "Guid": "00000000-0000-0000-0000-000000000000",
+            "DebugName": null
+          },
+          "launchSituationUnknown": false
+        },
+        "parts": [
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "4364fe62-c424-462d-99d7-98f11fe30054",
+              "DebugName": null
+            },
+            "partName": "probe_0v_spherical_electricity",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "bottom",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "b1f97597-ff42-41a4-a06c-bd9afc5486a9",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "top",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": {
+                "ElectricCharge": {
+                  "name": "ElectricCharge",
+                  "storedUnits": 10.0,
+                  "capacityUnits": 10.0
+                }
+              },
+              "localPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "originalAttachLocalPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.7071068286895752,
+                "z": 0.0,
+                "w": 0.7071068286895752
+              },
+              "UserRotation": {
+                "x": 0.0,
+                "y": 0.70710676908493042,
+                "z": 0.0,
+                "w": 0.70710676908493042
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Command",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Command, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Command, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Command",
+                    "ModuleType": "KSP.Modules.Module_Command, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Command, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Command, Assembly-CSharp",
+                      "controlStatus": {
+                        "ContextKey": "controlStatus",
+                        "storedValue": "FullyFunctional"
+                      },
+                      "isCommandEnabled": {
+                        "ContextKey": "isCommandEnabled",
+                        "storedValue": true
+                      },
+                      "activeControlName": {
+                        "ContextKey": "activeControlName",
+                        "storedValue": "default"
+                      },
+                      "hibernate": {
+                        "ContextKey": "hibernate",
+                        "storedValue": false
+                      },
+                      "hibernateInWarp": {
+                        "ContextKey": "hibernateInWarp",
+                        "storedValue": false
+                      },
+                      "RequestConfigs": [
+                        {
+                          "FlowResource": {
+                            "Value": 9
+                          },
+                          "FlowUnits": 0.0,
+                          "TargetUnits": 0.0,
+                          "FlowDirection": "FLOW_OUTBOUND",
+                          "FlowModeOverride": "NULL",
+                          "FlowPriorityOffset": 0.0,
+                          "IngredientOverrides": null
+                        }
+                      ],
+                      "ModuleType": "KSP.Modules.Module_Command, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsHibernating": false,
+                      "DataType": "KSP.Modules.Data_Command, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ResourceCapacities",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ResourceCapacities",
+                    "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ReactionWheel",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ReactionWheel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ReactionWheel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ReactionWheel",
+                    "ModuleType": "KSP.Modules.Module_ReactionWheel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ReactionWheel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ReactionWheel, Assembly-CSharp",
+                      "WheelAuthority": {
+                        "ContextKey": "WheelAuthority",
+                        "storedValue": 1.0
+                      },
+                      "WheelActuatorMode": {
+                        "ContextKey": "WheelActuatorMode",
+                        "storedValue": "All"
+                      },
+                      "ToggleTorque": {
+                        "ContextKey": "ToggleTorque",
+                        "storedValue": true
+                      },
+                      "WheelState": "Active",
+                      "HasResourcesToOperate": false,
+                      "HasPendingResourceActivity": false,
+                      "InputSumForResource": 0.0,
+                      "ModuleType": "KSP.Modules.Module_ReactionWheel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "HasPendingInputActivity": false,
+                      "DataType": "KSP.Modules.Data_ReactionWheel, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_DataTransmitter",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_DataTransmitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_DataTransmitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Transmitter",
+                    "ModuleType": "KSP.Modules.Module_DataTransmitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Transmitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Transmitter, Assembly-CSharp",
+                      "HasResourcesToOperate": false,
+                      "HasPendingResourceActivity": false,
+                      "IsTransmitting": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      },
+                      "ActiveTransmissionSize": 0.0,
+                      "ActiveTransmissionCompleted": 0.0,
+                      "ActiveTransmissionReportId": "",
+                      "ModuleType": "KSP.Modules.Module_DataTransmitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Transmitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_CrewedInterior",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_CrewedInterior, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_CrewedInterior, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_CrewedInterior",
+                    "ModuleType": "KSP.Modules.Module_CrewedInterior, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_CrewedInterior, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_CrewedInterior, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_CrewedInterior, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_CrewedInterior, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ScienceExperiment",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ScienceExperiment, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ScienceExperiment, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ScienceExperiment",
+                    "ModuleType": "KSP.Modules.Module_ScienceExperiment, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ScienceExperiment, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ScienceExperiment, Assembly-CSharp",
+                      "ExperimentStandings": [],
+                      "CurrentRegionIsInitial": false,
+                      "LastKnownValidSituation": {
+                        "CelestialBodyScalar": 0.0,
+                        "ScienceRegionScalar": 0.0,
+                        "SituationScalar": 0.0,
+                        "ResearchLocation": null
+                      },
+                      "ModuleType": "KSP.Modules.Module_ScienceExperiment, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ScienceExperiment, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "901e0854-c82e-48cb-a383-802d152a0d45",
+              "DebugName": null
+            },
+            "partName": "storage_0v_battery_electricity_radial",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "4364fe62-c424-462d-99d7-98f11fe30054",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": {
+                "ElectricCharge": {
+                  "name": "ElectricCharge",
+                  "storedUnits": 100.0,
+                  "capacityUnits": 100.0
+                }
+              },
+              "localPosition": {
+                "x": 0.0,
+                "y": -0.14338302612304688,
+                "z": -0.19460296630859375
+              },
+              "originalAttachLocalPosition": {
+                "x": 0.30750277638435364,
+                "y": -0.14338302612304688,
+                "z": 2.9802322387695313E-08
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": 0.70710688829422,
+                "z": 0.0,
+                "w": -0.70710676908493042
+              },
+              "UserRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ResourceCapacities",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ResourceCapacities",
+                    "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "b8585ac6-ed0c-446c-8fdf-a15ed924d366",
+              "DebugName": null
+            },
+            "partName": "storage_0v_battery_electricity_radial",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "4364fe62-c424-462d-99d7-98f11fe30054",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": {
+                "ElectricCharge": {
+                  "name": "ElectricCharge",
+                  "storedUnits": 100.0,
+                  "capacityUnits": 100.0
+                }
+              },
+              "localPosition": {
+                "x": 0.0,
+                "y": -0.14338302612304688,
+                "z": 0.19460296630859375
+              },
+              "originalAttachLocalPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "localRotation": {
+                "x": 0.0,
+                "y": -0.70710676908493042,
+                "z": 0.0,
+                "w": -0.70710688829422
+              },
+              "UserRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ResourceCapacities",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ResourceCapacities",
+                    "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "b1f97597-ff42-41a4-a06c-bd9afc5486a9",
+              "DebugName": null
+            },
+            "partName": "fueltank_0v_inline_methalox",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "top",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "4364fe62-c424-462d-99d7-98f11fe30054",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "bottom",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                },
+                {
+                  "nodeId": "bottom",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "e518d56b-7e07-4be0-a865-522cc258c86a",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "top",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                },
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "00000000-0000-0000-0000-000000000000",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": {
+                "Methane": {
+                  "name": "Methane",
+                  "storedUnits": 0.017,
+                  "capacityUnits": 0.017
+                },
+                "Oxidizer": {
+                  "name": "Oxidizer",
+                  "storedUnits": 0.068,
+                  "capacityUnits": 0.068
+                }
+              },
+              "localPosition": {
+                "x": 0.0,
+                "y": -0.54199981689453125,
+                "z": 0.0
+              },
+              "originalAttachLocalPosition": {
+                "x": 0.0,
+                "y": -0.36299896240234375,
+                "z": 0.0
+              },
+              "localRotation": {
+                "x": 8.4293702684590244E-08,
+                "y": 0.7071068286895752,
+                "z": 8.4293702684590244E-08,
+                "w": 0.7071068286895752
+              },
+              "UserRotation": {
+                "x": 0.0,
+                "y": 0.70710676908493042,
+                "z": 0.0,
+                "w": 0.70710676908493042
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ResourceCapacities",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ResourceCapacities",
+                    "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "e518d56b-7e07-4be0-a865-522cc258c86a",
+              "DebugName": null
+            },
+            "partName": "fueltank_0v_inline_methalox",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "top",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "b1f97597-ff42-41a4-a06c-bd9afc5486a9",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "bottom",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                },
+                {
+                  "nodeId": "bottom",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "7be04c8d-ff35-48f6-9ef8-c300b4a459c6",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "top",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                },
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "00000000-0000-0000-0000-000000000000",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": {
+                "Methane": {
+                  "name": "Methane",
+                  "storedUnits": 0.017,
+                  "capacityUnits": 0.017
+                },
+                "Oxidizer": {
+                  "name": "Oxidizer",
+                  "storedUnits": 0.068,
+                  "capacityUnits": 0.068
+                }
+              },
+              "localPosition": {
+                "x": 0.0,
+                "y": -0.90000152587890625,
+                "z": 0.0
+              },
+              "originalAttachLocalPosition": {
+                "x": -4.2677129385992885E-08,
+                "y": -0.1790008544921875,
+                "z": 0.0
+              },
+              "localRotation": {
+                "x": 1.6858744800174463E-07,
+                "y": 0.7071068286895752,
+                "z": 1.6858744800174463E-07,
+                "w": 0.7071068286895752
+              },
+              "UserRotation": {
+                "x": 3.37174810738361E-07,
+                "y": 0.7071068286895752,
+                "z": 3.37174810738361E-07,
+                "w": 0.7071068286895752
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ResourceCapacities",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ResourceCapacities",
+                    "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "7be04c8d-ff35-48f6-9ef8-c300b4a459c6",
+              "DebugName": null
+            },
+            "partName": "fueltank_0v_inline_methalox",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "top",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "e518d56b-7e07-4be0-a865-522cc258c86a",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "bottom",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                },
+                {
+                  "nodeId": "bottom",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "00000000-0000-0000-0000-000000000000",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                },
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "00000000-0000-0000-0000-000000000000",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": {
+                "Methane": {
+                  "name": "Methane",
+                  "storedUnits": 0.017,
+                  "capacityUnits": 0.017
+                },
+                "Oxidizer": {
+                  "name": "Oxidizer",
+                  "storedUnits": 0.068,
+                  "capacityUnits": 0.068
+                }
+              },
+              "localPosition": {
+                "x": 0.0,
+                "y": -1.2580032348632813,
+                "z": 0.0
+              },
+              "originalAttachLocalPosition": {
+                "x": -3.4141706350965251E-07,
+                "y": -0.1790008544921875,
+                "z": 0.0
+              },
+              "localRotation": {
+                "x": 2.4864533543222933E-07,
+                "y": 0.7071068286895752,
+                "z": 2.4864533543222933E-07,
+                "w": 0.7071068286895752
+              },
+              "UserRotation": {
+                "x": 4.172326271145721E-07,
+                "y": 0.7071068286895752,
+                "z": 4.172326271145721E-07,
+                "w": 0.7071068286895752
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_ResourceCapacities",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ResourceCapacities",
+                    "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ResourceCapacities, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "b1699370-8bfe-4bd8-b5ce-96e501873ce1",
+              "DebugName": null
+            },
+            "partName": "engine_0v_methalox_spider",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "7be04c8d-ff35-48f6-9ef8-c300b4a459c6",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": null,
+              "localPosition": {
+                "x": 0.0,
+                "y": -1.1275138854980469,
+                "z": -0.3076934814453125
+              },
+              "originalAttachLocalPosition": {
+                "x": 0.30769369006156921,
+                "y": 0.13048914074897766,
+                "z": 2.9802315282267955E-08
+              },
+              "localRotation": {
+                "x": -2.5279967985625262E-07,
+                "y": 0.70710688829422,
+                "z": 2.5279973669967148E-07,
+                "w": -0.70710676908493042
+              },
+              "UserRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Engine",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Engine",
+                    "ModuleType": "KSP.Modules.Module_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Engine, Assembly-CSharp",
+                      "IndependentThrottle": {
+                        "ContextKey": "IndependentThrottle",
+                        "storedValue": false
+                      },
+                      "IndependentThrottlePercentage": {
+                        "ContextKey": "IndependentThrottlePercentage",
+                        "storedValue": 0.0
+                      },
+                      "activeEngineMode": {
+                        "ContextKey": "activeEngineMode",
+                        "storedValue": "default"
+                      },
+                      "EngineStatePriorChangeMode": "Off",
+                      "EngineChangingToMode": 0,
+                      "EngineAutoSwitchMode": {
+                        "ContextKey": "EngineAutoSwitchMode",
+                        "storedValue": true
+                      },
+                      "thrustPercentage": {
+                        "ContextKey": "thrustPercentage",
+                        "storedValue": 100.0
+                      },
+                      "FinalThrustValue": 0.0,
+                      "RealISPValue": 0.0,
+                      "stagingOn": {
+                        "ContextKey": "stagingOn",
+                        "storedValue": true
+                      },
+                      "staged": false,
+                      "Flameout": false,
+                      "EngineIgnited": false,
+                      "EngineShutdown": false,
+                      "currentThrottle": 0.0,
+                      "thrustCurveDisplay": 1.0,
+                      "thrustCurveRatio": 1.0,
+                      "EngineSpool": 0.0,
+                      "ThrustDirRelativePartWorldSpace": {
+                        "x": -4.21469721E-08,
+                        "y": 1.00000036,
+                        "z": 1.43051147E-06
+                      },
+                      "currentEngineModeIndex": 0,
+                      "ModuleType": "KSP.Modules.Module_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "State": "Off",
+                      "IsOperational": false,
+                      "DataType": "KSP.Modules.Data_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": true
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Gimbal",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Gimbal",
+                    "ModuleType": "KSP.Modules.Module_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Gimbal, Assembly-CSharp",
+                      "isEnabled": {
+                        "ContextKey": "isEnabled",
+                        "storedValue": true
+                      },
+                      "gimbalLimiter": {
+                        "ContextKey": "gimbalLimiter",
+                        "storedValue": 100.0
+                      },
+                      "enablePitch": {
+                        "ContextKey": "enablePitch",
+                        "storedValue": true
+                      },
+                      "enableYaw": {
+                        "ContextKey": "enableYaw",
+                        "storedValue": true
+                      },
+                      "enableRoll": {
+                        "ContextKey": "enableRoll",
+                        "storedValue": true
+                      },
+                      "IsAdvancedSettingsShown": {
+                        "ContextKey": "IsAdvancedSettingsShown",
+                        "storedValue": false
+                      },
+                      "ModuleType": "KSP.Modules.Module_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Generator",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ModuleGenerator",
+                    "ModuleType": "KSP.Modules.Module_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ModuleGenerator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ModuleGenerator, Assembly-CSharp",
+                      "GeneratorEnabled": {
+                        "ContextKey": "GeneratorEnabled",
+                        "storedValue": true
+                      },
+                      "GeneratorIsActive": false,
+                      "IsDecaying": false,
+                      "CurrentDecayTime": 0.0,
+                      "RequestConfig": {
+                        "FlowResource": {
+                          "Value": 9
+                        },
+                        "FlowUnits": 0.0,
+                        "TargetUnits": 0.0,
+                        "FlowDirection": "FLOW_INBOUND",
+                        "FlowModeOverride": "NULL",
+                        "FlowPriorityOffset": 0.0,
+                        "IngredientOverrides": null
+                      },
+                      "ModuleType": "KSP.Modules.Module_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ModuleGenerator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          },
+          {
+            "partGuid": null,
+            "PartGuid": {
+              "Guid": "e11983cf-5c73-48b1-91a9-bd036000c280",
+              "DebugName": null
+            },
+            "partName": "engine_0v_methalox_spider",
+            "partState": {
+              "partOwnerGuid": null,
+              "PartOwnerGuid": {
+                "Guid": "00000000-0000-0000-0000-000000000000",
+                "DebugName": null
+              },
+              "partStatus": "NONE",
+              "attachNodeStates": [
+                {
+                  "nodeId": "srfAttach",
+                  "IsDynamic": false,
+                  "attachedPartGuid": null,
+                  "AttachedPartGuid": {
+                    "Guid": "7be04c8d-ff35-48f6-9ef8-c300b4a459c6",
+                    "DebugName": null
+                  },
+                  "attachedPartNodeID": "",
+                  "SizeForDynamic": 0.0,
+                  "LocalPositionForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                  },
+                  "LocalRotationForDynamic": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 0.0
+                  }
+                }
+              ],
+              "resources": null,
+              "localPosition": {
+                "x": 0.0,
+                "y": -1.1275138854980469,
+                "z": 0.3076934814453125
+              },
+              "originalAttachLocalPosition": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+              },
+              "localRotation": {
+                "x": -2.4449096258649661E-07,
+                "y": -0.7071068286895752,
+                "z": -2.4449096258649661E-07,
+                "w": -0.7071068286895752
+              },
+              "UserRotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0,
+                "w": 1.0
+              },
+              "isMirrored": false,
+              "StageIndex": 0,
+              "FuelCrossfeed": true,
+              "Temperature": "-Infinity",
+              "partPropertyOverrides": null
+            },
+            "PartModulesState": [
+              {
+                "Name": "PartComponentModule_Engine",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Engine",
+                    "ModuleType": "KSP.Modules.Module_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Engine, Assembly-CSharp",
+                      "IndependentThrottle": {
+                        "ContextKey": "IndependentThrottle",
+                        "storedValue": false
+                      },
+                      "IndependentThrottlePercentage": {
+                        "ContextKey": "IndependentThrottlePercentage",
+                        "storedValue": 0.0
+                      },
+                      "activeEngineMode": {
+                        "ContextKey": "activeEngineMode",
+                        "storedValue": "default"
+                      },
+                      "EngineStatePriorChangeMode": "Off",
+                      "EngineChangingToMode": 0,
+                      "EngineAutoSwitchMode": {
+                        "ContextKey": "EngineAutoSwitchMode",
+                        "storedValue": true
+                      },
+                      "thrustPercentage": {
+                        "ContextKey": "thrustPercentage",
+                        "storedValue": 100.0
+                      },
+                      "FinalThrustValue": 0.0,
+                      "RealISPValue": 0.0,
+                      "stagingOn": {
+                        "ContextKey": "stagingOn",
+                        "storedValue": true
+                      },
+                      "staged": false,
+                      "Flameout": false,
+                      "EngineIgnited": false,
+                      "EngineShutdown": false,
+                      "currentThrottle": 0.0,
+                      "thrustCurveDisplay": 1.0,
+                      "thrustCurveRatio": 1.0,
+                      "EngineSpool": 0.0,
+                      "ThrustDirRelativePartWorldSpace": {
+                        "x": 0.0,
+                        "y": 1.00000036,
+                        "z": 5.96046448E-07
+                      },
+                      "currentEngineModeIndex": 0,
+                      "ModuleType": "KSP.Modules.Module_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "State": "Off",
+                      "IsOperational": false,
+                      "DataType": "KSP.Modules.Data_Engine, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": true
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Gimbal",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Gimbal",
+                    "ModuleType": "KSP.Modules.Module_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Gimbal, Assembly-CSharp",
+                      "isEnabled": {
+                        "ContextKey": "isEnabled",
+                        "storedValue": true
+                      },
+                      "gimbalLimiter": {
+                        "ContextKey": "gimbalLimiter",
+                        "storedValue": 100.0
+                      },
+                      "enablePitch": {
+                        "ContextKey": "enablePitch",
+                        "storedValue": true
+                      },
+                      "enableYaw": {
+                        "ContextKey": "enableYaw",
+                        "storedValue": true
+                      },
+                      "enableRoll": {
+                        "ContextKey": "enableRoll",
+                        "storedValue": true
+                      },
+                      "IsAdvancedSettingsShown": {
+                        "ContextKey": "IsAdvancedSettingsShown",
+                        "storedValue": false
+                      },
+                      "ModuleType": "KSP.Modules.Module_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Gimbal, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Generator",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_ModuleGenerator",
+                    "ModuleType": "KSP.Modules.Module_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ModuleGenerator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ModuleGenerator, Assembly-CSharp",
+                      "GeneratorEnabled": {
+                        "ContextKey": "GeneratorEnabled",
+                        "storedValue": true
+                      },
+                      "GeneratorIsActive": false,
+                      "IsDecaying": false,
+                      "CurrentDecayTime": 0.0,
+                      "RequestConfig": {
+                        "FlowResource": {
+                          "Value": 9
+                        },
+                        "FlowUnits": 0.0,
+                        "TargetUnits": 0.0,
+                        "FlowDirection": "FLOW_INBOUND",
+                        "FlowModeOverride": "NULL",
+                        "FlowPriorityOffset": 0.0,
+                        "IngredientOverrides": null
+                      },
+                      "ModuleType": "KSP.Modules.Module_Generator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ModuleGenerator, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Color",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Color",
+                    "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Color, Assembly-CSharp",
+                      "Base": {
+                        "ContextKey": "Base",
+                        "storedValue": {
+                          "r": 0.8273771,
+                          "g": 0.8846108,
+                          "b": 0.98,
+                          "a": 1.0
+                        }
+                      },
+                      "Accent": {
+                        "ContextKey": "Accent",
+                        "storedValue": {
+                          "r": 0.976,
+                          "g": 0.228235379,
+                          "b": 0.06799998,
+                          "a": 1.0
+                        }
+                      },
+                      "ModuleType": "KSP.Modules.Module_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Color, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "Name": "PartComponentModule_Drag",
+                "ComponentType": "KSP.Sim.impl.PartComponentModule_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "BehaviourType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                "ModuleData": [
+                  {
+                    "Name": "Data_Drag",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_Drag, Assembly-CSharp",
+                      "UpdateExposedArea": false,
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ThermalOcclusionData",
+                    "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp",
+                      "ModuleType": "KSP.Modules.Module_Drag, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "DataType": "KSP.Modules.Data_ThermalOcclusionData, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  },
+                  {
+                    "Name": "Data_ModuleActions",
+                    "ModuleType": null,
+                    "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                    "Data": null,
+                    "DataObject": {
+                      "$type": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp",
+                      "customActionMappings": {},
+                      "ModuleType": null,
+                      "DataType": "KSP.Sim.Definitions.Data_ModuleActions, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null",
+                      "IsActiveInStagingProp": {
+                        "ContextKey": null,
+                        "storedValue": false
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "ModulesState": null,
+            "LegacyModulesState": null,
+            "partSwitchOverrides": null
+          }
+        ],
+        "CameraGimbalSate": {
+          "distance": 0.0,
+          "pitch": 0.0,
+          "heading": 0.0,
+          "roll": 0.0,
+          "localPitch": 0.0,
+          "localHeading": 0.0,
+          "pan": {
+            "x": 0.0,
+            "y": 0.0
+          }
+        }
+      },
+      "isMainAssembly": true,
+      "position": {
+        "x": 3.00000215,
+        "y": 39.86049,
+        "z": 44.0
+      },
+      "boundsSize": {
+        "x": 0.8928499,
+        "y": 2.06642151,
+        "z": 0.895385742
+      }
+    }
+  ]
+}
