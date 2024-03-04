@@ -1,27 +1,40 @@
 //____________________________________________________
-// LIBRARIES
+// CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-
-use { Vessel, AutopilotMode, DeltaVSituation } from ksp::vessel
-use { CONSOLE } from ksp::console
-use { CONSOLE_WINDOW } from ksp::ui
 use { sqrt, max, min, abs, round } from core::math
-use { vec2 } from ksp::math
 use { format } from core::str
-use { sleep, wait_until, yield, current_time } from ksp::game
-use { Orbit } from ksp::orbit
-use { print_title, end_of_mission, wait_alt } from lib::misc
-use { print_science, run_science, transmit_data, check_science } from lib::science
 
 //____________________________________________________
-// FUNCTIONS
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation } from ksp::vessel
+use { Orbit, find_body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { print_title, end_of_mission, wait_alt } from lib::misc
+use { print_science, run_science, transmit_data, check_science } from lib::science
+use { info_gt, info_orbit, first_info } from lib::show_info
+use { countdown, launch_from_north } from lib::prep_launch
+use { check_staging, trigger_staging, gravity_turn } from lib::in_flight
+use { exe_mnv, go_to_from, circ_at } from lib::adjusted_mnv
+
+//____________________________________________________
+// MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn main_flight (ship: Vessel) -> Unit = {
+pub fn main_flight (ship: Vessel, pitchAng: float = 85, pitchVel: float = 60, targetApo: float = 125000) -> Unit = {
   CONSOLE.clear()
   
   CONSOLE_WINDOW.open()
-  CONSOLE_WINDOW.size = vec2(500,600) 
+  CONSOLE_WINDOW.size = vec2(500,600)
+
+  let fromNorth = 90.0
   
   sleep(0.5)
 
@@ -31,3 +44,7 @@ pub fn main_flight (ship: Vessel) -> Unit = {
 
   end_of_mission(ship)
 }
+
+//____________________________________________________
+// OTHER FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾

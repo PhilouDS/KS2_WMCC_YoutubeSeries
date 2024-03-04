@@ -1,0 +1,41 @@
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { Vessel } from ksp::vessel
+use { CONSOLE } from ksp::console
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn first_info (list: string[]) -> Unit = {
+  for (str in list) {
+    CONSOLE.print_line(str)
+  }
+}
+
+pub fn info_gt(craft: Vessel, pitch: float, start_row: int, obt: bool = true) -> Unit = {
+  CONSOLE.print_at(start_row,0, format("{0,14} {1:N1}° ", ("Pitch angle: ", pitch)))
+  CONSOLE.print_at(start_row + 1,0, format("{0,14} {1:N1} m ", ("Altitude: ", craft.altitude_sealevel)))
+  if (!obt) {
+    CONSOLE.print_at(start_row + 2,0, format("{0,14} {1:N1} m/s ", ("Surface Vel: ", craft.surface_velocity.magnitude)))
+  } else {
+    CONSOLE.print_at(start_row + 2,0, format("{0,14} {1:N1} m/s ", ("Orbital Vel: ", craft.orbital_velocity.magnitude)))
+  }
+}
+
+pub fn info_orbit(craft: Vessel, start_row: int) -> Unit = {
+  CONSOLE.print_at(start_row, 0, format("{0,14} {1:N1} m", ("Apoapsis: ", craft.orbit.apoapsis.value)))
+  CONSOLE.print_at(start_row + 1,0, format("{0,14} {1:N1} m", ("Periapsis: ", craft.orbit.periapsis)))
+  CONSOLE.print_at(start_row + 2,0, format("{0,14} {1:N5}", ("Eccentricity: ", craft.orbit.eccentricity)))
+  CONSOLE.print_at(start_row + 3,0, format("{0,14} {1:N1}°", ("Inclination: ", craft.orbit.inclination)))
+}

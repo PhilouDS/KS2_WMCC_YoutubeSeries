@@ -1,8 +1,23 @@
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { floor } from core::math
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
+use { screen_size, open_window, Align } from ksp::ui
 use { yield, current_time } from ksp::game
 use { warp_to } from ksp::game::warp
-use { floor } from core::math
-use { screen_size, open_window, Align } from ksp::ui
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 pub fn main_editor () -> Unit = {
   CONSOLE.clear()
@@ -15,9 +30,10 @@ fn create_window() -> Unit = {
   const myScreen = screen_size()
   const window_width = myScreen.x/5
   const window_height = 50
+  const text_font_size = 15
   const main_window = open_window("<b>CURRENT TIME</b>",
-    (myScreen.x-window_width)/2,
-    myScreen.y - 20,
+    (myScreen.x-window_width-10),
+    myScreen.y - 40,
     window_width,
     window_height)
   
@@ -38,26 +54,43 @@ fn create_window() -> Unit = {
 
   const main_box = main_window.add_vertical(10.0, Align.Stretch)
   const detail_box = main_window.add_horizontal(10.0, Align.Center)
-  main_window.add_spacer(20,0)
+  
+  const toggle_box = main_window.add_vertical(10.0, Align.Stretch)
+  
   const warp_box = main_window.add_vertical(10.0, Align.Stretch)
 
-  const now_time_label = main_box.add_label("Current time (s):", Align.Stretch, now_time.value)
+  const now_time_label = main_box.add_label("Current time (s):", Align.Stretch)
   now_time_label.bind(now_time, "Current time: {0:N2} s")
+  now_time_label.font_size = text_font_size
 
   const days_label = detail_box.add_label("day:", Align.Center)
   days_label.bind(days_in_game, "{0:N0} d")
+  days_label.font_size = text_font_size
 
   const hours_label = detail_box.add_label("hour:", Align.Center)
   hours_label.bind(now_time_hours, "{0:N0} h")
+  hours_label.font_size = text_font_size
 
   const minutes_label = detail_box.add_label("min:", Align.Center)
   minutes_label.bind(now_time_minutes, "{0:N0} min")
+  minutes_label.font_size = text_font_size
   
   const seconds_label = detail_box.add_label("sec:", Align.Center)
   seconds_label.bind(now_time_seconds, "{0:N0} s")
+  seconds_label.font_size = text_font_size
+
+  
+  const toggle_sec = toggle_box.add_toggle("WARP to Current time + DeltaT", Align.Start)
+  toggle_sec.value = true
+  toggle_sec.font_size = text_font_size
+  const toggle_UT = toggle_box.add_toggle("WARP to new UT", Align.Start)
+  toggle_UT.value = false
+  toggle_UT.font_size = text_font_size
+
 
   const warp_input_box = warp_box.add_horizontal(10.0, Align.Stretch, 10.0)
-  const warp_label = warp_input_box.add_label("Warp (in seconds):", Align.Start)
+  const warp_label = warp_input_box.add_label("Warp (deltaT in sec):", Align.Start)
+  warp_label.font_size = text_font_size
   const warp_value = warp_input_box.add_float_input(Align.Start, 10.0)
   warp_value.value = 0
 
@@ -65,8 +98,30 @@ fn create_window() -> Unit = {
   warp_button.on_click(fn() -> {
     const now = current_time()
     const deltaT = warp_value.value
-    warp_to(now + deltaT)
+    if (toggle_sec.value) {
+      warp_to(now + deltaT)
+    }
+    else {
+      warp_to(deltaT)
+    }
   })
+
+  toggle_sec.on_change(fn(b) -> {
+    if (toggle_sec.value) {
+      toggle_UT.value = false
+      warp_label.text = "Warp (deltaT in sec)"
+    }
+    CONSOLE.clear()
+  })
+
+  toggle_UT.on_change(fn(b) -> {
+    if (toggle_UT.value) {
+      toggle_sec.value = false
+      warp_label.text = "Warp (UT in sec)"
+    }
+    CONSOLE.clear()
+  })
+
   
 
   while(!main_window.is_closed) {
@@ -76,6 +131,10 @@ fn create_window() -> Unit = {
     now_time_hours.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600)) / 3600)
     now_time_minutes.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600) - now_time_hours.value*3600) / 60)
     now_time_seconds.value = floor(now_time.value - now_time_days.value*(hours_per_day*3600) - now_time_hours.value*3600 - now_time_minutes.value*60)
+
+    toggle_sec.enabled = !toggle_sec.value
+    toggle_UT.enabled = !toggle_UT.value
+
     yield()
   }
 }

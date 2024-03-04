@@ -1,9 +1,24 @@
-use { CONSOLE, color } from ksp::console
-use { yield } from ksp::game
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { sqrt, floor } from core::math
-use { vec2 } from ksp::math
 use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE, color } from ksp::console
 use { screen_size, open_centered_window, open_window, Align } from ksp::ui
+use { yield } from ksp::game
+use { vec2 } from ksp::math
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 pub fn main_editor () -> Unit = {
   CONSOLE.clear()
@@ -21,8 +36,8 @@ fn create_window(scale: float=2.5) -> Unit = {
   const window_width = myScreen.x/5.5
   const window_height = myScreen.y/4
   const main_window = open_window("<b>DELTA-V CONVERTOR</b>",
-    (myScreen.x-window_width)/2,
-    myScreen.y - 20,
+    0.25*myScreen.x,
+    0.4*myScreen.y,
     window_width,
     window_height)
 

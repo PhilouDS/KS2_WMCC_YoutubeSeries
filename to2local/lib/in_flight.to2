@@ -1,0 +1,97 @@
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { CONSOLE } from ksp::console
+use { Vessel } from ksp::vessel
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { info_gt, info_orbit } from lib::show_info
+use { print_title } from lib::misc
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn gravity_turn (craft: Vessel, target_apo: float, angle_from_north: float, pitch_angle: float) -> Unit = {
+  CONSOLE.clear()
+
+  print_title("GRAVITY TURN IN PROGRESS", 0, false)
+  const this_row = CONSOLE.cursor_row
+
+  let angle_update = 0.0
+  let t_gt = current_time()
+  while(craft.facing.vector.angle_to(craft.heading_direction(angle_from_north, pitch_angle, 0).vector) > 0.5) {
+    angle_update = (90 - pitch_angle)*(current_time()-t_gt)/3.0
+    craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, 90-angle_update, 0).vector
+    yield()
+  }
+
+  wait_until (fn() -> craft.facing.vector.angle_to(craft.surface_velocity) < 0.5)
+  
+  let angle_above_horizon = 90 - craft.up.angle_to(craft.surface_velocity)
+  
+  while (craft.altitude_sealevel < 36000) {
+    check_staging(craft)
+    angle_above_horizon = 90 - craft.up.angle_to(craft.surface_velocity)
+    craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, angle_above_horizon, 0).vector
+    info_gt(craft, angle_above_horizon, this_row, false)
+    info_orbit(craft, this_row + 4)  
+    yield()
+  }
+
+  while (craft.orbit.apoapsis.value < target_apo) {
+    check_staging(craft)
+    angle_above_horizon = 90 - craft.up.angle_to(craft.orbit.prograde(current_time()))
+    craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, angle_above_horizon, 0).vector
+    info_gt(craft, angle_above_horizon, this_row)
+    info_orbit(craft, this_row + 4)   
+    yield()
+  }
+  
+  yield()
+  craft.set_throttle(0)
+  CONSOLE.clear()
+  print_title("GRAVITY TURN DONE", 0)
+  sleep(1)
+}
+
+pub fn check_staging (craft: Vessel) -> Unit = {
+  let check = false
+  const engine_in_stage = list_engine_stage(craft, craft.staging.current)
+  if (craft.staging.current > 0) {
+    if (engine_in_stage.length == 0 ||
+      engine_in_stage.filter(fn(eng) -> eng.has_ignited && eng.is_flameout).length != 0) {
+      check = true
+    }
+  }
+  if (!check && engine_in_stage.filter(fn(eng) -> !eng.has_ignited).length > 0) {
+    check = true
+  }
+  if (check) {
+    trigger_staging(craft)
+  }
+}
+
+pub fn trigger_staging (craft: Vessel) -> Unit = {
+  wait_until(fn() -> craft.staging.ready)
+  craft.staging.next()
+  yield()
+}
+
+
+fn list_engine_stage (craft: Vessel, stage_num: int) -> ksp::vessel::ModuleEngine[] = {
+  let list_engine: ksp::vessel::ModuleEngine[] = []
+  for (prt in craft.staging.parts_in_stage(stage_num)) {
+    if (prt.is_engine) {
+      list_engine += prt.engine_module.value
+    }
+  }
+  list_engine
+}

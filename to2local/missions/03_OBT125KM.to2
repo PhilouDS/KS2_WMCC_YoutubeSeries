@@ -19,57 +19,62 @@ use { Orbit, find_body } from ksp::orbit
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { print_title, end_of_mission, wait_alt } from lib::misc
 use { print_science, run_science, transmit_data, check_science } from lib::science
-use { check_staging, trigger_staging } from lib::in_flight
-use { info_gt, info_orbit } from lib::show_info
-
+use { info_gt, info_orbit, first_info } from lib::show_info
+use { countdown, launch_from_north } from lib::prep_launch
+use { check_staging, trigger_staging, gravity_turn } from lib::in_flight
+use { exe_mnv, go_to_from, circ_at } from lib::adjusted_mnv
 
 //____________________________________________________
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn main_flight (ship: Vessel) -> Unit = {
+pub fn main_flight (ship: Vessel, pitchAng: float = 85, pitchVel: float = 60, targetApo: float = 125000) -> Unit = {
   CONSOLE.clear()
   
   CONSOLE_WINDOW.open()
-  CONSOLE_WINDOW.size = vec2(500,600) 
+  CONSOLE_WINDOW.size = vec2(500,600)
+  
+  let fromNorth = 90.0
   
   sleep(0.5)
 
   ship.autopilot.enabled = false // SAS
   ship.autopilot.mode = AutopilotMode.Autopilot
-  ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
+  // ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
 
-  let check_done = false
 
-  print_science(ship)
+  // ship.set_throttle(1)
+  // countdown(ship, false, 3)
+
+  // first_info([
+  //   format("Target apoapsis: {0:N1} m", targetApo),
+  //   "--",
+  //   format("Initiate GT at {0:N1} m/s", pitchVel),
+  //   format("... with a pitch of {0:N1}°", pitchAng),
+  //   format("... and an azimuth of {0:N1}°.", fromNorth)
+  // ])
+
+  // wait_until(fn() -> ship.vertical_surface_speed > pitchVel)
+
+  // gravity_turn(ship, targetApo, fromNorth, pitchAng)
+
+  // while(ship.altitude_sealevel < 86000) {
+  //   let angle_above_horizon = 90 - ship.up.angle_to(ship.orbit.prograde(current_time()))
+  //   info_gt(ship, angle_above_horizon, 2)
+  //   info_orbit(ship, 6) 
+  // }
+  // yield()
+  // CONSOLE.clear()
+  // print_title("IN SPACE", 0)
+  
+  sleep(1)
+  exe_mnv(ship, circ_at(ship, "PE"))
+  sleep(1)
+
+  CONSOLE.clear()
+  info_orbit(ship, 2)
   sleep(5)
-  run_science(ship, true, true)
-  sleep(1)
-
-  ship.set_throttle(1)
-  wait_until(fn() -> ship.staging.ready)
-  ship.staging.next()
-
-  sleep(1)
-
-  while (ship.altitude_sealevel <= 25000) {
-    CONSOLE.print_at(2,0, format("Altitude above sea: {0:N1} m", ship.altitude_sealevel))
-    if (ship.altitude_sealevel > 5000 && !check_done) {
-      if (check_science(ship)) {
-        run_science(ship, false)
-        check_done = true
-      }
-    }
-    yield()
-  }
-
-  sleep(1)
-
-  transmit_data(ship)
-
-  sleep(1)
 
   end_of_mission(ship)
-
 
 }

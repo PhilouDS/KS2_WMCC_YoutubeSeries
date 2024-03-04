@@ -1,0 +1,142 @@
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { atan_deg, floor, sqrt, tan_deg, sin_deg, cos_deg, PI, asin_deg } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW, screen_size, open_window, Align } from ksp::ui
+use { sleep, yield, wait_until, current_time } from ksp::game
+use { find_body, Body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { Launchpad } from lib::my_structures
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_editor() -> Result<Unit, string> = {
+
+	CONSOLE.clear()
+
+	const myScreen = screen_size()
+  const window_width = 400
+  const window_height = 250
+	const text_font_size = 15.0
+  const launch_window = open_window("<b>LAUNCH WINDOW</b>",
+    (0.5*myScreen.x - window_width/2),
+    0.95*myScreen.y,
+    window_width,
+    window_height)
+
+  const LP = Launchpad("LP1")
+  const lp_lat = LP.get_latitude()
+  const lp_long = LP.get_longitude()
+  const lp_rot_velocity = LP.get_rotation_velocity()
+
+  const Kerbin = find_body("Kerbin").value
+  const initial_rotation_kerbin = 90.0
+
+  const target_name: Cell<string> = Cell("Minmus")
+
+  const target_body = find_body(target_name.value).value
+  const target_apo = 125000
+  const target_inc = target_body.orbit.inclination
+  
+  const coef = floor(current_time() / Kerbin.rotation_period)
+
+  
+  const upper_omega = target_body.orbit.LAN
+  const inc = target_body.orbit.inclination
+  const lower_omega = 360 / Kerbin.rotation_period
+
+  const upper_A = cos_deg(lp_lat) * sin_deg(upper_omega) * sin_deg(inc)
+  const upper_B = -cos_deg(lp_lat) * cos_deg(upper_omega) * sin_deg(inc)
+  const upper_C = sin_deg(lp_lat) * cos_deg(inc)
+
+  const lower_A = upper_C - upper_A
+  const lower_B = 2 * upper_B
+  const lower_C = upper_C + upper_A
+
+  const delta = lower_B**2 - 4 * lower_A * lower_C
+
+  const sid_one = 2 * atan_deg((-lower_B + sqrt(delta))/ (2*lower_A))
+  const sid_two = 2 * atan_deg((-lower_B - sqrt(delta))/ (2*lower_A))
+
+  let launch_time_one = -1.0
+  let coef_one = coef
+  while (launch_time_one <= current_time()) {
+    launch_time_one = (sid_one - initial_rotation_kerbin - lp_long) / (lower_omega) + coef_one * Kerbin.rotation_period
+    coef_one += 1
+  }
+  
+  let launch_time_two = -1.0
+  let coef_two = coef
+  while (launch_time_two <= current_time()) {
+    launch_time_two = (sid_two - initial_rotation_kerbin - lp_long) / (lower_omega) + coef_two * Kerbin.rotation_period
+    coef_two += 1
+  }
+
+  const target_velocity = compute_velocity (Kerbin, target_apo, target_apo, target_apo)
+
+  const cos_zeta = compute_inclination(lp_lat, target_inc)
+
+  const speed_needed = sqrt(target_velocity**2 + lp_rot_velocity**2 - 2 * target_velocity * lp_rot_velocity * cos_zeta)
+
+  const azimuth_AN = asin_deg(-(speed_needed**2 + lp_rot_velocity**2 - target_velocity**2)/(2 * speed_needed * lp_rot_velocity))
+  const azimuth_DN = 180 - azimuth_AN
+
+  // local azimuthAN is arcSin(-(vitesseNecessaire^2 + kscRotationVelocity^2 - vitesseCible^2)/(2 * vitesseNecessaire * kscRotationVelocity)).
+
+  const launch_box = launch_window.add_vertical_panel(10.0, Align.Stretch)
+  const target_box = launch_box.add_horizontal(10.0, Align.Stretch)
+  const target_title = target_box.add_label("Target: ", Align.Start)
+  target_title.font_size = text_font_size
+  const target_label = target_box.add_label(target_name.value, Align.Stretch)
+  target_label.font_size = text_font_size
+  launch_box.add_spacer(5.0)
+  const launch_one_label = launch_box.add_label("First Launch Window: UT = " + launch_time_one.to_fixed(0), Align.Start)
+  launch_one_label.font_size = text_font_size
+  const launch_two_label = launch_box.add_label("Second Launch Window: UT = " + launch_time_two.to_fixed(0), Align.Start)
+  launch_two_label.font_size = text_font_size
+  launch_box.add_spacer(5.0)
+  const azimuth_AN_label = launch_box.add_label("azimuth AN: " + azimuth_AN.to_fixed(2) + "°", Align.Start)
+  azimuth_AN_label.font_size = text_font_size
+  const azimuth_DN_label = launch_box.add_label("azimuth DN: " + azimuth_DN.to_fixed(2) + "°", Align.Start)
+  azimuth_DN_label.font_size = text_font_size
+
+  wait_until(fn() -> launch_window.is_closed)
+}
+
+//____________________________________________________
+// OTHER FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+fn compute_velocity (bod: ksp::orbit::Body, peri: float, apo: float, craftAlt: float) -> float = {  
+  let rad = bod.radius
+  let RV = rad + craftAlt // ship's altitude from Kerbin's center of mass
+  let RP = rad + peri // ship's periapsis from Kerbin's center of mass
+  let RA = rad + apo // ship's apoapsis from Kerbin's center of mass
+  let mu = bod.grav_parameter
+  let SMA = (RA + RP) / 2 // Semi-Major Axis
+
+  return sqrt(mu * (2/RV - 1/SMA)) // sqrt = SQuare RooT
+}
+
+
+fn compute_inclination (ell: float, inc: float) -> float = {
+    const sin_phi = tan_deg(ell) / tan_deg(inc)
+    const sin_theta = sin_deg(ell) / sin_deg(inc)
+    const cos_inc = cos_deg(inc)
+    const cos_theta = sqrt(1 - sin_theta**2)
+    const cos_phi = sqrt(1 - sin_phi**2)
+
+    const cos_zeta = sin_phi * sin_theta + cos_inc * cos_theta * cos_phi
+    return cos_zeta
+}

@@ -1,0 +1,61 @@
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE } from ksp::console
+use { sleep } from ksp::game
+use { Vessel } from ksp::vessel
+use { Orbit, Body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { print_title } from lib::misc
+
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3) -> Unit = {
+  CONSOLE.clear()
+  CONSOLE.print_at(0,0, "Liftoff in: ")
+  for (i in 0..count) {
+    CONSOLE.print_at(0,12,format("{0:N0} s", (count - i)))
+    if (clamps && i == count - 1) {
+      craft.staging.next()
+      CONSOLE.print_at(1,0, "Ignition")
+    }
+    sleep(1)
+  }
+  craft.staging.next()
+  CONSOLE.clear()
+  print_title("LIFTOFF", 0, false)
+}
+
+pub fn launch_from_north (craft: Vessel, craft_target: Body, azimuth: float[]) -> float = {
+  let angle_from_north = 90.0
+  let msg = format("azimuth = {0:N1} °", angle_from_north)
+  if (azimuth.length != 0) {
+    let azimuthAN = azimuth[0]
+    let azimuthDN = azimuth[1]
+
+    const time_AN = craft.orbit.time_of_ascending_node(craft_target.orbit)
+    const time_DN = craft.orbit.time_of_descending_node(craft_target.orbit)
+
+    if (time_AN > time_DN) {
+      angle_from_north = azimuthAN
+      msg = format("azimuth = {0:N1} °", angle_from_north)
+    } else {
+      angle_from_north = azimuthDN
+      msg = format("azimuth = {0:N1} °", angle_from_north)
+    }
+  }
+  CONSOLE.print_line(msg)
+
+  return angle_from_north
+}

@@ -21,7 +21,7 @@ use { print_title, end_of_mission, wait_alt } from lib::misc
 use { print_science, run_science, transmit_data, check_science } from lib::science
 use { check_staging, trigger_staging } from lib::in_flight
 use { info_gt, info_orbit } from lib::show_info
-
+use { countdown } from lib::prep_launch
 
 //____________________________________________________
 // MAIN FUNCTION
@@ -31,7 +31,9 @@ pub fn main_flight (ship: Vessel) -> Unit = {
   CONSOLE.clear()
   
   CONSOLE_WINDOW.open()
-  CONSOLE_WINDOW.size = vec2(500,600) 
+  CONSOLE_WINDOW.size = vec2(500,600)
+  
+  let check_done = false
   
   sleep(0.5)
 
@@ -39,37 +41,35 @@ pub fn main_flight (ship: Vessel) -> Unit = {
   ship.autopilot.mode = AutopilotMode.Autopilot
   ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
 
-  let check_done = false
-
-  print_science(ship)
-  sleep(5)
-  run_science(ship, true, true)
-  sleep(1)
 
   ship.set_throttle(1)
-  wait_until(fn() -> ship.staging.ready)
-  ship.staging.next()
-
+  countdown(ship, false, 3)
   sleep(1)
-
-  while (ship.altitude_sealevel <= 25000) {
+  CONSOLE.clear()
+  
+  while (ship.altitude_sealevel <= 200000) {
     CONSOLE.print_at(2,0, format("Altitude above sea: {0:N1} m", ship.altitude_sealevel))
-    if (ship.altitude_sealevel > 5000 && !check_done) {
+    if (ship.altitude_sealevel > 86000 && !check_done) {
       if (check_science(ship)) {
-        run_science(ship, false)
+        run_science(ship, true, true)
         check_done = true
       }
     }
+    check_staging(ship)
+    yield()
+  }
+
+  if (check_science(ship)) {
+    run_science(ship, true, true)
+  }
+
+  while (ship.altitude_sealevel > 86000) {
+    CONSOLE.print_at(2,0, format("Altitude above sea: {0:N1} m", ship.altitude_sealevel))
+    check_staging(ship)
     yield()
   }
 
   sleep(1)
 
-  transmit_data(ship)
-
-  sleep(1)
-
   end_of_mission(ship)
-
-
 }

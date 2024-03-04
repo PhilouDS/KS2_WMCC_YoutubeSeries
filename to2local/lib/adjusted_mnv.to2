@@ -1,0 +1,248 @@
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, exp } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { current_time, wait_until, sleep, yield } from ksp::game
+use { warp_to } from ksp::game::warp
+use { CONSOLE } from ksp::console
+use { Vec3, vec3, GlobalVelocity } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation } from ksp::vessel
+use { Orbit, Body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sign } from lib::misc
+use { check_staging } from lib::in_flight
+use {Stage_Info } from lib::my_structures
+
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+// EXECUTE MNV
+
+pub fn exe_mnv (craft: Vessel, dv_mnv: float) -> Unit = {
+  let nextNode = craft.maneuver.next_node().value
+  const time_offset = best_circ_node(craft, nextNode, dv_mnv)
+  yield()
+
+  let (node_ut, burn_vec) = adjust_node(craft, nextNode, time_offset)
+  yield()
+  
+  nextNode.remove()
+  craft.maneuver.add_burn_vector(node_ut, burn_vec)
+  CONSOLE.print_line(format("dv before adjust: {0:N2} m/s", (dv_mnv)))
+  CONSOLE.print_line(format("Offset time: {0:N2} s", (time_offset)))
+  let print_burn = sign(dv_mnv) * burn_vec.magnitude
+  
+  CONSOLE.print_line(format("dv after adjust: {0:N2} m/s", (print_burn)))
+  yield()
+
+  const burn_duration = compute_burn_duration(craft, burn_vec.magnitude, craft.staging.current)
+  CONSOLE.print_line(format("Burn duration: {0:N2} s", (burn_duration)))
+
+  nextNode = craft.maneuver.next_node().value
+  const expectedVel = nextNode.expected_orbit.orbital_velocity(nextNode.time + burn_duration).magnitude
+
+
+  while (nextNode.ETA > 20) {
+    warp_to(nextNode.time - 20)
+    CONSOLE.print_at(10,0, format("Maneuver in: {0:N2} s    ", nextNode.ETA))
+    yield()
+  }
+
+  craft.autopilot.target_orientation = nextNode.burn_vector
+  sleep(0.1)
+
+  while (nextNode.ETA > 0) {
+    CONSOLE.print_at(10,0, format("Maneuver in: {0:N2} s    ", nextNode.ETA))
+    yield()
+  }
+
+  let throt = 0.0
+  let isDone = false
+  craft.set_throttle(throt)
+  CONSOLE.clear_line(10)
+
+  
+
+  while (isDone == false) {
+    craft.autopilot.target_orientation = nextNode.burn_vector
+    let dV = abs(expectedVel - craft.orbit.orbital_velocity(current_time()).magnitude)
+    let max_acc = craft.available_thrust / craft.mass
+    throt = min(dV / max_acc, 1)
+    craft.set_throttle(throt)
+    if (dV < 0.05) {
+      isDone = true
+    }
+    check_staging(craft)
+
+    CONSOLE.print_at(10,0, format("remaining dV: {0:N2} m/s  ", dV))
+    CONSOLE.print_at(11,0, format("expected vel: {0:N2} m/s  ", expectedVel))
+    CONSOLE.print_at(12,0, format("  actual Vel: {0:N2} m/s  ", craft.orbit.orbital_velocity(current_time()).magnitude))
+    yield()
+  }
+  craft.set_throttle(0)
+  sleep(0.1)
+  nextNode.remove()
+  yield()
+  CONSOLE.print_at(14,0, "Maneuver Done")
+  yield()
+}
+
+sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> float = {
+  let b_Time = 0.0
+  let abs_dv = abs(dv)
+  let new_dv = 0.0
+  let new_stg_num = 0
+  const sit = DeltaVSituation.Vaccum
+  const stg = Stage_Info(craft, stg_num)
+  const stgInitMass = stg.get_init_mass()
+  const stgEffectiveVelocity = stg.get_effective_velocity(sit)
+  const stgFuelFlow = stg.get_fuel_flow(sit)
+  const stgDV = stg.get_deltav(sit)
+  const stgBurnTime = stg.get_burn_time(sit)
+  if (stgDV > abs_dv) {
+    return (stgInitMass / stgFuelFlow) * (1 - exp(-abs_dv / stgEffectiveVelocity))
+  }
+  else {
+    b_Time = stgBurnTime
+    new_dv = abs_dv - stgDV
+    new_stg_num = stg_num - 1
+    return (b_Time + compute_burn_duration(craft, new_dv, new_stg_num))
+  }
+}
+
+fn adjust_node (craft: Vessel, old_node: ksp::vessel::ManeuverNode, offset: float) -> (node_ut: float, burn_vec: Vec3) = {
+  const dv_vector = old_node.burn_vector
+  let adjusted_node = old_node
+
+  // Apply the time adjust
+  adjusted_node.time -= offset
+  const adjusted_obt = adjusted_node.expected_orbit
+  // Convert the new nodeVector to deltaV
+  const new_deltaV = convert_vecNode_to_dv(adjusted_obt, adjusted_node.time, adjusted_node.burn_vector)
+  // Compute the change needed for this new_deltaV to equal the original
+  const delta_deltaV = dv_vector - new_deltaV
+  // Convert this to a burnVector
+  const new_burn_vector = convert_dv_to_vecNode(adjusted_obt, adjusted_node.time, delta_deltaV)
+  
+  (node_ut: adjusted_node.time, burn_vec: new_burn_vector)
+
+}
+
+sync fn convert_vecNode_to_dv(obt: Orbit, node_ut: float, node_vector: Vec3) -> Vec3 = {
+  return (node_vector.x * obt.radial_plus(node_ut) + node_vector.y * obt.normal_plus(node_ut) + node_vector.z * obt.prograde(node_ut))
+}
+
+sync fn convert_dv_to_vecNode(obt: Orbit, node_ut: float, dv_vector: Vec3) -> Vec3 = {
+  const dot_radial = dv_vector.dot(obt.radial_plus(node_ut))
+  const dot_normal = dv_vector.dot(obt.normal_plus(node_ut))
+  const dot_prograde = dv_vector.dot(obt.prograde(node_ut))
+  return vec3(dot_radial, dot_normal, dot_prograde)
+}
+
+// ORBITAL VELOCITY
+
+sync fn compute_vel(craft: Vessel, peri: float, apo: float, craftAlt: float) -> float = {  
+  let rad = craft.main_body.radius
+  let RV = rad + craftAlt // ship's altitude from Kerbin's center of mass
+  let RP = rad + peri // ship's periapsis from Kerbin's center of mass
+  let RA = rad + apo // ship's apoapsis from Kerbin's center of mass
+  let mu = craft.main_body.grav_parameter
+  let SMA = (RA + RP) / 2 // Semi-Major Axis
+
+  return sqrt(mu * (2/RV - 1/SMA)) // sqrt = SQuare RooT
+}
+
+
+// HOHMANN TRANSFER 
+
+fn h_transfer (craft: Vessel, craftAlt: float, targetAlt: float) -> float = {
+  CONSOLE.clear()
+  let initVel = 0.0
+  let finalVel = 0.0
+  let deltaVneeded = 0.0
+
+  initVel = compute_vel(craft, craft.orbit.periapsis, craft.orbit.apoapsis.value, craftAlt)
+
+  if (craftAlt < targetAlt) {
+    finalVel = compute_vel(craft, craftAlt, targetAlt, craftAlt)
+  } 
+  else {
+    finalVel = compute_vel(craft, targetAlt, craftAlt, craftAlt)
+  }
+
+  deltaVneeded = finalVel - initVel
+
+  CONSOLE.print_line("--> Maneuver")
+  CONSOLE.print_line ("  initV = " + initVel.to_fixed(2) + " m/s.")
+  CONSOLE.print_line (" finalV = " + finalVel.to_fixed(2) + " m/s.")
+  CONSOLE.print_line ("Delta-V = " + deltaVneeded.to_fixed(2) + " m/s.")
+  CONSOLE.print_line("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
+  
+  deltaVneeded
+}
+
+// GO TO FROM
+
+pub fn go_to_from (craft: Vessel, goTo: float, goFrom: string = "AP") -> float = {
+  let craftFrom = craft.orbit.periapsis  
+  let node_UT = craft.orbit.next_periapsis_time()
+
+  if (goFrom == "AP") {
+    craftFrom = craft.orbit.apoapsis.value
+    node_UT = craft.orbit.next_apoapsis_time().value
+  }
+
+  const deltaVneeded = h_transfer(craft, craftFrom, goTo)
+  craft.maneuver.add (node_UT, 0, 0, deltaVneeded)
+
+  return deltaVneeded
+}
+
+// CIRC_AT
+
+pub fn circ_at (craft: Vessel, at: string = "AP") -> float = {
+  if (at == "AP") {
+    return go_to_from (craft, craft.orbit.apoapsis.value)
+  } else {
+    return go_to_from (craft, craft.orbit.periapsis, "PE")
+  }
+}
+
+fn best_circ_node (craft: Vessel, old_node: ksp::vessel::ManeuverNode, dv: float) -> float = {
+  let min_ecc = 1.0
+  let min_bef = 0.0
+  let bef_node = 0.0
+ 
+  const duration_time = old_node.burn_duration
+  const pos_time = old_node.time
+  const save_dv = old_node.burn_vector
+
+  old_node.remove()
+
+  for (i in 0...100) {
+    bef_node = duration_time * (i/100.0)
+    craft.maneuver.add(pos_time - bef_node, 0, 0, dv)
+    let temp_node = craft.maneuver.next_node().value
+    let next = temp_node.expected_orbit
+    temp_node.remove()
+
+    if (next.eccentricity < min_ecc) {
+      min_ecc = next.eccentricity
+      min_bef = bef_node
+    }
+  }
+
+  craft.maneuver.add_burn_vector(pos_time, save_dv)
+
+  return min_bef
+}

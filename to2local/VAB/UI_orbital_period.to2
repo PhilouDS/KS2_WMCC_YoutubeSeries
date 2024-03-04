@@ -1,9 +1,24 @@
-use { CONSOLE, color } from ksp::console
-use { yield } from ksp::game
-use { find_body } from ksp::orbit
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { sqrt, asin, floor, PI } from core::math
-use { vec2 } from ksp::math
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE, color } from ksp::console
 use { screen_size, open_centered_window, open_window, Align } from ksp::ui
+use { yield, wait_until } from ksp::game
+use { vec2 } from ksp::math
+use { find_body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 pub fn main_editor () -> Unit = {
   CONSOLE.clear()
@@ -75,5 +90,5 @@ fn create_window() -> Unit = {
     answer_canvas.add_text(vec2(can_width / 2, can_height - 2*canva_font_size - 10), period_min.to_fixed(0) + "'" + period_sec.to_fixed(1) + "''", canva_font_size, text_color)
   })
 
-  while (true) {yield()}
+  wait_until(fn() -> main_window.is_closed)
 }

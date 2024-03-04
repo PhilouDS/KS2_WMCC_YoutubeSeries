@@ -1,11 +1,19 @@
 //____________________________________________________
-// LIBRARIES
+// CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
 use { CONSOLE_WINDOW } from ksp::ui
 use { wait_until, sleep } from ksp::game
 use { Vessel } from ksp::vessel
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
 
 //____________________________________________________
 // FUNCTIONS
@@ -13,6 +21,8 @@ use { Vessel } from ksp::vessel
 
 pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=true) -> Unit = {
   // for (i in 0..msg.length) {CONSOLE.print_at (row,i,"-")}
+  CONSOLE.clear_line(row)
+  CONSOLE.clear_line(row+1)
   CONSOLE.print_at (row,0,msg)
   for (i in 0..msg.length) {CONSOLE.print_at (row+1,i,"‾")}
   if (!cursor_back) {CONSOLE.move_cursor(row+2,0)}
@@ -33,4 +43,9 @@ pub fn end_of_mission (craft: Vessel) -> Unit = {
 
 pub fn wait_alt (craft: Vessel, alt: float) -> Unit = {
   wait_until(fn() -> craft.altitude_sealevel > alt)
+}
+
+pub fn sign (f: float) -> int = {
+  if (f < 0) {return -1}
+  return 1
 }

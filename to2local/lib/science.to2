@@ -1,13 +1,20 @@
 //____________________________________________________
-// LIBRARIES
+// CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-
-use { Vessel, ModuleScienceExperiment } from ksp::vessel
-use { CONSOLE } from ksp::console
-use { sleep, wait_until, yield, current_time } from ksp::game
 use { sqrt, max, min, abs, round, floor } from core::math
 use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE } from ksp::console
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { Vessel, ModuleScienceExperiment } from ksp::vessel
 use { Experiment, ExperimentState, ResearchLocation, ScienceSituation, get_completed_research_reports } from ksp::science
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { print_title } from lib::misc
 
 //____________________________________________________
@@ -68,13 +75,12 @@ fn check_new_exp (craft: Vessel, exp: Experiment) -> bool = {
 }
 
 pub fn check_science (craft: Vessel) -> bool = {
-  let science_available = false
   for (exp in listOfScienceExp(craft)) {
     if (check_new_exp(craft, exp) && exp.current_experiment_state != ExperimentState.RUNNING) {
-      science_available = true
+      return true
     }
   }
-  return science_available
+  return false
 }
 
 fn reported_previous_flight (craft: Vessel, exp: Experiment) -> bool = {
