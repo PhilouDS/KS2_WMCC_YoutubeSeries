@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SR - SR86KM",
+  "VehicleName": "SR86KM",
+  "Description": "Objective SPACE",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SR - SR86KM.png",
+  "Mass": 0.931875,
+  "SaveTime": 638449709508762102,
+  "Parts": 20,
+  "Stages": 3,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

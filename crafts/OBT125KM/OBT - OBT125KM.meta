@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "OBT - OBT125KM",
+  "VehicleName": "OBT125KM",
+  "Description": "Objective Low Orbit - dv: ~5800 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\OBT - OBT125KM.png",
+  "Mass": 2.24514723,
+  "SaveTime": 638452776655601795,
+  "Parts": 37,
+  "Stages": 5,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}
