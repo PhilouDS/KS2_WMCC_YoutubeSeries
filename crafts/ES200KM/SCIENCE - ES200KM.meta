@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - ES200KM",
+  "VehicleName": "ES200KM",
+  "Description": "Environmental Survey - High Orbit - dv: ~4000 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - ES200KM.png",
+  "Mass": 20.5455322,
+  "SaveTime": 638457935926318232,
+  "Parts": 41,
+  "Stages": 6,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

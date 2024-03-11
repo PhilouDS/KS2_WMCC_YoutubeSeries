@@ -1,3 +1,4 @@
+// KONTROL SYSTEM 2 - v0.5.5.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -10,6 +11,7 @@ use { format } from core::str
 use { CONSOLE } from ksp::console
 use { CONSOLE_WINDOW, screen_size, open_window, Align } from ksp::ui
 use { sleep, yield, wait_until, current_time } from ksp::game
+use { Vec2, vec2 } from ksp::math
 use { find_body, Body } from ksp::orbit
 
 //____________________________________________________
@@ -18,17 +20,22 @@ use { find_body, Body } from ksp::orbit
 use { Launchpad } from lib::my_structures
 
 //____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+const myScreen: Vec2 = screen_size()
+const window_width: float = 400.0
+const window_height: float = 250.0
+const text_font_size: float = 15.0
+
+//____________________________________________________
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 pub fn main_editor() -> Result<Unit, string> = {
 
 	CONSOLE.clear()
-
-	const myScreen = screen_size()
-  const window_width = 400
-  const window_height = 250
-	const text_font_size = 15.0
+  
   const launch_window = open_window("<b>LAUNCH WINDOW</b>",
     (0.5*myScreen.x - window_width/2),
     0.95*myScreen.y,
@@ -40,12 +47,12 @@ pub fn main_editor() -> Result<Unit, string> = {
   const lp_long = LP.get_longitude()
   const lp_rot_velocity = LP.get_rotation_velocity()
 
-  const Kerbin = find_body("Kerbin").value
+  const Kerbin = find_body("Kerbin")?
   const initial_rotation_kerbin = 90.0
 
   const target_name: Cell<string> = Cell("Minmus")
 
-  const target_body = find_body(target_name.value).value
+  const target_body = find_body(target_name.value)?
   const target_apo = 125000
   const target_inc = target_body.orbit.inclination
   

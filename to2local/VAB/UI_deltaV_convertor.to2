@@ -1,3 +1,4 @@
+// KONTROL SYSTEM 2 - v0.5.5.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -7,14 +8,27 @@ use { format } from core::str
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { CONSOLE, color } from ksp::console
+use { CONSOLE, color, RgbaColor } from ksp::console
 use { screen_size, open_centered_window, open_window, Align } from ksp::ui
 use { yield } from ksp::game
-use { vec2 } from ksp::math
+use { vec2, Vec2 } from ksp::math
 
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+const myScreen: Vec2 = screen_size()
+const button_font_size: float = 20.0
+const text_font_size: float = 15.0
+const canva_font_size: float = 20.0
+const text_color:RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
+const window_width: float = myScreen.x/5.5
+const window_height: float = myScreen.y/4
+
 
 //____________________________________________________
 // MAIN FUNCTION
@@ -28,13 +42,6 @@ pub fn main_editor () -> Unit = {
 
 
 fn create_window(scale: float=2.5) -> Unit = {
-  const myScreen = screen_size()
-  const button_font_size = 20
-  const text_font_size = 15
-  const canva_font_size = 20
-  const text_color = color(1, 1, 0.5) //color(1,0.498,0.208)
-  const window_width = myScreen.x/5.5
-  const window_height = myScreen.y/4
   const main_window = open_window("<b>DELTA-V CONVERTOR</b>",
     0.25*myScreen.x,
     0.4*myScreen.y,

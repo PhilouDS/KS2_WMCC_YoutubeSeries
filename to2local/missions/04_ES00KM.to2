@@ -1,0 +1,55 @@
+// KONTROL SYSTEM 2 - v0.5.6.0
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation } from ksp::vessel
+use { Orbit, find_body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { print_title, end_of_mission, wait_alt } from lib::misc
+use { print_science, run_science, transmit_data, check_science } from lib::science
+use { check_staging, trigger_staging } from lib::in_flight
+use { info_gt, info_orbit } from lib::show_info
+use { countdown } from lib::prep_launch
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel) -> Unit = {
+  CONSOLE.clear()
+  
+  CONSOLE_WINDOW.open()
+  CONSOLE_WINDOW.size = vec2(500,600)
+  
+  let check_done = false
+
+
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.mode = AutopilotMode.Autopilot
+  ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
+
+  CONSOLE.clear()
+
+  print_science(ship)
+
+  sleep(5)
+
+  run_science(ship, false)
+
+  sleep(1)
+  
+  end_of_mission(ship) 
+}

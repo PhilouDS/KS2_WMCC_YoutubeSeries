@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - ES00KM",
+  "VehicleName": "ES00KM",
+  "Description": "Environment Survey at launchpad",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - ES00KM.png",
+  "Mass": 1.0625,
+  "SaveTime": 638457930279741666,
+  "Parts": 3,
+  "Stages": 0,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

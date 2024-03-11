@@ -1,19 +1,32 @@
+// KONTROL SYSTEM 2 - v0.5.5.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { floor } from core::math
+use { format } from core::str
 
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { CONSOLE } from ksp::console
+use { CONSOLE, RgbaColor, color } from ksp::console
 use { screen_size, open_window, Align } from ksp::ui
 use { yield, current_time } from ksp::game
+use { vec2, Vec2 } from ksp::math
 use { warp_to } from ksp::game::warp
 
 //____________________________________________________
-// PERSONAL LIBRARIES
+// GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+const myScreen: Vec2 = screen_size()
+const window_width: float = myScreen.x/5
+const window_height: float = 50.0
+const button_font_size: float = 20.0
+const text_font_size: float = 15.0
+const canva_font_size: float = 25
+const text_color: RgbaColor = color(1, 1, 0.5)
+const gap_box: float = 10.0
+const hours_per_day:int = 6
 
 //____________________________________________________
 // MAIN FUNCTION
@@ -27,30 +40,15 @@ pub fn main_editor () -> Unit = {
 
 
 fn create_window() -> Unit = {
-  const myScreen = screen_size()
-  const window_width = myScreen.x/5
-  const window_height = 50
-  const text_font_size = 15
   const main_window = open_window("<b>CURRENT TIME</b>",
-    (myScreen.x-window_width-10),
+    (myScreen.x-1.25*window_width),
     myScreen.y - 40,
     window_width,
     window_height)
-  
-  const hours_per_day = 6
 
-  const now_time: Cell<float> = Cell(current_time())
-
-  const now_time_days: Cell<float> = Cell(0)
-    now_time_days.value = floor(now_time.value / (hours_per_day*3600))
-  const days_in_game: Cell<float> = Cell(0)
-    days_in_game.value = now_time_days.value + 1
-  const now_time_hours: Cell<float> = Cell(0)
-    now_time_hours.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600)) / 3600)
-  const now_time_minutes: Cell<float> = Cell(0)
-    now_time_minutes.value = floor((now_time.value - now_time_hours.value*3600) / 60)
-  const now_time_seconds: Cell<float> = Cell(0) 
-    now_time_seconds.value = floor(now_time.value - now_time_hours.value*3600 - now_time_minutes.value*60)
+  let (now, print_now) = time_to_string()
+  const now_time: Cell<float> = Cell(now)
+  const print_time: Cell<string> = Cell(print_now)
 
   const main_box = main_window.add_vertical(10.0, Align.Stretch)
   const detail_box = main_window.add_horizontal(10.0, Align.Center)
@@ -59,26 +57,13 @@ fn create_window() -> Unit = {
   
   const warp_box = main_window.add_vertical(10.0, Align.Stretch)
 
-  const now_time_label = main_box.add_label("Current time (s):", Align.Stretch)
+  const now_time_label = main_box.add_label("", Align.Stretch)
   now_time_label.bind(now_time, "Current time: {0:N2} s")
   now_time_label.font_size = text_font_size
 
-  const days_label = detail_box.add_label("day:", Align.Center)
-  days_label.bind(days_in_game, "{0:N0} d")
-  days_label.font_size = text_font_size
-
-  const hours_label = detail_box.add_label("hour:", Align.Center)
-  hours_label.bind(now_time_hours, "{0:N0} h")
-  hours_label.font_size = text_font_size
-
-  const minutes_label = detail_box.add_label("min:", Align.Center)
-  minutes_label.bind(now_time_minutes, "{0:N0} min")
-  minutes_label.font_size = text_font_size
-  
-  const seconds_label = detail_box.add_label("sec:", Align.Center)
-  seconds_label.bind(now_time_seconds, "{0:N0} s")
-  seconds_label.font_size = text_font_size
-
+  const print_time_label = detail_box.add_label("", Align.Center)
+  print_time_label.bind(print_time)
+  print_time_label.font_size = text_font_size
   
   const toggle_sec = toggle_box.add_toggle("WARP to Current time + DeltaT", Align.Start)
   toggle_sec.value = true
@@ -96,10 +81,10 @@ fn create_window() -> Unit = {
 
   const warp_button = warp_box.add_button("WARP", Align.Center)
   warp_button.on_click(fn() -> {
-    const now = current_time()
+    const t0 = current_time()
     const deltaT = warp_value.value
     if (toggle_sec.value) {
-      warp_to(now + deltaT)
+      warp_to(t0 + deltaT)
     }
     else {
       warp_to(deltaT)
@@ -125,16 +110,30 @@ fn create_window() -> Unit = {
   
 
   while(!main_window.is_closed) {
-    now_time.value = current_time()
-    now_time_days.value = floor(now_time.value / (hours_per_day*3600))
-    days_in_game.value = now_time_days.value + 1
-    now_time_hours.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600)) / 3600)
-    now_time_minutes.value = floor((now_time.value - now_time_days.value*(hours_per_day*3600) - now_time_hours.value*3600) / 60)
-    now_time_seconds.value = floor(now_time.value - now_time_days.value*(hours_per_day*3600) - now_time_hours.value*3600 - now_time_minutes.value*60)
+    (now, print_now) = time_to_string()
+    print_time.value = print_now
+    now_time.value = now
 
     toggle_sec.enabled = !toggle_sec.value
     toggle_UT.enabled = !toggle_UT.value
 
     yield()
   }
+}
+
+sync fn time_to_string() -> (now: float, print_now: string) = {
+  const nTime = current_time()
+  const nDay = floor(nTime / (hours_per_day*3600)).to_int
+  const nHours = floor((nTime - nDay*(hours_per_day*3600)) / 3600)
+  let nHours_label = nHours.to_int.to_string()
+  if (nHours < 10) {nHours_label = "0" + nHours.to_int.to_string()}
+  const nMin = floor((nTime - nDay*(hours_per_day*3600) - nHours*3600) / 60)
+  let nMin_label = nMin.to_int.to_string()
+  if (nMin < 10) {nMin_label = "0" + nMin.to_int.to_string()}
+  const nSec = floor(nTime - nDay*(hours_per_day*3600) - nHours*3600 - nMin*60)
+  let nSec_label = nSec.to_string()
+  if (nSec < 10) {nSec_label = "0" + nSec.to_int.to_string()}
+  const p_time = format("{0:N0} d {1} h {2} min {3} sec", (nDay+1, nHours_label, nMin_label, nSec_label))
+
+  (now: nTime, print_now: p_time)
 }

@@ -38,7 +38,7 @@ pub fn print_science (craft: Vessel) -> Unit = {
   let expList: Experiment[] = []
 
   for (PRT in list_exp) {
-    print_title ("[PART:] " + PRT.part_name, CONSOLE.cursor_row, false)
+    print_title ("[PART:] " + PRT.part_title, CONSOLE.cursor_row, false)
     expList = PRT.science_experiment.value.experiments
 
     for (exp in expList) {
@@ -177,7 +177,7 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> Uni
       const slowest_exp = sciencePart[idx_slowest_exp]   
       CONSOLE.clear_line(msg_row)
       CONSOLE.clear_line(msg_row+1)
-      CONSOLE.print_line ("Please wait the end of experiment(s)...")
+      CONSOLE.print_line("Please wait the end of experiment(s)...")
 
       while(slowest_exp.current_running_time > 0) {
         exp_time = (slowest_exp.time_to_complete-slowest_exp.current_running_time)/slowest_exp.time_to_complete

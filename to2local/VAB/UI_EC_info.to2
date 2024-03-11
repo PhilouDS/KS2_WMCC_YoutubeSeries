@@ -1,0 +1,645 @@
+// KONTROL SYSTEM 2 - v0.5.6.0
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, asin, floor, PI, ceiling } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE, RgbaColor, color, RED } from ksp::console
+use { CONSOLE_WINDOW, screen_size, open_window, Align } from ksp::ui
+use { Container, FloatInputField, StringInputField } from ksp::ui
+use { yield, current_time, wait_until, sleep } from ksp::game
+use { warp_to } from ksp::game::warp
+use { vec2, Vec2 } from ksp::math
+use { find_body, Body } from ksp::orbit
+use { active_object_assembly_builder, ObjectAssembly, ObjectAssemblyPart, ObjectAssemblyScienceExperiment, ObjectAssemblyTransmitter } from ksp::oab
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+const myScreen: Vec2 = screen_size()
+const window_width: float = 700.0
+const window_height: float = 200.0
+const button_font_size: float = 20.0
+const text_font_size: float = 15.0
+const title_font_size: float = 1.5*text_font_size
+const canva_font_size: float = 25
+const text_color: RgbaColor = color(1, 1, 0.5)
+const gap_box: float = 10.0
+
+const toggle_ec_show_label: string = "Show EC Details"
+const toggle_ec_hide_label: string = "Hide EC Details"
+const toggle_sc_show_label: string = "Show Science Transmission"
+const toggle_sc_hide_label: string = "Hide Science Transmission"
+
+const ec_button_label: string = "Compute EC"
+const darkness_button_label: string = "Compute Darkness Duration"
+
+const difficulty_settings:float = 0.8
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+// https://wiki.kerbalspaceprogram.com/wiki/Orbit_darkness_time
+
+pub fn main_editor () -> Result<Unit, string> = {
+  CONSOLE.clear()
+
+  const main_window = open_window("<b>ELECTRIC CHARGE INFO</b>",
+    0.5*myScreen.x - window_width/2,
+    0.95*myScreen.y,
+    window_width,
+    window_height)
+
+  const builder = active_object_assembly_builder()?
+	const maybe_assembly = builder.main_assembly
+
+  //____________________________________________________
+  // MAIN BOX CREATION
+  //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  const main_box = main_window.add_vertical(gap_box, Align.Stretch)
+
+  const top_box = main_box.add_horizontal(gap_box, Align.Stretch)
+  const left_box = top_box.add_vertical(gap_box, Align.Stretch, window_width/2.1)
+  const input_box = left_box.add_vertical_panel(gap_box, Align.Stretch)
+  const elec_box = top_box.add_vertical_panel(gap_box, Align.Stretch, window_width/2.1)
+
+  //---> Electric Charge, top right box
+  const elec_title = elec_box.add_label("Electric Charge", Align.Center)
+  elec_title.font_size = title_font_size
+  const elec_button = elec_box.add_button(ec_button_label, Align.Center)
+  elec_button.font_size = button_font_size
+
+  const toggle_box = elec_box.add_vertical(gap_box, Align.Stretch)
+
+  const click_elec_button: Cell<bool> = Cell(false)
+  const elec_info_box = Cell(create_elec_box(elec_box, maybe_assembly))
+  
+  //---> Toggle show/hide EC Details
+  const toggle_more_info = toggle_box.add_toggle(toggle_ec_show_label, Align.Start)
+  toggle_more_info.font_size = 0.8 * text_font_size
+  toggle_more_info.value = false
+  let show_more_info = false
+  let show_more_info_offset = 0.0
+
+  //---> Toggle show/hide Science transmission
+  const toggle_science_info = toggle_box.add_toggle(toggle_sc_show_label, Align.Start)
+  toggle_science_info.font_size = 0.8 * text_font_size
+  toggle_science_info.value = false
+  let show_science_info = false
+  let show_science_info_offset = 0.0
+
+  const elec_detail_box = Cell(create_elec_detail_box(main_box, maybe_assembly))
+  elec_detail_box.value.remove()
+
+  const science_transmission_box = Cell(create_science_transmission_box(main_box, maybe_assembly))
+  science_transmission_box.value.remove()
+
+  //---> Button to compute orbit period and Darkness Duration
+  left_box.add_spacer(5.0)
+  const compute_button = left_box.add_button(darkness_button_label, Align.Center)
+  compute_button.font_size = button_font_size
+  const click_compute_button: Cell<bool> = Cell(false)
+
+
+  //____________________________________________________
+  // INPUT BOX
+  //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  const input_title = input_box.add_label("Orbit information", Align.Center)
+  input_title.font_size = title_font_size
+  //---> BODY INPUT
+  const body_box = input_box.add_horizontal(gap_box, Align.Stretch, 10.0)
+  const body_name = body_box.add_label("     Body:", Align.Start)
+  body_name.font_size = text_font_size
+  
+  const name_body = Cell("")
+  const input_body_name = body_box.add_string_input(Align.Start, 10.0).bind(name_body)
+  input_body_name.value = "Kerbin"
+  
+  //---> PERIAPSIS INPUT
+  const peri_box = input_box.add_horizontal(gap_box, Align.Stretch, 10.0)
+  const peri_name = peri_box.add_label("Periapsis:", Align.Start)
+  peri_name.font_size = text_font_size
+
+  const peri_cell = Cell(0.0)
+  const input_peri = peri_box.add_float_input(Align.Start, 10.0).bind(peri_cell)
+  input_peri.value = 90000.0
+
+  //---> APOAPSIS INPUT
+  const apo_box = input_box.add_horizontal(gap_box, Align.Stretch, 10.0)
+  const apo_name = apo_box.add_label(" Apoapsis:", Align.Start)
+  apo_name.font_size = text_font_size
+
+  const apo_cell = Cell(0.0)
+  const input_apo = apo_box.add_float_input(Align.Start, 10.0).bind(apo_cell)
+  input_apo.value = 90000.0
+
+  //---> INPUT ON CHANGE
+  input_body_name.on_change(fn(f) -> {
+    if (!find_body(input_body_name.value).success) {
+      compute_button.enabled = false
+      compute_button.label = "Body unknown"
+    } else {
+      compute_button.enabled = true
+      compute_button.label = darkness_button_label
+    }
+  })
+
+  input_peri.on_change(fn(f) -> {
+    compute_button.enabled = (find_body(input_body_name.value).success) && 
+    (f > find_body(input_body_name.value).value.atmosphere_depth)
+    if (!compute_button.enabled) {
+      compute_button.label = "Check periapsis or apoapsis"
+    } else {
+      compute_button.label = darkness_button_label
+    }
+  })
+
+  input_apo.on_change(fn(f) -> {
+    compute_button.enabled = (find_body(input_body_name.value).success) && 
+    (f > find_body(input_body_name.value).value.atmosphere_depth)
+    if (!compute_button.enabled) {
+      compute_button.label = "Check periapsis or apoapsis"
+    } else {
+      compute_button.label = darkness_button_label
+    }
+  })
+
+  //____________________________________________________
+  // TIME BOX
+  //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  
+  let ec_cons_all = ec_required(maybe_assembly)
+  let ec_cons_wo_rw = ec_cons_all - reaction_wheel_ec(maybe_assembly)
+  
+  let maybe_time_box = create_time_box(main_box, input_body_name, input_peri, input_apo, ec_cons_all, ec_cons_wo_rw)?
+  const time_box = Cell(maybe_time_box)
+
+  //____________________________________________________
+  // MAIN LOOP
+  //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+  main_window.size = vec2(window_width, window_height)
+
+	while (!main_window.is_closed) {
+    elec_button.on_click(fn() -> {
+      click_elec_button.value = true
+			elec_info_box.value.remove()
+    })
+
+    if (click_elec_button.value) {
+      elec_info_box.value = create_elec_box(elec_box, maybe_assembly)
+      toggle_more_info.value = false
+      show_more_info = true
+      toggle_science_info.value = false
+      show_science_info = true
+      click_elec_button.value = false
+    }
+
+    compute_button.on_click(fn() -> {
+      click_compute_button.value = true
+			time_box.value.remove()
+    })
+
+    if (click_compute_button.value) {
+      click_compute_button.value = false
+      if (show_more_info == true) {elec_detail_box.value.remove()}
+      if (show_science_info == true) {science_transmission_box.value.remove()}
+      ec_cons_all = ec_required(maybe_assembly)
+      ec_cons_wo_rw = ec_cons_all - reaction_wheel_ec(maybe_assembly)
+      maybe_time_box = create_time_box(main_box, input_body_name, input_peri, input_apo, ec_cons_all, ec_cons_wo_rw)?
+      time_box.value = maybe_time_box
+      //---> To ensure than the Time box is always above the EC and the science boxes
+      if (show_more_info == true) {elec_detail_box.value = create_elec_detail_box(main_box, maybe_assembly)}
+      if (show_science_info == true) {science_transmission_box.value = create_science_transmission_box(main_box, maybe_assembly)}
+    }
+
+    if (toggle_more_info.value && !show_more_info) {
+      elec_detail_box.value = create_elec_detail_box(main_box, maybe_assembly)
+      toggle_more_info.label = toggle_ec_hide_label
+      show_more_info = true
+      show_more_info_offset = 50.0
+      main_window.size = vec2(window_width, window_height + show_more_info_offset + show_science_info_offset)
+    } else if (!toggle_more_info.value && show_more_info) {
+      elec_detail_box.value.remove()
+      toggle_more_info.label = toggle_ec_show_label
+      show_more_info = false
+      show_more_info_offset = 0.0
+      main_window.size = vec2(window_width, window_height + show_science_info_offset)
+    }
+
+    if (toggle_science_info.value && !show_science_info) {
+      science_transmission_box.value = create_science_transmission_box(main_box, maybe_assembly)
+      toggle_science_info.label = toggle_sc_hide_label
+      show_science_info = true
+      show_science_info_offset = 50.0
+      main_window.size = vec2(window_width, window_height + show_more_info_offset + show_science_info_offset)
+    } else if (!toggle_science_info.value && show_science_info) {
+      science_transmission_box.value.remove()
+      toggle_science_info.label = toggle_sc_show_label
+      show_science_info = false
+      show_science_info_offset = 0.0
+      main_window.size = vec2(window_width, window_height + show_more_info_offset)
+    }
+
+    yield()
+  }
+}
+
+//____________________________________________________
+// ELEC BOX CREATION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn create_elec_box (box: Container, maybe_assembly: Option<ObjectAssembly>) -> Container = {
+  const elec_info_box = box.add_vertical_panel(0.5*gap_box, Align.Stretch)
+  const (ec_out, ec_in) = (ec_required(maybe_assembly), ec_stored(maybe_assembly))
+  const ec_out_wo_reaction = ec_out - reaction_wheel_ec(maybe_assembly)
+  if(Some(assembly) = maybe_assembly) {
+    const ec_in_label = elec_info_box.add_label($"<b>EC Stored: {ec_in:N1} U</b>", Align.Start)
+    ec_in_label.font_size = 1.1*text_font_size
+    const ec_out_title = elec_info_box.add_label("max EC required:", Align.Start)
+    ec_out_title.font_size = text_font_size
+    const ec_out_w_reaction_label = elec_info_box.add_label($" w/ reaction wheels: {ec_out:N3} U/s", Align.Start)
+    ec_out_w_reaction_label.font_size = text_font_size
+    const ec_out_wo_reaction_label = elec_info_box.add_label($"w/o reaction wheels: {ec_out_wo_reaction:N3} U/s", Align.Start)
+    ec_out_wo_reaction_label.font_size = text_font_size
+  }
+  else {
+    elec_info_box.add_label("<b>NO ASSEMBLY</b>")
+  }
+
+  elec_info_box
+}
+
+//____________________________________________________
+// ELEC DETAIL BOX CREATION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn create_elec_detail_box (box: Container, maybe_assembly: Option<ObjectAssembly>) -> Container = {
+  const elec_detail_box = box.add_horizontal(2*gap_box, Align.Stretch)
+  const elec_storage_box = elec_detail_box.add_vertical(gap_box, Align.Stretch, window_width/2.1)
+  const elec_requirement_box = elec_detail_box.add_vertical(gap_box, Align.Stretch, window_width/2.1)
+  
+  if(Some(assembly) = maybe_assembly) {
+    const detail_bat_title = elec_storage_box.add_label("EC Storage Details", Align.Center)
+    detail_bat_title.font_size = 0.8*title_font_size
+
+    const detail_battery_box = create_battery_box(elec_storage_box, assembly)
+
+    const detail_ec_title = elec_requirement_box.add_label("Max EC Requirement Details", Align.Center)
+    detail_ec_title.font_size = 0.8*title_font_size
+
+    const elec_detail = create_elec_requirement_box(elec_requirement_box, maybe_assembly)
+  }
+  else {
+    elec_detail_box.add_label("<b>NO ASSEMBLY</b>")
+  }
+
+  elec_detail_box
+}
+
+sync fn create_elec_requirement_box (box: Container, maybe_assembly: Option<ObjectAssembly>) -> Result<Container, string> = {
+    const elec_detail = box.add_horizontal_panel(gap_box, Align.Stretch)
+
+    if (Some(assembly) = maybe_assembly) {
+      const detail_title_box = elec_detail.add_vertical(gap_box, Align.Stretch)
+
+      const command_title = detail_title_box.add_label("Command module(s) ", Align.End)
+      command_title.font_size = text_font_size
+      const command_number = assembly.parts.filter_map(fn(p) -> p.command_module).length
+
+      const reaction_title = detail_title_box.add_label("Reaction wheel(s) ", Align.End)
+      reaction_title.font_size = text_font_size
+      const reaction_number = assembly.parts.filter_map(fn(p) -> p.reaction_wheel).length
+
+      const light_title = detail_title_box.add_label("Light(s) ", Align.End)
+      light_title.font_size = text_font_size
+      const light_number = assembly.parts.filter_map(fn(p) -> p.light).length
+
+      const detail_number_part_box = elec_detail.add_vertical(gap_box, Align.Stretch)
+      const command_number_label = detail_number_part_box.add_label($"× {command_number} = ", Align.End)
+      command_number_label.font_size = text_font_size
+      const reaction_number_label = detail_number_part_box.add_label($"× {reaction_number} = ", Align.End)
+      reaction_number_label.font_size = text_font_size
+      const light_number_label = detail_number_part_box.add_label($"× {light_number} = ", Align.End)
+      light_number_label.font_size = text_font_size
+
+      const detail_ec_box = elec_detail.add_vertical(gap_box, Align.Stretch)
+      const command_ec_label = detail_ec_box.add_label($"-{command_ec(maybe_assembly):N3} U/s", Align.Start)
+      command_ec_label.font_size = text_font_size
+      const reaction_ec_label = detail_ec_box.add_label($"-{reaction_wheel_ec(maybe_assembly):N3} U/s", Align.Start)
+      reaction_ec_label.font_size = text_font_size
+      const light_ec_label = detail_ec_box.add_label($"-{light_ec(maybe_assembly):N3} U/s", Align.Start)
+      light_ec_label.font_size = text_font_size
+    } else {
+      elec_detail.add_label("<b>NO ASSEMBLY</b>")
+    }
+
+    elec_detail
+}
+
+//____________________________________________________
+// BATTERY BOX CREATION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn create_battery_box(box: Container, assembly: ObjectAssembly) -> Result<Container, string> = {
+  const detail_battery_box = box.add_horizontal_panel(gap_box, Align.Stretch)
+  const bat_name_box = detail_battery_box.add_vertical(gap_box, Align.Stretch)
+  const bat_number_box = detail_battery_box.add_vertical(gap_box, Align.Stretch)
+  const bat_ec_box = detail_battery_box.add_vertical(gap_box, Align.Stretch)
+
+  const batList: Cell<ObjectAssemblyPart[]> = Cell([])
+
+  let all_ec_storage: ObjectAssemblyPart[] = []
+  
+  for (prt in assembly.parts) {
+    for (rsc in prt.resources) {
+      if (rsc.resource.name == "ElectricCharge") {
+        all_ec_storage += prt
+      }
+    }
+  }
+
+  for (prt in all_ec_storage) {
+    if (batList.value.filter(fn(p) -> p.part_name == prt.part_name).length == 0) {
+      batList.value = batList.value + prt
+    }
+  }
+
+  for (i in 0..batList.value.length) {
+    let batNumber = 0
+    let batEC = 0.0
+    batNumber += all_ec_storage
+      .filter(fn(b) -> b.part_name == batList.value[i].part_name).length
+
+    for (rsc in batList.value[i].resources.filter(fn(r) -> r.resource.name == "ElectricCharge")) {
+      batEC += rsc.capacity_units
+    }
+    
+    let temp_name = bat_name_box.add_label(batList.value[i].part_title, Align.End)
+    temp_name.font_size = text_font_size
+    let temp_number = bat_number_box.add_label($"× {batNumber} = ", Align.End)
+    temp_number.font_size = text_font_size
+    let temp_ec = bat_ec_box.add_label($"+{(batEC * batNumber):N2} U/s", Align.Start)
+    temp_ec.font_size = text_font_size
+  }
+  detail_battery_box
+}
+
+//____________________________________________________
+// TIME BOX CREATION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn create_time_box (box: Container, bod_input: StringInputField, pe_input: FloatInputField, ap_input: FloatInputField, ec_out: float, ec_out_wo_rw: float) -> Result<Container, string> = {  
+  const actual_bod = Cell(find_body(bod_input.value)?)
+  const body_atmo = Cell(0.0)
+  const time_box = box.add_horizontal_panel(gap_box, Align.Stretch)
+    
+  body_atmo.value = actual_bod.value.atmosphere_depth
+
+  if (pe_input.value > body_atmo.value && ap_input.value > body_atmo.value) {
+    const obt_period = compute_orbital_period(actual_bod.value, pe_input.value, ap_input.value)
+    const (period_min, period_sec) = (floor(obt_period / 60), obt_period % 60)
+
+    const T_dark = compute_darkness_time(actual_bod.value, pe_input.value, ap_input.value)
+    const (T_dark_min, T_dark_sec) = (floor(T_dark / 60), T_dark % 60)
+    
+    const unit_needed = T_dark * ec_out //unit_per_second.value
+    const unit_needed_wo_rw = T_dark * ec_out_wo_rw
+
+    const title_box = time_box.add_vertical(gap_box, Align.Stretch)
+    const period_title = title_box.add_label("Orbital Period:", Align.End)
+    period_title.font_size = text_font_size
+    const dark_title = title_box.add_label("Darkness Duration:", Align.End)
+    dark_title.font_size = text_font_size
+    const total_ec_title = title_box.add_label("<b>Max Total EC required:</b>", Align.End)
+    total_ec_title.font_size = 1.1*text_font_size
+
+    const sec_box = time_box.add_vertical(gap_box, Align.Stretch)
+    const p_sec = sec_box.add_label($"{obt_period:N2} s = ", Align.End)
+    p_sec.font_size = text_font_size
+    const dark_sec = sec_box.add_label($"{T_dark:N2} s = ", Align.End)
+    dark_sec.font_size = text_font_size
+    const total_ec_value = sec_box.add_label($"<b>{unit_needed:N2} U or </b>", Align.End)
+    total_ec_value.font_size = 1.1*text_font_size
+
+    const min_sec_box = time_box.add_vertical(gap_box, Align.Stretch)
+    const p_min_sec = min_sec_box.add_label($"{period_min:N0}'{period_sec:N2}'' ", Align.Start)
+    p_min_sec.font_size = text_font_size
+    const dark_min_sec = min_sec_box.add_label($"{T_dark_min:N0}'{T_dark_sec:N2}'' ", Align.Start)
+    dark_min_sec.font_size = text_font_size
+    const total_ec__wo_rw_value = min_sec_box.add_label($"<b>{unit_needed_wo_rw:N2} U (w/o reaction wheels)</b>", Align.Start)
+    total_ec__wo_rw_value.font_size = 1.1*text_font_size
+  }
+  else {
+    time_box.add_label("ERROR! CHECK YOUR VALUES!")
+  }
+  time_box
+}
+
+//____________________________________________________
+// SCIENCE BOX CREATION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn create_science_transmission_box (box: Container, maybe_assembly: Option<ObjectAssembly>) -> Container = {
+  const science_transmission_box = box.add_vertical(0.5*gap_box, Align.Stretch)
+  if (Some(assembly) = maybe_assembly) {
+    const (active_ant, active_rate) = active_antenna(assembly)
+    const ant_packet = active_ant.data_packet_size
+    const ant_trans_interval = active_ant.data_transmission_interval
+
+    let total_ec_cost_to_complete = 0.0
+    let total_ec_cost_to_transmit = 0.0
+
+    const antenna_label = science_transmission_box.add_label($"<b> >> Active Antenna: {active_ant.part.part_title}</b>", Align.Start)
+    antenna_label.font_size = 0.8*title_font_size
+
+    science_transmission_box.add_spacer(10.0)
+
+    const warning_label = science_transmission_box.add_label($"<i>WARNING: The cost is calculated to run each experiment only once!</i>", Align.Start)
+    warning_label.font_size = 0.6*title_font_size
+
+    const experiments_box = science_transmission_box.add_horizontal_panel(2*gap_box, Align.Stretch)
+
+    const exp_label_box = experiments_box.add_vertical(gap_box, Align.Stretch)
+    const name_title = exp_label_box.add_label("Experiment:", Align.End)
+    name_title.font_size = text_font_size
+    const time_title = exp_label_box.add_label("Time to Complete:", Align.End)
+    time_title.font_size = text_font_size
+    const ec_cost_title = exp_label_box.add_label("EC Cost to Complete:", Align.End)
+    ec_cost_title.font_size = text_font_size
+    const data_title = exp_label_box.add_label("Data Value:", Align.End)
+    data_title.font_size = text_font_size
+    const report_title = exp_label_box.add_label("Report Size:", Align.End)
+    report_title.font_size = text_font_size
+    const transmit_time_title = exp_label_box.add_label("Time to Transmit:", Align.End)
+    transmit_time_title.font_size = text_font_size
+    const transmit_ec_cost_title = exp_label_box.add_label("EC Cost to Transmit:", Align.End)
+    transmit_ec_cost_title.font_size = text_font_size
+
+    for (exp in assembly.parts.filter_map(fn(p) -> p.science_experiment).flat_map(fn(sc) -> sc.experiments)) {
+      const exp_name = exp.definition.id
+      const exp_time = exp.time_to_complete
+      let exp_ec_cost = 0.0
+      if (exp.experiment_uses_resources) {
+        for (rsc in exp.resources_cost.filter(fn(r) -> r.resource.name == "ElectricCharge")) {
+          exp_ec_cost += rsc.rate
+        }
+      }
+      const exp_data = difficulty_settings * exp.definition.data_value
+      const exp_report_size = exp.definition.transmission_size
+
+      const exp_time_to_transmit = ceiling(exp_report_size / ant_packet) * ant_trans_interval
+      const exp_EC_to_tranmit = exp_time_to_transmit * active_rate
+
+      total_ec_cost_to_complete += exp_ec_cost
+      total_ec_cost_to_transmit += exp_EC_to_tranmit
+      
+
+      const this_exp_box = experiments_box.add_vertical(gap_box, Align.Center)
+      const this_exp_name = this_exp_box.add_label($"<b>{exp_name}</b>", Align.Center)
+      this_exp_name.font_size = text_font_size
+      const this_exp_time = this_exp_box.add_label($"{exp_time:N2} s", Align.Center)
+      this_exp_time.font_size = text_font_size
+      const this_exp_ec_cost = this_exp_box.add_label($"{exp_ec_cost * exp_time:N2} U", Align.Center)
+      this_exp_ec_cost.font_size = text_font_size
+      const this_exp_data = this_exp_box.add_label($"{exp_data:N2}", Align.Center)
+      this_exp_data.font_size = text_font_size
+      const this_exp_report = this_exp_box.add_label($"{exp_report_size:N2} kB", Align.Center)
+      this_exp_report.font_size = text_font_size
+      const this_exp_transmit_time = this_exp_box.add_label($"{exp_time_to_transmit:N2} s", Align.Center)
+      this_exp_transmit_time.font_size = text_font_size
+      const this_exp_transmit_ec_cost = this_exp_box.add_label($"{exp_EC_to_tranmit:N2} U", Align.Center)
+      this_exp_transmit_ec_cost.font_size = text_font_size       
+    }
+
+    const total_ec_complete_label = science_transmission_box.add_label($"Total EC Cost To Complete: {total_ec_cost_to_complete:N2} U", Align.Start)
+    total_ec_complete_label.font_size = 0.6 * title_font_size
+    const total_ec_transmit_label = science_transmission_box.add_label($"Total EC Cost To Transmit: {total_ec_cost_to_transmit:N2} U", Align.Start)
+    total_ec_transmit_label.font_size = 0.6 * title_font_size
+    const total_ec_science_label = science_transmission_box.add_label($"<b>=> Total EC For Science: {(total_ec_cost_to_complete + total_ec_cost_to_transmit):N2} U</b>", Align.Start)
+    total_ec_science_label.font_size = 0.8 * title_font_size
+  }
+  else {
+    science_transmission_box.add_label("<b>NO ASSEMBLY</b>")
+  }
+  science_transmission_box
+}
+
+sync fn active_antenna (assembly: ObjectAssembly) -> (active_ant: ObjectAssemblyTransmitter, active_rate: float) = {
+  let max_rate = 0.0
+  let max_packet = 0.0
+  let active_antenna = assembly.parts.filter_map(fn(p) -> p.transmitter)[0]
+  for (ant in assembly.parts.filter_map(fn(p) -> p.transmitter)) {
+    let ant_ec_rate = 0.0
+    for (rsc in ant.required_resources.filter(fn(r) -> r.resource.name == "ElectricCharge")) {
+      ant_ec_rate += rsc.rate
+    }
+    const ant_packet = ant.data_packet_size
+    const ant_range = ant.communication_range
+
+    if ((ant_packet > max_packet) || (ant_packet == max_packet && ant_ec_rate > max_rate)) {
+      max_rate = ant_ec_rate
+      max_packet = ant_packet
+      active_antenna = ant
+    }
+  }
+
+  (active_ant: active_antenna, active_rate: max_rate)
+}
+
+
+//____________________________________________________
+// OTHERS FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn ec_required (maybe_assembly: Option<ObjectAssembly>) -> float = {
+  return (command_ec(maybe_assembly) + light_ec(maybe_assembly) + reaction_wheel_ec(maybe_assembly))
+}
+
+sync fn command_ec(maybe_assembly: Option<ObjectAssembly>) -> float = {
+  let cec = 0.0
+  if (Some(assembly) = maybe_assembly) {
+    for (PRT in assembly.parts) {
+      if (PRT.command_module.defined) {
+        let ec_rsc = PRT.command_module.value.required_resources.filter(fn(r) -> r.resource.name == "ElectricCharge")
+        for (rsc in ec_rsc) {cec += rsc.rate}
+      }
+    }
+  }
+  cec
+}
+
+sync fn reaction_wheel_ec(maybe_assembly: Option<ObjectAssembly>) -> float = {
+  let rwec = 0.0
+  if (Some(assembly) = maybe_assembly) {
+    for (PRT in assembly.parts) {
+      if (PRT.reaction_wheel.defined) {
+        let ec_rsc = PRT.reaction_wheel.value.required_resources.filter(fn(r) -> r.resource.name == "ElectricCharge")
+        let torque = PRT.reaction_wheel.value.potential_torque
+        for (rsc in ec_rsc) {
+          rwec += sqrt(torque.x**2 + torque.y**2 + torque.z**2) * rsc.rate
+        }
+      }
+    }
+  }
+  rwec
+}
+
+sync fn light_ec(maybe_assembly: Option<ObjectAssembly>) -> float = {
+  let lec = 0.0
+  if (Some(assembly) = maybe_assembly) {
+    for (PRT in assembly.parts) {
+      if (PRT.light.defined) {
+        if (PRT.light.value.required_resource.resource.name == "ElectricCharge") {
+          lec += PRT.light.value.required_resource.rate
+        }
+      }
+    }
+  }
+  lec
+}
+
+sync fn ec_stored (maybe_assembly: Option<ObjectAssembly>) -> float = {
+  let ec = 0.0
+  if (Some(assembly) = maybe_assembly) {
+    for (PRT in assembly.parts) {
+      for (rsc in PRT.resources) {
+        if (rsc.resource.name == "ElectricCharge") {
+          ec += rsc.capacity_units
+        }
+      }
+    }
+  }
+  return ec
+}
+
+sync fn compute_orbital_period (bod: Body, Pe: float, Ap: float) -> float = {
+  const R = bod.radius
+  const Mu = bod.grav_parameter
+  const r_p = R + Pe
+  const r_a = R + Ap
+  const a = (r_a + r_p)/2 // semi-major axis
+
+  return 2 * PI * sqrt(a**3 / Mu)
+}
+
+sync fn compute_darkness_time (bod: Body, Pe: float, Ap: float) -> float = {
+  const R = bod.radius
+  const Mu = bod.grav_parameter
+  const r_p = R + Pe
+  const r_a = R + Ap
+  const a = (r_a + r_p)/2 // semi-major axis
+  const b = sqrt(r_a * r_p) // semi minor axis
+  const e = (r_a - r_p)/(r_a + r_p) // eccentricity
+  const l = (2 * r_a * r_p) / (r_a + r_p) // the semi-latus rectum of the orbital ellipse
+  const h = sqrt(l * Mu) // specific angular momentum
+
+  return (2/h)*(a*b) * (asin(R / b) + e * R / b)
+}
+

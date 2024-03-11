@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SR - SR1250KM",
+  "VehicleName": "SR1250KM",
+  "Description": "Very high!",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SR - SR1250KM.png",
+  "Mass": 15.393137,
+  "SaveTime": 638457944275343261,
+  "Parts": 24,
+  "Stages": 3,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

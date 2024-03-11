@@ -1,0 +1,91 @@
+// KONTROL SYSTEM 2 - v0.5.6.0
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation } from ksp::vessel
+use { Orbit, find_body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { print_title, end_of_mission, wait_alt } from lib::misc
+use { print_science, run_science, transmit_data, check_science } from lib::science
+use { check_staging, trigger_staging } from lib::in_flight
+use { info_gt, info_orbit } from lib::show_info
+use { countdown } from lib::prep_launch
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel) -> Unit = {
+  CONSOLE.clear()
+  
+  CONSOLE_WINDOW.open()
+  CONSOLE_WINDOW.size = vec2(500,600)
+  
+  let check_done = false
+
+
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.mode = AutopilotMode.Autopilot
+  ship.autopilot.target_orientation = ship.heading_direction(90, 90, 0).vector
+
+
+  ship.set_throttle(1)
+  countdown(ship, false, 3)
+  sleep(0.5)
+  CONSOLE.clear()
+  sleep(2)
+
+  run_science(ship, false)
+
+  sleep(1)
+  
+  while (ship.altitude_sealevel <= 200000) {
+    CONSOLE.print_at(2,0, format("Altitude above sea: {0:N1} m     ", ship.altitude_sealevel))
+    if (ship.altitude_sealevel > 86000 && !check_done) {
+      if (check_science(ship)) {
+        run_science(ship, false)
+        check_done = true
+      }
+    }
+    check_staging(ship)
+    yield()
+  }
+
+  if (check_science(ship)) {
+    run_science(ship, false)
+  }
+
+  while (ship.altitude_sealevel > 90000) {
+    CONSOLE.print_at(2,0, format("Altitude above sea: {0:N1} m    ", ship.altitude_sealevel))
+    check_staging(ship)
+    yield()
+  }
+
+  trigger_staging(ship)
+
+  sleep(1)
+
+  while (ship.situation != VesselSituation.Landed) {
+    CONSOLE.print_at(2,0, format("Altitude above sea: {0:N1} m    ", ship.altitude_sealevel))
+    yield()
+  }
+
+  sleep(1)
+  run_science(ship, true, false)
+  sleep(1)
+  
+  end_of_mission(ship) 
+}

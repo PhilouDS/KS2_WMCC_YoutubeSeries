@@ -1,3 +1,4 @@
+// KONTROL SYSTEM 2 - v0.5.5.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -7,15 +8,27 @@ use { format } from core::str
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { CONSOLE, color } from ksp::console
+use { CONSOLE, color, RgbaColor } from ksp::console
 use { screen_size, open_centered_window, open_window, Align } from ksp::ui
 use { yield, wait_until } from ksp::game
-use { vec2 } from ksp::math
+use { Vec2, vec2 } from ksp::math
 use { find_body, Body } from ksp::orbit
 
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+const myScreen: Vec2 = screen_size()
+const window_width: float = myScreen.x/4
+const window_height: float = myScreen.y/3
+const button_font_size: float = 20.0
+const text_font_size: float = 15.0
+const canva_font_size: float = 20.0
+const text_color: RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
 
 //____________________________________________________
 // MAIN FUNCTION
@@ -28,14 +41,7 @@ pub fn main_editor () -> Unit = {
 }
 
 
-fn create_window(scale: float=2.0/3.0) -> Unit = {
-  const myScreen = screen_size()
-  const button_font_size = 20
-  const text_font_size = 15
-  const canva_font_size = 20
-  const text_color = color(1, 1, 0.5) //color(1,0.498,0.208)
-  const window_width = myScreen.x/4
-  const window_height = myScreen.y/3
+fn create_window(scale: float=2.0/3.0) -> Result<Unit, string> = {
   const main_window = open_window("<b>GEOSTATIONARY ALTITUDE</b>",
     (myScreen.x-window_width)/2,
     myScreen.y - 20,
@@ -62,13 +68,13 @@ fn create_window(scale: float=2.0/3.0) -> Unit = {
 
   const answer_canvas = main_window.add_canvas(window_width - 10, window_height/1.25, Align.Center)
 
-  
+  const actual_bod = find_body(body_value.value)?
   convert_button.on_click(fn() -> {
     answer_canvas.clear()
     const can_height = answer_canvas.height
     const can_width = answer_canvas.width
 
-    const bod = find_body(body_value.value).value
+    const bod = actual_bod
     const phase = phase_value.value
     const mu = bod.grav_parameter
     const rot_period = bod.rotation_period
