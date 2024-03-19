@@ -1,0 +1,80 @@
+// KONTROL SYSTEM 2 - v0.5.6.3
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec3, vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation } from ksp::vessel
+use { Orbit, find_body } from ksp::orbit
+use { ResearchLocation } from ksp::science
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { Runway, Waypoint } from lib::my_structures
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight(ship: Vessel, rw: string = "09R") -> Unit = {
+
+	CONSOLE.clear()
+
+	CONSOLE_WINDOW.open()
+	CONSOLE_WINDOW.size = vec2(500,600)
+
+	
+	const RW = Runway(rw)
+	const WP = Waypoint(RW.name, RW.get_latitude(), RW.get_longitude(), "Kerbin")
+	
+	let ship_coord = ship.geo_coordinates
+	
+	let dist = WP.distance(ship)
+	let brg = WP.bearing(ship)
+
+	let delta_time = 0.0
+	let delta_terrain = 0.0
+	let wanted_vertical_speed = 0.0
+
+	const start = 0
+
+	while (true) {
+		CONSOLE.print_at(start, 0, $"Vehicule {ship.name}")
+		CONSOLE.print_at(start+1, 0, $"Current region {ship.research_location.value.id}                    ")
+
+		CONSOLE.print_at(start+3,0, "Destination: " + WP.name)
+		CONSOLE.print_at(start+4,0, "   Latitude: " + WP.lat.to_fixed(3) + "°")
+		CONSOLE.print_at(start+5,0, "  Longitude: " + WP.long.to_fixed(3) + "°")
+				
+		dist = WP.distance(ship)
+		brg = WP.bearing(ship)
+		delta_time = dist / ship.surface_velocity.magnitude
+		delta_terrain = WP.get_altitude() - ship.altitude_scenery
+		wanted_vertical_speed = delta_terrain / delta_time
+		
+
+		CONSOLE.print_at(start+7,0, $"Distance = {dist:N2} m   ")
+		CONSOLE.print_at(start+8,0, $" Bearing = {brg:N2}°    ")
+
+		CONSOLE.print_at(start+10,0, "Plane attitude indicators:")
+		CONSOLE.print_at(start+11,0, $"  Pitch = {ship.pitch_yaw_roll.x:N2}°    ")
+		CONSOLE.print_at(start+12,0, $"    Yaw = {ship.pitch_yaw_roll.y:N2}°    ")
+		CONSOLE.print_at(start+13,0, $"   Roll = {ship.pitch_yaw_roll.z:N2}°   ")
+
+		CONSOLE.print_at(start+15,0, $"Altitude above ground = {ship.altitude_scenery:N2} m   ")
+		CONSOLE.print_at(start+16,0, $"   Altitude above sea = {ship.altitude_sealevel:N2} m   ")
+		CONSOLE.print_at(start+17,0, $"       Vertical Speed = {ship.vertical_surface_speed:N2} m/s   ")
+		CONSOLE.print_at(start+18,0, $"Aiming Vertical Speed = {wanted_vertical_speed:N2} m/s   ")
+
+
+		sleep(0.02)
+	}
+}

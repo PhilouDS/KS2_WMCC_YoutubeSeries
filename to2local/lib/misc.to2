@@ -23,8 +23,9 @@ pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=
   // for (i in 0..msg.length) {CONSOLE.print_at (row,i,"-")}
   CONSOLE.clear_line(row)
   CONSOLE.clear_line(row+1)
-  CONSOLE.print_at (row,0,msg)
-  for (i in 0..msg.length) {CONSOLE.print_at (row+1,i,"‾")}
+  CONSOLE.print_at(row,0,msg)
+  //CONSOLE.print_at(row+1,0,(0..msg.length).reduce("", fn(strike, c) -> strike + "‾"))
+  for (i in 0..msg.length) {CONSOLE.print_at(row+1,i,"‾")}
   if (!cursor_back) {CONSOLE.move_cursor(row+2,0)}
 }
 

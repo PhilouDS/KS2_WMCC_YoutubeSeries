@@ -1,0 +1,112 @@
+// KONTROL SYSTEM 2 - v0.5.5.5
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, asin, floor, PI } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE, color, RgbaColor } from ksp::console
+use { CONSOLE_WINDOW, screen_size, open_window, Align, Window, Container } from ksp::ui
+use { yield, wait_until } from ksp::game
+use { Vec2, vec2 } from ksp::math
+use { find_body, Body } from ksp::orbit
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+const myScreen: Vec2 = screen_size()
+const window_width: float = 300
+const window_height: float = 200
+const button_font_size: float = 20.0
+const text_font_size: float = 15.0
+const canva_font_size: float = 20.0
+const text_color: RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_editor () -> Result<Unit, string> = {
+  CONSOLE.clear()
+
+  const main_window = open_window("<b>VELOCITY</b>",
+    (myScreen.x-window_width)/2,
+    myScreen.y - 20,
+    window_width,
+    window_height)
+
+  const click_button: Cell<bool> = Cell(false)
+
+	const main_box = main_window.add_vertical(10.0, Align.Stretch)
+
+  const body_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const body_label = body_box.add_label("     Body:", Align.Start)
+  body_label.font_size = text_font_size
+  const body_value = body_box.add_string_input(Align.Start, 10.0)
+  body_value.value = "Kerbin"
+
+  const periapsis_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const periapsis_label = periapsis_box.add_label("Periapsis:", Align.Start)
+  periapsis_label.font_size = text_font_size
+  const periapsis_input = periapsis_box.add_float_input(Align.Start, 10.0)
+  periapsis_input.value = 120000
+
+  const apoapsis_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const apoapsis_label = apoapsis_box.add_label(" Apoapsis:", Align.Start)
+  apoapsis_label.font_size = text_font_size
+  const apoapsis_input = apoapsis_box.add_float_input(Align.Start, 10.0)
+  apoapsis_input.value = 120000
+
+  const altitude_box = main_box.add_horizontal(10.0, Align.Stretch, 10.0)
+  const altitude_label = altitude_box.add_label(" Altitude:", Align.Start)
+  altitude_label.font_size = text_font_size
+  const altitude_input = altitude_box.add_float_input(Align.Start, 10.0)
+  altitude_input.value = 120000
+  
+  const compute_button = main_box.add_button("Compute velocity", Align.Center)
+  compute_button.font_size = button_font_size
+	
+	let maybe_box = create_box(main_window, find_body(body_value.value).value, periapsis_input.value, apoapsis_input.value, altitude_input.value)?
+  const answer_box: Cell<Container> = Cell(maybe_box)
+
+	while (!main_window.is_closed) {
+		compute_button.on_click(fn() -> {
+			click_button.value = true
+			answer_box.value.remove()
+		})
+		if (click_button.value) {
+			maybe_box = create_box(main_window, find_body(body_value.value).value, periapsis_input.value, apoapsis_input.value, altitude_input.value)?
+			answer_box.value = maybe_box
+			click_button.value = false
+		}
+		yield()
+	}
+}
+
+
+fn create_box(window: Window, bod: Body, peri: float, apo: float, alt: float) -> Result<Container, string> = {
+  const answer_box = window.add_vertical_panel(10.0, Align.Stretch)
+  const vel = compute_vel(bod, peri, apo, alt)
+
+
+  const geo_alt_label = answer_box.add_label($"<b>Velocity: </b>", Align.Center)
+    geo_alt_label.font_size = text_font_size
+  const geo_alt_val = answer_box.add_label($"{vel:N2} m/s", Align.Center)
+
+  answer_box
+}
+
+sync fn compute_vel(bod: Body, peri: float, apo: float, alt: float) -> float = {  
+  let rad = bod.radius
+  let RV = rad + alt // ship's altitude from Kerbin's center of mass
+  let RP = rad + peri // ship's periapsis from Kerbin's center of mass
+  let RA = rad + apo // ship's apoapsis from Kerbin's center of mass
+  let mu = bod.grav_parameter
+  let SMA = (RA + RP) / 2 // Semi-Major Axis
+
+  sqrt(mu * (2/RV - 1/SMA))
+}

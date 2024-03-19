@@ -1,3 +1,4 @@
+// KONTROL SYSTEM 2 - v0.5.6.3
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -8,10 +9,10 @@ use { format } from core::str
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { current_time, wait_until, sleep, yield } from ksp::game
-use { warp_to } from ksp::game::warp
+use { set_warp_index, current_warp_rate } from ksp::game::warp
 use { CONSOLE } from ksp::console
 use { Vec3, vec3, GlobalVelocity } from ksp::math
-use { Vessel, AutopilotMode, DeltaVSituation } from ksp::vessel
+use { Vessel, AutopilotMode, DeltaVSituation, ManeuverNode } from ksp::vessel
 use { Orbit, Body } from ksp::orbit
 
 //____________________________________________________
@@ -21,83 +22,92 @@ use { sign } from lib::misc
 use { check_staging } from lib::in_flight
 use {Stage_Info } from lib::my_structures
 
-
 //____________________________________________________
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 // EXECUTE MNV
 
-pub fn exe_mnv (craft: Vessel, dv_mnv: float) -> Unit = {
+pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit = {
+  craft.autopilot.enabled = false // SAS
+  craft.autopilot.mode = AutopilotMode.Autopilot
   let nextNode = craft.maneuver.next_node().value
-  const time_offset = best_circ_node(craft, nextNode, dv_mnv)
-  yield()
-
-  let (node_ut, burn_vec) = adjust_node(craft, nextNode, time_offset)
-  yield()
+  let save_dv_vector = nextNode.burn_vector
+  let save_time = nextNode.time
+  let burn_duration = 0.0
+  let time_offset = 0.0
   
-  nextNode.remove()
-  craft.maneuver.add_burn_vector(node_ut, burn_vec)
-  CONSOLE.print_line(format("dv before adjust: {0:N2} m/s", (dv_mnv)))
-  CONSOLE.print_line(format("Offset time: {0:N2} s", (time_offset)))
-  let print_burn = sign(dv_mnv) * burn_vec.magnitude
-  
-  CONSOLE.print_line(format("dv after adjust: {0:N2} m/s", (print_burn)))
+  if (adjust_mnv) {
+    time_offset = best_circ_node(craft, nextNode, dv_mnv)
+  }
   yield()
-
-  const burn_duration = compute_burn_duration(craft, burn_vec.magnitude, craft.staging.current)
-  CONSOLE.print_line(format("Burn duration: {0:N2} s", (burn_duration)))
-
-  nextNode = craft.maneuver.next_node().value
+    
+  craft.maneuver.remove_all()
+  yield()
+  save_time -= time_offset
+  nextNode = craft.maneuver.add_burn_vector(save_time, save_dv_vector).value   
+  burn_duration = compute_burn_duration(craft, dv_mnv, craft.staging.current)
+  CONSOLE.print_at(7, 0, $"Burn duration: {burn_duration:N2} s")
+  
   const expectedVel = nextNode.expected_orbit.orbital_velocity(nextNode.time + burn_duration).magnitude
 
-
-  while (nextNode.ETA > 20) {
-    warp_to(nextNode.time - 20)
-    CONSOLE.print_at(10,0, format("Maneuver in: {0:N2} s    ", nextNode.ETA))
+  while (nextNode.ETA > 25) {
+    set_warp_index(5)
+    CONSOLE.print_at(10,0, $"Maneuver in: {nextNode.ETA:N2} s    ")
     yield()
   }
 
+  set_warp_index(0)
+  wait_until(fn() -> current_warp_rate() < 1.1)
   craft.autopilot.target_orientation = nextNode.burn_vector
   sleep(0.1)
 
   while (nextNode.ETA > 0) {
-    CONSOLE.print_at(10,0, format("Maneuver in: {0:N2} s    ", nextNode.ETA))
+    CONSOLE.print_at(10,0, $"Maneuver in: {nextNode.ETA:N2} s    ")
     yield()
   }
 
-  let throt = 0.0
+  const craft_throttle = craft.set_throttle(0.0)
   let isDone = false
-  craft.set_throttle(throt)
+  
   CONSOLE.clear_line(10)
 
-  
+  const start_mnv = current_time()
+  sleep(0.1)
+  let dv_min = 10.0**10
 
   while (isDone == false) {
     craft.autopilot.target_orientation = nextNode.burn_vector
+    check_staging(craft)
     let dV = abs(expectedVel - craft.orbit.orbital_velocity(current_time()).magnitude)
     let max_acc = craft.available_thrust / craft.mass
-    throt = min(dV / max_acc, 1)
-    craft.set_throttle(throt)
-    if (dV < 0.05) {
+    craft_throttle.throttle = min(dV / max_acc, 1)
+
+    if (dV > dv_min) {
       isDone = true
     }
-    check_staging(craft)
+    if (current_time() > start_mnv + burn_duration + 10) {
+      isDone = true
+    }
+    dv_min = dV
 
-    CONSOLE.print_at(10,0, format("remaining dV: {0:N2} m/s  ", dV))
-    CONSOLE.print_at(11,0, format("expected vel: {0:N2} m/s  ", expectedVel))
-    CONSOLE.print_at(12,0, format("  actual Vel: {0:N2} m/s  ", craft.orbit.orbital_velocity(current_time()).magnitude))
+    CONSOLE.print_at(10,0, $"remaining dV: {dV:N2} m/s  ")
+    CONSOLE.print_at(11,0, $"expected vel: {expectedVel:N2} m/s  ")
+    CONSOLE.print_at(12,0, $"  actual Vel: {craft.orbit.orbital_velocity(current_time()).magnitude:N2} m/s  ")
     yield()
   }
-  craft.set_throttle(0)
-  sleep(0.1)
-  nextNode.remove()
-  yield()
+  craft_throttle.release()
+  sleep(1)
+  while (craft.maneuver.next_node().success) {
+    craft.maneuver.next_node().value.remove()
+    yield()
+  }
+  sleep(1)
   CONSOLE.print_at(14,0, "Maneuver Done")
-  yield()
+  sleep(0.5)
 }
 
-sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> float = {
+pub sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> float = {
   let b_Time = 0.0
   let abs_dv = abs(dv)
   let new_dv = 0.0
@@ -120,34 +130,6 @@ sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> float 
   }
 }
 
-fn adjust_node (craft: Vessel, old_node: ksp::vessel::ManeuverNode, offset: float) -> (node_ut: float, burn_vec: Vec3) = {
-  const dv_vector = old_node.burn_vector
-  let adjusted_node = old_node
-
-  // Apply the time adjust
-  adjusted_node.time -= offset
-  const adjusted_obt = adjusted_node.expected_orbit
-  // Convert the new nodeVector to deltaV
-  const new_deltaV = convert_vecNode_to_dv(adjusted_obt, adjusted_node.time, adjusted_node.burn_vector)
-  // Compute the change needed for this new_deltaV to equal the original
-  const delta_deltaV = dv_vector - new_deltaV
-  // Convert this to a burnVector
-  const new_burn_vector = convert_dv_to_vecNode(adjusted_obt, adjusted_node.time, delta_deltaV)
-  
-  (node_ut: adjusted_node.time, burn_vec: new_burn_vector)
-
-}
-
-sync fn convert_vecNode_to_dv(obt: Orbit, node_ut: float, node_vector: Vec3) -> Vec3 = {
-  return (node_vector.x * obt.radial_plus(node_ut) + node_vector.y * obt.normal_plus(node_ut) + node_vector.z * obt.prograde(node_ut))
-}
-
-sync fn convert_dv_to_vecNode(obt: Orbit, node_ut: float, dv_vector: Vec3) -> Vec3 = {
-  const dot_radial = dv_vector.dot(obt.radial_plus(node_ut))
-  const dot_normal = dv_vector.dot(obt.normal_plus(node_ut))
-  const dot_prograde = dv_vector.dot(obt.prograde(node_ut))
-  return vec3(dot_radial, dot_normal, dot_prograde)
-}
 
 // ORBITAL VELOCITY
 
@@ -165,7 +147,7 @@ sync fn compute_vel(craft: Vessel, peri: float, apo: float, craftAlt: float) -> 
 
 // HOHMANN TRANSFER 
 
-fn h_transfer (craft: Vessel, craftAlt: float, targetAlt: float) -> float = {
+pub fn h_transfer (craft: Vessel, craftAlt: float, targetAlt: float) -> float = {
   CONSOLE.clear()
   let initVel = 0.0
   let finalVel = 0.0
@@ -183,9 +165,9 @@ fn h_transfer (craft: Vessel, craftAlt: float, targetAlt: float) -> float = {
   deltaVneeded = finalVel - initVel
 
   CONSOLE.print_line("--> Maneuver")
-  CONSOLE.print_line ("  initV = " + initVel.to_fixed(2) + " m/s.")
-  CONSOLE.print_line (" finalV = " + finalVel.to_fixed(2) + " m/s.")
-  CONSOLE.print_line ("Delta-V = " + deltaVneeded.to_fixed(2) + " m/s.")
+  CONSOLE.print_line("  initV = " + initVel.to_fixed(2) + " m/s.")
+  CONSOLE.print_line(" finalV = " + finalVel.to_fixed(2) + " m/s.")
+  CONSOLE.print_line("Delta-V = " + deltaVneeded.to_fixed(2) + " m/s.")
   CONSOLE.print_line("‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾")
   
   deltaVneeded
@@ -203,7 +185,7 @@ pub fn go_to_from (craft: Vessel, goTo: float, goFrom: string = "AP") -> float =
   }
 
   const deltaVneeded = h_transfer(craft, craftFrom, goTo)
-  craft.maneuver.add (node_UT, 0, 0, deltaVneeded)
+  craft.maneuver.add(node_UT, 0, 0, deltaVneeded)
 
   return deltaVneeded
 }
@@ -218,7 +200,7 @@ pub fn circ_at (craft: Vessel, at: string = "AP") -> float = {
   }
 }
 
-fn best_circ_node (craft: Vessel, old_node: ksp::vessel::ManeuverNode, dv: float) -> float = {
+fn best_circ_node (craft: Vessel, old_node: ManeuverNode, dv: float) -> float = {
   let min_ecc = 1.0
   let min_bef = 0.0
   let bef_node = 0.0
@@ -227,7 +209,12 @@ fn best_circ_node (craft: Vessel, old_node: ksp::vessel::ManeuverNode, dv: float
   const pos_time = old_node.time
   const save_dv = old_node.burn_vector
 
-  old_node.remove()
+  CONSOLE.print_at(15,0, "Adjusting node")
+
+  while (craft.maneuver.next_node().success) {
+    craft.maneuver.next_node().value.remove()
+    yield()
+  }
 
   for (i in 0...100) {
     bef_node = duration_time * (i/100.0)
@@ -242,7 +229,20 @@ fn best_circ_node (craft: Vessel, old_node: ksp::vessel::ManeuverNode, dv: float
     }
   }
 
-  craft.maneuver.add_burn_vector(pos_time, save_dv)
+  while (craft.maneuver.next_node().success) {
+    craft.maneuver.next_node().value.remove()
+    yield()
+  }
+  sleep(0.5)
+
+  //craft.maneuver.add_burn_vector(pos_time, save_dv)
+  CONSOLE.clear_line(15)
 
   return min_bef
+}
+
+pub fn limit_thrust (craft: Vessel, perc: float) -> Unit = {
+  for (e in craft.engines) {
+    e.thrust_limiter = perc
+  }
 }

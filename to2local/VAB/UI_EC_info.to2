@@ -497,7 +497,7 @@ sync fn create_science_transmission_box (box: Container, maybe_assembly: Option<
       const exp_time_to_transmit = ceiling(exp_report_size / ant_packet) * ant_trans_interval
       const exp_EC_to_tranmit = exp_time_to_transmit * active_rate
 
-      total_ec_cost_to_complete += exp_ec_cost
+      total_ec_cost_to_complete += exp_ec_cost * exp_time
       total_ec_cost_to_transmit += exp_EC_to_tranmit
       
 

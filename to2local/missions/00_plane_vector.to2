@@ -1,0 +1,31 @@
+// KONTROL SYSTEM 2 - v0.5.6.0
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { DEBUG } from ksp::debug
+use { CONSOLE, RED } from ksp::console
+use { Vessel } from ksp::vessel
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { Runway } from lib::my_structures
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight(ship: Vessel, rw: string = "09R") -> Result<Unit, string> = {
+    const RW = Runway(rw)
+    const geo = RW.geo_coord()
+    DEBUG.clear_markers()
+
+   DEBUG.add_vector(fn() -> ship.global_position, fn() -> geo.global_altitude_position(geo.terrain_height) - ship.global_position, RED, "", 1)
+
+    wait_until (fn() -> ship.actions.brakes)
+}
