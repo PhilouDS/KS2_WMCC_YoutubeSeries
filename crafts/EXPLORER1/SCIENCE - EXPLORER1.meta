@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - EXPLORER1",
+  "VehicleName": "EXPLORER1",
+  "Description": "Find Science",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - EXPLORER1.png",
+  "Mass": 13.5459223,
+  "SaveTime": 638463933400489196,
+  "Parts": 28,
+  "Stages": 3,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

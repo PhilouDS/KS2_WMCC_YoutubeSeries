@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - ESCO",
+  "VehicleName": "ESCO",
+  "Description": "Environmental Survey + Crew Report + Telemetry Report",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - ESCO.png",
+  "Mass": 4.47560024,
+  "SaveTime": 638463918334855092,
+  "Parts": 20,
+  "Stages": 1,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}
