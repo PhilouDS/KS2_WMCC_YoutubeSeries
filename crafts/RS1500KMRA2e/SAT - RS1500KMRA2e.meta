@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SAT - RS1500KMRA2e",
+  "VehicleName": "RS1500KMRA2e",
+  "Description": "RA relay antenna - equatorial orbit",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SAT - RS1500KMRA2e.png",
+  "Mass": 24.2161179,
+  "SaveTime": 638469895362843339,
+  "Parts": 54,
+  "Stages": 8,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

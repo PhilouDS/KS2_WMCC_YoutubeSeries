@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - OS800KM",
+  "VehicleName": "OS800KM",
+  "Description": "Orbital Survey of Kerbin",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - OS800KM.png",
+  "Mass": 24.444252,
+  "SaveTime": 638469912183582412,
+  "Parts": 58,
+  "Stages": 8,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}
