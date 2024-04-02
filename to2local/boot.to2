@@ -1,0 +1,57 @@
+// KONTROL SYSTEM 2 - v0.5.7.5
+
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW, screen_size, open_window, Align, Window, Container } from ksp::ui
+use { DEBUG } from ksp::debug
+use { vec2 } from ksp::math
+use { MAINFRAME, wait_until, sleep, yield } from ksp::game
+use { Vessel } from ksp::vessel
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+pub const window_width: float = 400
+pub const window_height: float = 200.0
+
+/// Entry Point
+pub fn main_flight(ship: Vessel) -> Result<Unit> = {
+  const nbr = Cell(0.0)
+  const n = MAINFRAME.available_processes.length
+
+  const mission_window = open_window("<b>CHOOSE MISSION</b>",
+    (0.5*myScreen.x - window_width/2),
+    0.95*myScreen.y,
+    window_width,
+    window_height)
+  
+  const all_missions = MAINFRAME.available_processes
+  
+
+  const mission_name_box = mission_window.add_label(all_missions[nbr.value.to_int].name, Align.Center)
+  mission_name_box.font_size = title_font_size
+
+  mission_window.add_spacer(10)
+
+  const slide = mission_window.add_horizontal_slider(0, n-1, Align.Stretch).bind(nbr)
+
+  mission_window.add_spacer(10)
+
+  const start_button = mission_window.add_button("Start", Align.Center)
+  start_button.font_size = button_font_size
+
+  while (!mission_window.is_closed) {
+    start_button.on_click(fn() -> {
+      mission_window.close()
+    })
+    slide.on_change(fn(f) -> {
+      nbr.value = f
+      mission_name_box.text = all_missions[f.to_int].name
+    })
+    yield()
+  }
+
+  all_missions[nbr.value.to_int].start() 
+}

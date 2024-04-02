@@ -18,15 +18,11 @@ use { warp_to } from ksp::game::warp
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-const myScreen: Vec2 = screen_size()
+use * from lib::my_constants
+
 const window_width: float = myScreen.x/5
 const window_height: float = 50.0
-const button_font_size: float = 20.0
-const text_font_size: float = 15.0
-const canva_font_size: float = 25
-const text_color: RgbaColor = color(1, 1, 0.5)
-const gap_box: float = 10.0
-const hours_per_day:int = 6
+
 
 //____________________________________________________
 // MAIN FUNCTION

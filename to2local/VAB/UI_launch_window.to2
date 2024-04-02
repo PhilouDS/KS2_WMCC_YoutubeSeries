@@ -23,16 +23,17 @@ use { Launchpad } from lib::my_structures
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-const myScreen: Vec2 = screen_size()
+use * from lib::my_constants
+
 const window_width: float = 400.0
 const window_height: float = 250.0
-const text_font_size: float = 15.0
+
 
 //____________________________________________________
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn main_editor() -> Result<Unit, string> = {
+pub fn main_editor() -> Result<Unit> = {
 
 	CONSOLE.clear()
   

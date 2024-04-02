@@ -1,11 +1,13 @@
+// KONTROL SYSTEM 2 - v0.5.7.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { max } from core::math
+use { max, clamp_degrees360 } from core::math
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { sleep, wait_until, yield, current_time } from ksp::game
+use { LogFile, MAIN_LOG } from ksp::debug
 use { CONSOLE } from ksp::console
 use { Vessel, ConnectionNodeStatus } from ksp::vessel
 
@@ -14,13 +16,20 @@ use { Vessel, ConnectionNodeStatus } from ksp::vessel
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { info_gt, info_orbit } from lib::show_info
 use { print_title } from lib::misc
+use * from lib::mission_logs
 
 //____________________________________________________
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn gravity_turn (craft: Vessel, target_apo: float, angle_from_north: float, pitch_angle: float, jettison_fairing: bool = false) -> Unit = {
+pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimuth: float, jettison_fairing: bool = false) -> Unit = {
   CONSOLE.clear()
+
+  let from_north = clamp_degrees360(azimuth)
+
+  log_mission_event(craft, "Gravity turn started")
+  add_left_entry($"  · Initial Speed: {craft.vertical_surface_speed:N1} m/s")
+  add_left_entry($"  · Initial Angle: {pitch_angle:N2}°")
 
   print_title("GRAVITY TURN IN PROGRESS", 0, false)
   const this_row = CONSOLE.cursor_row
@@ -29,9 +38,9 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, angle_from_north: float, 
   
   let angle_update = 0.0
   let t_gt = current_time()
-  while(craft.facing.vector.angle_to(craft.heading_direction(angle_from_north, pitch_angle, 0).vector) > 0.5) {
+  while(craft.facing.vector.angle_to(craft.heading_direction(from_north, pitch_angle, 0).vector) > 0.5) {
     angle_update = (90 - pitch_angle)*(current_time()-t_gt)/3.0
-    craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, 90-angle_update, 90 - angle_from_north).vector
+    craft.autopilot.target_orientation = craft.heading_direction(from_north, 90-angle_update, azimuth).vector
     check_staging(craft)
     yield()
   }
@@ -40,31 +49,38 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, angle_from_north: float, 
     check_staging(craft)
     yield()
   }
+
+  log_mission_event(craft, $"Following surface prograde vector: {craft.surface_velocity.magnitude:N1} m/s")
+
   
   let angle_above_horizon = 90 - craft.up.angle_to(craft.surface_velocity)
   
   while (craft.altitude_sealevel < 36000) {
     check_staging(craft)
     angle_above_horizon = 90 - craft.up.angle_to(craft.surface_velocity)
-    craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, angle_above_horizon, 90-angle_from_north).vector
-    info_gt(craft, angle_above_horizon, this_row, false)
+    craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
+    info_gt(craft, this_row, false)
     info_orbit(craft, this_row + 4)  
     yield()
   }
 
+  log_mission_event(craft, $"Following orbital prograde vector: {craft.orbital_velocity.magnitude:N1} m/s")
+
   while (craft.orbit.apoapsis.value < target_apo) {
     check_staging(craft)
     angle_above_horizon = 90 - craft.up.angle_to(craft.orbit.prograde(current_time()))
-    craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, angle_above_horizon, 90-angle_from_north).vector
-    info_gt(craft, angle_above_horizon, this_row)
+    craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
+    info_gt(craft, this_row)
     info_orbit(craft, this_row + 4)
-    if (craft.orbit.apoapsis.value > 0.98 * target_apo) {craft.set_throttle(max(0.1, 30/craft.available_thrust))}
+    if (craft.orbit.apoapsis.value > 0.95 * target_apo) {craft.set_throttle(max(0.1, 30/craft.available_thrust))}
     if (craft.altitude_sealevel > 86000 && jettison_fairing && !no_more_fairing) {
       craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
+      log_mission_event(craft, "Fairing jettisoned")
       no_more_fairing = true
       CONSOLE.clear()
       in_space = true
       print_title("IN SPACE", 0)
+      log_mission_event(craft, "In space")
       sleep(0.5)
     }
     yield()
@@ -74,21 +90,28 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, angle_from_north: float, 
   craft.set_throttle(0)
   CONSOLE.clear()
   print_title("GRAVITY TURN DONE", 0)
+  log_mission_event(craft, "End of Gravity turn")
   sleep(1)
 
   if (!in_space) {
     while(craft.altitude_sealevel < 86000) {
       angle_above_horizon = 90 - craft.up.angle_to(craft.orbit.prograde(current_time()))
-      craft.autopilot.target_orientation = craft.heading_direction(angle_from_north, angle_above_horizon, 90-angle_from_north).vector
-      info_gt(craft, angle_above_horizon, 2)
+      craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
+      info_gt(craft, 2)
       info_orbit(craft, 6) 
       yield()
     }
     yield()
     CONSOLE.clear()
     print_title("IN SPACE", 0)
-    if (!no_more_fairing && jettison_fairing) {craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()}
+      log_mission_event(craft, "In space")
+    if (!no_more_fairing && jettison_fairing) {
+      craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
+      log_mission_event(craft, "Fairing jettisoned")
+    }
   }
+  craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, 0).vector
+  sleep(1)
 }
 
 pub fn check_staging (craft: Vessel) -> Unit = {
@@ -117,6 +140,7 @@ pub fn check_staging (craft: Vessel) -> Unit = {
 pub fn trigger_staging (craft: Vessel) -> Unit = {
   wait_until(fn() -> craft.staging.ready || craft.connection_status == ConnectionNodeStatus.Disconnected)
   craft.staging.next()
+  log_stage(craft)
   yield()
 }
 

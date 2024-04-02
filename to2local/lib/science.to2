@@ -1,3 +1,4 @@
+// KONTROL SYSTEM 2 - v0.5.7.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -9,6 +10,7 @@ use { format } from core::str
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
 use { sleep, wait_until, yield, current_time } from ksp::game
+use { LogFile, MAIN_LOG } from ksp::debug
 use { Vessel, ModuleScienceExperiment } from ksp::vessel
 use { Experiment, ExperimentState, ResearchLocation, ScienceSituation, get_completed_research_reports } from ksp::science
 
@@ -16,6 +18,7 @@ use { Experiment, ExperimentState, ResearchLocation, ScienceSituation, get_compl
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { print_title } from lib::misc
+use * from lib::mission_logs
 
 //____________________________________________________
 // FUNCTIONS
@@ -134,12 +137,15 @@ fn exp_loc_id (craft: Vessel, exp: Experiment, short: bool = false) -> string = 
   }
 }
 
-pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> Unit = {
+pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> (data: float, sample: float) = {
   const sciencePart = listOfScienceExp(craft)
   let max_time = -1.0
-  let idx_slowest_exp = -1
+  let idx_exp = -1
   let exp_time = -1.0
   let time_line = -1.0 // to print sort of download bar: |||||||
+
+  let data_sum = 0.0
+  let sample_sum = 0.0
   CONSOLE.clear()
 
   const msg = "EXPERIMENT(S) READY TO START"
@@ -153,7 +159,7 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> Uni
       new_exp += sciencePart[i]
       if (sciencePart[i].time_to_complete > max_time) {
         max_time = sciencePart[i].time_to_complete
-        idx_slowest_exp = i
+        idx_exp = i
       }
     }
   }
@@ -171,16 +177,19 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> Uni
 
     for (exp in new_exp) {
       exp.run_experiment()
+      data_sum += exp.definition.data_value
+      sample_sum += exp.definition.sample_value
+      log_science(craft, exp)
     }
 
     if (waitExp) {
-      const slowest_exp = sciencePart[idx_slowest_exp]   
+      const exp = sciencePart[idx_exp]   
       CONSOLE.clear_line(msg_row)
       CONSOLE.clear_line(msg_row+1)
       CONSOLE.print_line("Please wait the end of experiment(s)...")
 
-      while(slowest_exp.current_running_time > 0) {
-        exp_time = (slowest_exp.time_to_complete-slowest_exp.current_running_time)/slowest_exp.time_to_complete
+      while(exp.current_running_time > 0) {
+        exp_time = (exp.time_to_complete-exp.current_running_time)/exp.time_to_complete
         time_line = round(floor(exp_time*100)/5)
 
         print_title("Collecting Science...", science_row)
@@ -198,13 +207,86 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> Uni
     }
   }
   CONSOLE.clear()
+
+  (data: data_sum, sample: sample_sum)
 }
+
+pub fn run_telemetry (craft: Vessel, waitExp: bool, transmit: bool = false) -> Unit = {
+  const tel = listOfScienceExp(craft).filter(fn(e) -> e.definition.id == "wmcc_telemetry_report")
+  const exp = tel[0]
+
+  let science_row = 2
+  
+  exp.run_experiment()
+  
+  if (waitExp) {
+    CONSOLE.clear()
+    CONSOLE.print_line("Please wait the end of telemetry experiment...")
+
+    while(exp.current_running_time > 0) {
+      let exp_time = (exp.time_to_complete-exp.current_running_time)/exp.time_to_complete
+      let time_line = round(floor(exp_time*100)/5)
+
+      print_title("Collecting Science...", science_row)
+      CONSOLE.print_at(science_row+3, 0, format("|| {0:P2}", exp_time))
+      CONSOLE.print_at(science_row+3, time_line.to_int+11, "|")
+      yield()
+    }
+    CONSOLE.print_at(science_row+3, 0, "|| 100 % |||")
+    sleep(1)
+    for (i in 0..4) CONSOLE.clear_line(science_row+i)
+    CONSOLE.print_line("Telemetry done.")
+    if (transmit == true) {
+      transmit_data(craft)
+    }
+  }
+}
+
+pub fn run_env_survey (craft: Vessel, waitExp: bool, transmit: bool = false) -> Unit = {
+  const Envsur = listOfScienceExp(craft).filter(fn(e) -> e.definition.id == "EnvironmentSurvey")
+  const exp = Envsur[0]
+
+  let science_row = 2
+  
+  exp.run_experiment()
+  
+  if (waitExp) {
+    CONSOLE.clear()
+    CONSOLE.print_line("Environment Survey...")
+
+    while(exp.current_running_time > 0) {
+      let exp_time = (exp.time_to_complete-exp.current_running_time)/exp.time_to_complete
+      let time_line = round(floor(exp_time*100)/5)
+
+      print_title("Collecting Science...", science_row)
+      CONSOLE.print_at(science_row+3, 0, format("|| {0:P2}", exp_time))
+      CONSOLE.print_at(science_row+3, time_line.to_int+11, "|")
+      yield()
+    }
+    CONSOLE.print_at(science_row+3, 0, "|| 100 % |||")
+    sleep(1)
+    for (i in 0..4) CONSOLE.clear_line(science_row+i)
+    CONSOLE.print_line("Environment Survey done.")
+    if (transmit == true) {
+      transmit_data(craft)
+    }
+  }
+}
+
+pub fn run_orb_survey (craft: Vessel) -> Unit = {
+  const Orbsur = listOfScienceExp(craft).filter(fn(e) -> e.definition.id.contains("orbital_survey"))
+  const exp = Orbsur[0]
+
+  let science_row = 2
+  
+  exp.run_experiment()
+}
+
 
 pub fn transmit_data (craft: Vessel) -> Unit = {
   CONSOLE.print_line("Transmitting data...")
   craft.science_storage.value.start_transmit_all()
 }
-
 
 
 // fn check_new_exp (craft: Vessel, exp: Experiment) -> bool = {

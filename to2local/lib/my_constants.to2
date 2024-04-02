@@ -1,0 +1,63 @@
+// KONTROL SYSTEM 2 - v0.5.7.5
+
+use { screen_size } from ksp::ui
+use { CONSOLE, RgbaColor, color } from ksp::console
+use { Vec2, vec2 } from ksp::math
+use { Body, find_body } from ksp::orbit
+
+use { Launchpad, Runway } from lib::my_structures
+
+//____________________________________________________
+// CONSTANTS FOR UI
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub const myScreen: Vec2 = screen_size()
+pub const button_font_size: float = 20.0
+pub const text_font_size: float = 15.0
+pub const title_font_size: float = 1.5*text_font_size
+pub const canva_font_size: float = 20.0
+pub const text_color:RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
+pub const gap_box: float = 10.0
+
+//____________________________________________________
+// CONSTANTS FOR CONSOLE_WINDOW
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+pub const console_size: Vec2 = vec2(500, 600)
+
+//____________________________________________________
+// CELESTIAL BODIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub const Kerbin: Body = find_body("Kerbin").value
+pub const initial_rotation_kerbin: float = 90.0
+pub const OneAtmPressure: float = 101.325 //kpa
+pub const g0: float = 9.80665
+pub const hours_per_day: float = 6.0
+
+pub const Mun: Body = find_body("Mun").value
+pub const initial_rotation_Mun: float = 230.0
+
+pub const Minmus: Body = find_body("Minmus").value
+pub const initial_rotation_Minmus: float = 230.0
+
+pub const Duna: Body = find_body("Duna").value
+pub const initial_rotation_Duna: float = 90.0
+
+//____________________________________________________
+// KSC
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+pub const LP_one: Launchpad = Launchpad("LP1")
+pub const LP_two: Launchpad = Launchpad("LP2")
+pub const LP_three: Launchpad = Launchpad("LP3")
+pub const LP_four: Launchpad = Launchpad("LP4")
+
+pub const RW_09L: Runway = Runway("09L")
+pub const RW_09R: Runway = Runway("09R")
+pub const RW_27L: Runway = Runway("27L")
+pub const RW_27R: Runway = Runway("27R")
+
+//____________________________________________________
+// GAME
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub const difficulty_settings:float = 0.8 // difficulty setting for science rewards

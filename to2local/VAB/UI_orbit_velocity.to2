@@ -18,19 +18,17 @@ use { find_body, Body } from ksp::orbit
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-const myScreen: Vec2 = screen_size()
+use * from lib::my_constants
+
 const window_width: float = 300
 const window_height: float = 200
-const button_font_size: float = 20.0
-const text_font_size: float = 15.0
-const canva_font_size: float = 20.0
-const text_color: RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
+
 
 //____________________________________________________
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn main_editor () -> Result<Unit, string> = {
+pub fn main_editor () -> Result<Unit> = {
   CONSOLE.clear()
 
   const main_window = open_window("<b>VELOCITY</b>",
@@ -88,7 +86,7 @@ pub fn main_editor () -> Result<Unit, string> = {
 }
 
 
-fn create_box(window: Window, bod: Body, peri: float, apo: float, alt: float) -> Result<Container, string> = {
+fn create_box(window: Window, bod: Body, peri: float, apo: float, alt: float) -> Result<Container> = {
   const answer_box = window.add_vertical_panel(10.0, Align.Stretch)
   const vel = compute_vel(bod, peri, apo, alt)
 

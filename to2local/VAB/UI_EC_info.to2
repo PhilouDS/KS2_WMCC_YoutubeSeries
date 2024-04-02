@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.6.0
+// KONTROL SYSTEM 2 - v0.5.7.1
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -21,15 +21,11 @@ use { active_object_assembly_builder, ObjectAssembly, ObjectAssemblyPart, Object
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-const myScreen: Vec2 = screen_size()
+use * from lib::my_constants
+
 const window_width: float = 700.0
 const window_height: float = 200.0
-const button_font_size: float = 20.0
-const text_font_size: float = 15.0
-const title_font_size: float = 1.5*text_font_size
-const canva_font_size: float = 25
-const text_color: RgbaColor = color(1, 1, 0.5)
-const gap_box: float = 10.0
+
 
 const toggle_ec_show_label: string = "Show EC Details"
 const toggle_ec_hide_label: string = "Hide EC Details"
@@ -39,7 +35,7 @@ const toggle_sc_hide_label: string = "Hide Science Transmission"
 const ec_button_label: string = "Compute EC"
 const darkness_button_label: string = "Compute Darkness Duration"
 
-const difficulty_settings:float = 0.8
+
 
 //____________________________________________________
 // MAIN FUNCTION
@@ -47,7 +43,7 @@ const difficulty_settings:float = 0.8
 
 // https://wiki.kerbalspaceprogram.com/wiki/Orbit_darkness_time
 
-pub fn main_editor () -> Result<Unit, string> = {
+pub fn main_editor () -> Result<Unit> = {
   CONSOLE.clear()
 
   const main_window = open_window("<b>ELECTRIC CHARGE INFO</b>",
@@ -303,7 +299,7 @@ sync fn create_elec_detail_box (box: Container, maybe_assembly: Option<ObjectAss
   elec_detail_box
 }
 
-sync fn create_elec_requirement_box (box: Container, maybe_assembly: Option<ObjectAssembly>) -> Result<Container, string> = {
+sync fn create_elec_requirement_box (box: Container, maybe_assembly: Option<ObjectAssembly>) -> Result<Container> = {
     const elec_detail = box.add_horizontal_panel(gap_box, Align.Stretch)
 
     if (Some(assembly) = maybe_assembly) {
@@ -347,7 +343,7 @@ sync fn create_elec_requirement_box (box: Container, maybe_assembly: Option<Obje
 // BATTERY BOX CREATION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-sync fn create_battery_box(box: Container, assembly: ObjectAssembly) -> Result<Container, string> = {
+sync fn create_battery_box(box: Container, assembly: ObjectAssembly) -> Result<Container> = {
   const detail_battery_box = box.add_horizontal_panel(gap_box, Align.Stretch)
   const bat_name_box = detail_battery_box.add_vertical(gap_box, Align.Stretch)
   const bat_number_box = detail_battery_box.add_vertical(gap_box, Align.Stretch)
@@ -395,7 +391,7 @@ sync fn create_battery_box(box: Container, assembly: ObjectAssembly) -> Result<C
 // TIME BOX CREATION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-sync fn create_time_box (box: Container, bod_input: StringInputField, pe_input: FloatInputField, ap_input: FloatInputField, ec_out: float, ec_out_wo_rw: float) -> Result<Container, string> = {  
+sync fn create_time_box (box: Container, bod_input: StringInputField, pe_input: FloatInputField, ap_input: FloatInputField, ec_out: float, ec_out_wo_rw: float) -> Result<Container> = {  
   const actual_bod = Cell(find_body(bod_input.value)?)
   const body_atmo = Cell(0.0)
   const time_box = box.add_horizontal_panel(gap_box, Align.Stretch)
@@ -483,7 +479,9 @@ sync fn create_science_transmission_box (box: Container, maybe_assembly: Option<
     transmit_ec_cost_title.font_size = text_font_size
 
     for (exp in assembly.parts.filter_map(fn(p) -> p.science_experiment).flat_map(fn(sc) -> sc.experiments)) {
-      const exp_name = exp.definition.id
+      let exp_name = exp.definition.id
+      if (exp_name == "wmcc_telemetry_report") {exp_name = "Telemetry"}
+      else if (exp_name.contains("orbital_survey")) {exp_name = exp_name.replace("orbital_survey_visual_mapping_high","Orb_Surv")}
       const exp_time = exp.time_to_complete
       let exp_ec_cost = 0.0
       if (exp.experiment_uses_resources) {

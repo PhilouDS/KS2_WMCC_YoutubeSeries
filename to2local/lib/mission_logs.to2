@@ -1,0 +1,340 @@
+// KONTROL SYSTEM 2 - v0.5.7.5
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { floor } from core::math
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { LogFile, MAIN_LOG } from ksp::debug
+use { current_time } from ksp::game
+use { CONSOLE } from ksp::console
+use { Vessel, DeltaVSituation, VesselSituation } from ksp::vessel
+use { Orbit } from ksp::orbit
+use { Experiment, ResearchLocation } from ksp::science
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::my_constants
+
+const logWidth: int = 91
+const edge: string = "|"
+
+
+//____________________________________________________
+// STARTING LOGS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn log_mission (title: string) -> Unit = {
+  underscore_line(1, "·")
+  add_centered_entry("~ " + title + " ~")
+  upperscore_line(1, "·")
+  empty_log()
+}
+
+pub fn log_general_info (craft: Vessel, apo: float, wanted_inc: float = LP_one.get_latitude(), launch_az: float = 90.0) -> Unit = {
+  // log_section("ÉTAT SPACE CENTER")
+  // add_left_entry("FONDS      : √ {grandNombre(tmpFonds, 2))
+  // add_left_entry("SCIENCE    : {grandNombre(tmpScience, 2))
+  // add_left_entry("RÉPUTATION : {grandNombre(tmpReputation, 2))
+  
+  // empty_log()
+
+  const this_stage = Stage_Info(craft, craft.staging.current)
+  const twr = this_stage.get_twr(DeltaVSituation.Altitude)
+  const dv = this_stage.get_total_delta_v(DeltaVSituation.Vaccum)
+  
+  log_section("GENERAL INFORMATION")
+  add_left_entry($"DATE            : {time_to_date(current_time())}")
+  empty_log()
+  add_left_entry($"CRAFT           : {craft.name}")
+  empty_log()
+  add_left_entry($"MASS            : {craft.mass:N3} t")
+  add_left_entry($"Theoric TWR     : {twr:N2}")
+  add_left_entry($"Delta-V Vaccum  : {dv:N2} m/s")
+  add_left_entry($"STAGE number    : {craft.staging.count}")
+  
+  empty_log()
+
+  log_section("LAUNCH - INITIAL DATA")
+  add_left_entry($"WANTED APOAPSIS   : {apo:N0} m")
+  add_left_entry($"LAUNCH INCLINATION: {wanted_inc:N2}°")
+  add_left_entry($"LAUNCH AZIMUTH    : {launch_az:N2}°")
+  empty_log()
+  
+  log_section("MISSION EVENTS")
+}
+
+//____________________________________________________
+// DURING FLIGHT
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn log_stage (craft: Vessel, ) -> Unit = {
+  log_mission_event(craft, "STAGING")
+  const next_stage = Stage_Info(craft, craft.staging.current)
+  const twr = next_stage.get_twr(DeltaVSituation.Altitude)
+  const dv = next_stage.get_total_delta_v(DeltaVSituation.Altitude)
+  
+  add_left_entry($"  · ACTUAL TWR          : {twr:N2}")
+  add_left_entry($"  · ACTUAL Delta-V      : {dv:N2} m/s")
+  add_left_entry($"  · ALTITUDE            : {craft.altitude_sealevel:N1} m")
+  add_left_entry($"  · SURFACE VELOCITY    : {craft.surface_velocity.magnitude:N2} m/s")
+  add_left_entry($"  · ORBITAL VELOCITY    : {craft.orbital_velocity.magnitude:N2} m/s")
+  add_left_entry($"  · ATMOSPHERIC PRESSURE: {craft.dynamic_pressure_kpa:N3} kPa")
+}
+
+pub fn log_hohmann (craft: Vessel, init: float, final: float, delta: float) -> Unit = {
+  log_mission_event(craft, "Hohmann transfer")
+  add_left_entry($"  · Initial velocity: {init:N2} m/s")
+  add_left_entry($"  · Final velocity  : {final:N2} m/s")
+  add_left_entry($"  · Delta-V         : {delta:N2} m/s")
+}
+
+pub fn log_node (craft: Vessel, burnTime: float, burnETA: float, newNode: bool = true) -> Unit = {
+  if (newNode) {
+    log_mission_event(craft, "New maneuver node")
+  }
+  else {
+    log_mission_event(craft, "Maneuver node update")
+  }
+  add_left_entry($"  · Maneuver duration   : {burnTime:N2} s")
+  add_left_entry($"  · Time before maneuver: {time_to_clock(burnETA)}")
+}
+
+pub fn log_science (craft: Vessel, exp: Experiment, ) -> Unit = {
+  log_mission_event(craft, "Science experiment started")
+  add_left_entry($"  *** " + exp.experiment_id + " ***")
+  add_left_entry($"  · Location        : {exp_loc_id_log(craft, exp)}")
+  add_left_entry($"  · Data value      : {exp.definition.data_value:N2}")
+  add_left_entry($"  · Sample value    : {exp.definition.sample_value:N2}")
+  add_left_entry($"  · Report size     : {exp.definition.transmission_size:N2}")
+  add_left_entry($"  · Time to complete: {exp.time_to_complete:N2} s")   
+}
+
+pub fn log_mission_event (craft: Vessel, event: string, add_empty: bool = true) -> Unit = {
+  if (add_empty) {empty_log()}
+  const event_time = time_to_clock(craft.time_since_launch)
+  add_left_entry("T+ " + event_time + ": " + event)
+}
+
+
+//____________________________________________________
+// ORBIT
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn log_orbit_info (obt: Orbit) -> Unit = {
+  empty_log()
+  
+  log_section("ORBIT CARACTERISTICS")
+  add_left_entry($"Apoapsis                   : {obt.apoapsis.value:N2} m")
+  add_left_entry($"Periapsis                  : {obt.periapsis:N2} m")
+  add_left_entry($"Argument of periapsis      : {obt.argument_of_periapsis:N1}°")
+  add_left_entry($"Eccentricity               : {(10**4 * obt.eccentricity):N2} x 10^(-4)")
+  add_left_entry($"Period                     : {time_to_clock(obt.period)}")
+  add_left_entry($"Inclination                : {obt.inclination:N2}°")
+  add_left_entry($"Longitude of Ascending Node: {obt.LAN:N2}°")
+  upperscore_line(2)
+}
+
+
+//____________________________________________________
+// END MISSION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+pub fn log_suicid_burn (twr: float, Vm: float, Tm: float, burningAltitude: float) -> Unit = {
+  empty_log()
+  log_section("LANDING PROCEDURE")
+  add_left_entry($"TWR              : {twr:N2}")
+  add_left_entry($"Delta-v needed   : {Vm:N2} m/s")
+  add_left_entry($"Ignition duration: {Tm:N2} s")
+  add_left_entry($"Ignition altitude: {burningAltitude:N2} m")
+  upperscore_line(2)
+}
+
+pub fn log_landing (craft: Vessel) -> Unit = {
+  empty_log()
+  log_section("LANDING DONE")
+  let biome = "unknown region"
+  if (craft.research_location.defined) {biome = craft.research_location.value.id}
+  log_mission_event(craft, "Craft stable", false)
+  add_left_entry($"LOCATION")
+  add_left_entry($"  · {craft.main_body.name} / {biome}")
+  add_left_entry($"  · {craft.situation.to_string()}")
+  add_left_entry($"COORDINATES")
+  add_left_entry($"  · latitude    : {craft.geo_coordinates.latitude:N2}°")
+  add_left_entry($"  · longitude   : {craft.geo_coordinates.longitude:N2}°")
+  add_left_entry($"  · altitude asl: {craft.altitude_sealevel:N1} m")
+  empty_log()
+}
+
+pub fn log_end_mission (craft: Vessel, data_point: float, sample_point: float) -> Unit = {
+  underscore_line()
+  add_centered_entry("~ END OF THE MISSION ~")
+  upperscore_line()
+  empty_log()
+  log_section("RECAP")
+  add_left_entry($"END UT      : {time_to_date(current_time())}")
+  add_left_entry($"MISSION TIME: {time_to_clock(craft.time_since_launch)}")
+  empty_log()
+  add_left_entry($"DATA VALUE  : {data_point:N2}")
+  add_left_entry($"SAMPLE VALUE: {sample_point:N2}")
+  empty_log()
+}
+
+pub fn close_log (empty: bool = false) -> Unit = {
+  if (empty) {empty_log()}
+  underscore_line(1, "·")
+}
+
+
+
+//____________________________________________________
+// SUB FUNCTIONS FOR LOGS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+fn empty_log (border: string = edge) -> Unit = {
+  let emptyLine = border
+  for (i in 0..(logWidth - 2)) {
+    emptyLine += " "
+  }
+  emptyLine += border
+  MAIN_LOG.log(emptyLine)
+}
+
+fn log_section (title: string) -> Unit = {
+  let sec_title = "# " + title
+  add_left_entry(sec_title)
+  upperscore_line(2)
+}
+
+fn underscore_line (fraction: float = 1, border: string = edge) -> Unit = {
+  let frac = fraction
+  if (frac < 1) {frac =  1}
+  let underscoreLine = border
+  for (i in 0..(floor((logWidth - 2)/frac)).to_int) {
+    underscoreLine += "_"    
+  }
+  if (frac > 1) {
+    for (i in 0...(floor((logWidth - 2) * (fraction - 1)/fraction)).to_int) {
+      underscoreLine += " "
+    }
+  }
+  underscoreLine += border
+  MAIN_LOG.log(underscoreLine)
+}
+
+fn upperscore_line (fraction: float = 1, border: string = edge) -> Unit = {
+  let frac = fraction
+  if (frac < 1) {frac =  1}
+  let upperscoreLine = border
+  for (i in 0..(floor((logWidth - 2)/frac)).to_int) {
+    upperscoreLine += "‾"
+  }
+  if (frac > 1) {
+    for (i in 0...(floor((logWidth - 2) * (fraction - 1)/fraction)).to_int) {
+      upperscoreLine += " "
+    }
+  }
+  upperscoreLine += border
+  MAIN_LOG.log(upperscoreLine)
+}
+
+fn add_centered_entry (msg: string, border: string = edge) -> Unit = {
+  let entry = msg
+  if (entry.length%2 == 0) {
+    entry += " "
+  }
+  let blankWidth = floor((logWidth - 2 - entry.length)/2).to_int
+  let printentry = border
+  for (i in 0..blankWidth) {
+    printentry += " "
+  }
+  printentry += entry
+  for (i in 0..blankWidth) {
+    printentry += " "
+  }
+  printentry += border
+  MAIN_LOG.log(printentry)
+}
+
+pub fn add_left_entry (msg: string, border: string = edge) -> Unit = {
+  let entry = msg
+  if (entry.length%2 == 0) {
+    entry += " "
+  }
+  let blankWidth = logWidth - 2 - entry.length
+  let printentry = border + entry
+  for (i in 0.. blankWidth) {
+    printentry += " "
+  }
+  printentry += border
+  MAIN_LOG.log(printentry)
+}
+
+pub fn add_item (item: string, loc: string = "L", border: string = edge) -> Unit = {
+  if (loc == "L") {
+    add_left_entry("  · " + item)
+  } else
+  if (loc == "C") {
+    add_centered_entry("  · " + item)
+  }
+}
+
+//____________________________________________________
+// SUB FUNCTIONS FOR NUMBERS AND DATES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+fn time_to_clock (time: float) -> string = {
+  const nHours = floor(time / 3600)
+  let nHours_label = nHours.to_int.to_string()
+  if (nHours < 10) {nHours_label = "0" + nHours.to_int.to_string()}
+  const nMin = floor((time - nHours*3600) / 60)
+  let nMin_label = nMin.to_int.to_string()
+  if (nMin < 10) {nMin_label = "0" + nMin.to_int.to_string()}
+  const nSec = floor(time - nHours*3600 - nMin*60)
+  let nSec_label = nSec.to_string()
+  if (nSec < 10) {nSec_label = "0" + nSec.to_int.to_string()}
+  const time_string = nHours_label + " h " + nMin_label + " min " + nSec_label + " sec"
+
+  time_string
+}
+
+fn time_to_date (time: float) -> string = {
+  const nDay = floor(time / (hours_per_day * 3600)).to_int
+  const nHours = floor((time - nDay*(hours_per_day*3600)) / 3600)
+  let nHours_label = nHours.to_int.to_string()
+  if (nHours < 10) {nHours_label = "0" + nHours.to_int.to_string()}
+  const nMin = floor((time - nDay*(hours_per_day*3600) - nHours*3600) / 60)
+  let nMin_label = nMin.to_int.to_string()
+  if (nMin < 10) {nMin_label = "0" + nMin.to_int.to_string()}
+  const nSec = floor(time - nDay*(hours_per_day*3600) - nHours*3600 - nMin*60)
+  let nSec_label = nSec.to_string()
+  if (nSec < 10) {nSec_label = "0" + nSec.to_int.to_string()}
+  const time_string = (nDay+1).to_string() + " d " + nHours_label + " h " + nMin_label + " min " + nSec_label + " sec"
+
+  time_string
+}
+
+fn exp_loc_id_log (craft: Vessel, exp: Experiment, short: bool = false) -> string = {
+  let exp_body_id = craft.research_location.value.body_name
+  
+  let exp_situation_id = exp.valid_locations.filter(
+    fn(loc) -> loc.id == ("_" + craft.research_location.value.science_situation.to_string())
+  )[0].id
+  
+  let exp_region_id = "_" + craft.research_location.value.science_region
+
+  if (short) {
+    return (exp_body_id + exp_situation_id)
+  }
+  else {
+    return (exp_body_id + exp_situation_id + exp_region_id)
+  }
+}

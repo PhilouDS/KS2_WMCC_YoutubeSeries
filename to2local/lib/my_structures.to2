@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.5.5
+// KONTROL SYSTEM 2 - v0.5.7.3
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -7,13 +7,16 @@ use { cos_deg, sin_deg, atan2_deg, acos_deg, asin_deg, cos, sin, acos, asin, ata
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { Vessel } from ksp::vessel
+use { Vessel, DeltaVSituation } from ksp::vessel
+use { ObjectAssemblyEngineDeltaV, ObjectAssemblyStageDeltaV } from ksp::oab
 use { find_body, Body, GeoCoordinates } from ksp::orbit
 use { Vec2, Vec3, vec3 } from ksp::math
 
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
 
 //____________________________________________________
 // MAIN STRUCTURES
@@ -27,10 +30,6 @@ pub struct Launchpad(launchpad_name : string) {
 }
 
 impl Launchpad {
-  fn get_name(self) -> string = { 
-    self.name
-  }
-
   sync fn get_latitude(self) -> float = {
     let lat = 0.0
     if (self.name == "LP1") {
@@ -66,12 +65,10 @@ impl Launchpad {
   }
 
   sync fn get_altitude(self) -> float = {
-    const Kerbin = find_body("Kerbin").value
     Kerbin.terrain_height(self.get_latitude(), self.get_longitude())
   }
 
   fn geo_coord(self) -> GeoCoordinates = {
-    const Kerbin = find_body("Kerbin").value
     Kerbin.geo_coordinates(self.get_latitude(), self.get_longitude())
   }
 
@@ -84,7 +81,6 @@ impl Launchpad {
   }
 
   fn get_rotation_velocity(self) -> float = {
-    const Kerbin = find_body("Kerbin").value
     const omega = 2 * PI / Kerbin.rotation_period
     const lat = self.get_latitude()
     
@@ -100,10 +96,6 @@ pub struct Runway(runway_name : string) {
 }
 
 impl Runway {
-  fn get_name(self) -> string = { 
-    self.name
-  }
-
   fn get_latitude(self) -> float = {
     let lat = 0.0
     if (self.name == "09L") {
@@ -138,14 +130,11 @@ impl Runway {
     long
   }
 
-  fn get_altitude(self) -> float = {
-    const Kerbin = find_body("Kerbin").value
-    
+  fn get_altitude(self) -> float = {    
     Kerbin.terrain_height(self.get_latitude(), self.get_longitude())
   }
 
   fn geo_coord(self) -> GeoCoordinates = {
-    const Kerbin = find_body("Kerbin").value
     return Kerbin.geo_coordinates(self.get_latitude(), self.get_longitude())
   }
 
@@ -159,16 +148,16 @@ impl Runway {
 }
 
 //____________________________________________________
-// WAYPOINT
+// WAYPOINT - called SPOT because Waypoint is now a structure in to2
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-pub struct Waypoint(wp_name: string, wp_lat : float, wp_long: float, body: string) {
+pub struct Spot(wp_name: string, wp_lat : float, wp_long: float, wp_body: string) {
   name: string = wp_name
   lat: float = wp_lat
   long: float = wp_long
-  body: Body = find_body(body).value
+  body: Body = find_body(wp_body).value
 }
 
-impl Waypoint {
+impl Spot {
   fn get_altitude(self) -> float = {
     self.body.terrain_height(self.lat, self.long)
   }
@@ -208,53 +197,39 @@ impl Waypoint {
 //____________________________________________________
 // STAGE_INFO
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-const g0: float = 9.80665
+
 
 pub struct Stage_Info(my_craft: Vessel, stage_num : int) {
   number: int = stage_num
   craft: Vessel = my_craft
-  start_mass: float = 0
-  final_mass: float = 0
-  thrust: float = 0
-  isp: float = 0
-  Ve: float = 0
-  fuel_flow: float = 0
-  dv: float = 0
-  twr: float = 0
-  burn_time: float = 0
 }
 
-impl Stage_Info {
-  sync fn get_number(self) -> int = {
-    self.number
-  }
-
-  sync fn get_craft(self) -> Vessel = {
-    self.craft
-  }
-  
+impl Stage_Info {  
   sync fn get_init_mass (self) -> float = {
     const craft = self.craft
+    let start_mass = 0.0
     const maybe_stg = craft.delta_v.stage(self.number)
     if(maybe_stg.defined) {
       const stg = maybe_stg.value
-      self.start_mass = stg.start_mass
+      start_mass = stg.start_mass
     }
-    self.start_mass
+    start_mass
   }
 
   sync fn get_final_mass (self) -> float = {
     const craft = self.craft
+    let final_mass = 0.0
     const maybe_stg = craft.delta_v.stage(self.number)
     if(maybe_stg.defined) {
       const stg = maybe_stg.value
-      self.final_mass = stg.end_mass
+      final_mass = stg.end_mass
     }
-    self.final_mass
+    final_mass
   }
 
-  sync fn get_thrust (self, sit: ksp::vessel::DeltaVSituation) -> float = {
+  sync fn get_thrust (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
     const craft = self.craft
+    let thrust = 0.0
     const maybe_stg = craft.delta_v.stage(self.number)
     if(maybe_stg.defined) {
       const stg = maybe_stg.value
@@ -263,13 +238,14 @@ impl Stage_Info {
       for (e in eng) {
         stgThrust += e.get_thrust(sit)
       }
-      self.thrust = stgThrust
+      thrust = stgThrust
     }
-    self.thrust
+    thrust
   }
 
-  sync fn get_isp (self, sit: ksp::vessel::DeltaVSituation) -> float = {
+  sync fn get_isp (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
     const craft = self.craft
+    let isp = 0.0
     const maybe_stg = craft.delta_v.stage(self.number)
     if(maybe_stg.defined) {
       const stg = maybe_stg.value
@@ -281,66 +257,176 @@ impl Stage_Info {
         sumFuelCons += e.get_thrust(sit) / e.get_ISP(sit)
       }
       if (sumFuelCons == 0.0) {
-        self.isp = 0.0
+        isp = 0.0
       }
       else {
-        self.isp = (stgThrust / sumFuelCons)
+        isp = (stgThrust / sumFuelCons)
       }
     }
-    self.isp
+    isp
   }
 
-  sync fn get_effective_velocity (self, sit: ksp::vessel::DeltaVSituation) -> float = {
-    self.Ve = self.get_isp(sit) * g0
-    self.Ve
+  sync fn get_effective_velocity (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
+    self.get_isp(sit) * g0
   }
 
-  sync fn get_fuel_flow (self, sit: ksp::vessel::DeltaVSituation) -> float = {
+  sync fn get_fuel_flow (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
     let fuelFlow = 0.0
     if (self.get_effective_velocity(sit) != 0.0) {
       fuelFlow = (self.get_thrust(sit) / self.get_effective_velocity(sit))
     }
-    self.fuel_flow = fuelFlow
-    self.fuel_flow
+    fuelFlow
   }
 
-  sync fn get_deltav (self, sit: ksp::vessel::DeltaVSituation) -> float = {
+  sync fn get_deltav (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
     let LN = log(self.get_init_mass() / self.get_final_mass())
-    self.dv = self.get_effective_velocity(sit) * LN
-    self.dv
+    self.get_effective_velocity(sit) * LN
   }
 
-  sync fn get_twr (self, sit: ksp::vessel::DeltaVSituation) -> float = {
-    self.twr = (self.get_thrust(sit) / (self.get_init_mass() * g0))
-    self.twr
+  sync fn get_total_delta_v (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
+    let total_dv = 0.0
+    for (stg in self.craft.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
+      let temp_stg = Stage_Info(self.craft, stg.stage)
+      total_dv += temp_stg.get_deltav(sit)
+    }
+    total_dv
   }
 
-  sync fn get_burn_time (self, sit: ksp::vessel::DeltaVSituation) -> float = {
+  sync fn get_twr (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
+    (self.get_thrust(sit) / (self.get_init_mass() * g0))
+  }
+
+  sync fn get_burn_time (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
     let burnTime = 0.0
     if (self.get_fuel_flow(sit) != 0) {
       burnTime = (self.get_init_mass() - self.get_final_mass()) / self.get_fuel_flow(sit)
     }
-    self.burn_time = burnTime
-    self.burn_time
+    burnTime
+  }
+
+  sync fn get_total_burn_time (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
+    let total_time = 0.0
+    for (stg in self.craft.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
+      let temp_stg = Stage_Info(self.craft, stg.stage)
+      total_time += temp_stg.get_burn_time(sit)
+    }
+    total_time
   }
 }
 
-// pub sync fn total_delta_v (craft: Vessel, sit: ksp::vessel::DeltaVSituation) -> float = {
-//   let total_dv = 0.0
-//   for (stg in craft.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
-//     let temp_stg = Stage_Info(craft, stg.stage)
-//     total_dv += temp_stg.get_deltav(sit)
-//   }
-//   total_dv
-// }
+pub struct Stage_Info_VAB(stg: ObjectAssemblyStageDeltaV) {
+  stage: ObjectAssemblyStageDeltaV = stg
+}
 
-// pub sync fn total_burn_time (craft: Vessel, sit: ksp::vessel::DeltaVSituation) -> float = {
-//   let total_time = 0.0
-//   for (stg in craft.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
-//     let temp_stg = Stage_Info(craft, stg.stage)
-//     total_time += temp_stg.get_burn_time(sit)
-//   }
-//   total_time
-// }
+impl Stage_Info_VAB {
+  sync fn get_stage_number (self, tot_stages_num: int) -> int = {
+    tot_stages_num - self.stage.stage
+  }
 
+  sync fn get_active_engines (self) -> ObjectAssemblyEngineDeltaV[] = {
+    self.stage.active_engines
+  }
 
+  sync fn get_init_mass (self) -> float = {
+    self.stage.start_mass
+  }
+
+  sync fn get_final_mass (self) -> float = {
+    self.stage.end_mass
+  }
+
+  sync fn get_fuel_mass (self) -> float = {
+    self.stage.fuel_mass
+  }
+
+  sync fn get_dry_mass (self) -> float = {
+    self.stage.dry_mass
+  }
+
+  sync fn get_atm_influence (self, body: Body, engine: ObjectAssemblyEngineDeltaV, alt: float = Kerbin.atmosphere_depth + 2000) -> float = {
+    const thrustVac = engine.part.engine.value.max_thrust_output_vac
+    const thrustAtm = engine.part.engine.value.max_thrust_output_atm
+    thrustVac + (thrustAtm - thrustVac) * (body.atmosphere_pressure_kpa(alt) / OneAtmPressure)
+  }
+
+  sync fn get_thrust_engine (self, engine: ObjectAssemblyEngineDeltaV, alt: float = Kerbin.atmosphere_depth + 2000) -> float = {
+    if (alt > Kerbin.atmosphere_depth) {
+      return engine.part.engine.value.max_thrust_output_vac
+    } else {
+      return self.get_atm_influence(Kerbin, engine, alt)
+    }
+  }
+
+  sync fn get_thrust (self, alt: float = Kerbin.atmosphere_depth + 2000) -> float = {
+    let stgThrust = 0.0
+    const eng = self.stage.active_engines
+    for (e in eng) {
+      stgThrust += self.get_thrust_engine(e, alt)
+    }
+
+    stgThrust
+  }
+
+  sync fn get_fuel_flow_eng (self, engine: ObjectAssemblyEngineDeltaV, alt: float = Kerbin.atmosphere_depth + 2000) -> float = {
+    engine.engine.max_fuel_flow * engine.engine.thrust_limiter
+  }
+
+  sync fn get_effective_velocity_engine (self, engine: ObjectAssemblyEngineDeltaV, alt: float = Kerbin.atmosphere_depth + 2000) -> float = {
+    if (self.get_fuel_flow_eng(engine, alt) == 0.0) {
+      return 0.0
+    } else {
+      return self.get_thrust_engine(engine, alt) / self.get_fuel_flow_eng(engine, alt)
+    }
+  }
+
+  sync fn get_isp_engine (self, engine: ObjectAssemblyEngineDeltaV, alt: float = Kerbin.atmosphere_depth + 2000) -> float = {
+    self.get_effective_velocity_engine(engine, alt) / g0
+  }
+
+  //https://wiki.kerbalspaceprogram.com/wiki/Specific_impulse#Multiple_engines
+
+  sync fn get_isp (self, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
+    let stgThrust = 0.0
+    let sumFuelCons = 0.0
+    const eng = self.stage.active_engines
+    for (e in eng) {
+      stgThrust += self.get_thrust_engine(e, alt)
+      sumFuelCons += self.get_thrust_engine(e, alt) / self.get_isp_engine(e, alt)
+    }
+    if (sumFuelCons == 0.0) {
+      return 0.0
+    }
+    else {
+      return (stgThrust / sumFuelCons)
+    }
+  }
+
+  sync fn get_effective_velocity (self, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
+    return self.get_isp(alt) * g0
+  }
+
+  sync fn get_fuel_flow (self, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
+    let fuelFlow = 0.0
+    if (self.get_effective_velocity(alt) != 0.0) {
+      fuelFlow = (self.get_thrust(alt) / self.get_effective_velocity(alt))
+    }
+    return fuelFlow
+  }
+
+  sync fn get_dv (self, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
+    let LN = log(self.get_init_mass() / self.get_final_mass())
+    self.get_effective_velocity(alt) * LN
+  }
+
+  sync fn get_burn_time (self, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
+    let burnTime = 0.0
+    if (self.get_fuel_flow(alt) != 0) {
+      burnTime = (self.get_init_mass() - self.get_final_mass()) / self.get_fuel_flow(alt)
+    }
+    burnTime
+  }
+
+  sync fn get_twr (self, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
+    (self.get_thrust(alt) / (self.get_init_mass() * g0))
+  }
+}

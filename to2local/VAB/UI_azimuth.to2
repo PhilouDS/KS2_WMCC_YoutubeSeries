@@ -1,0 +1,156 @@
+// KONTROL SYSTEM 2 - v0.5.6.1
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { atan_deg, floor, sqrt, tan_deg, sin_deg, cos_deg, PI, asin_deg } from core::math
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE } from ksp::console
+use { MAIN_LOG } from ksp::debug
+use { CONSOLE_WINDOW, screen_size, open_window, Align, Window, Container } from ksp::ui
+use { sleep, yield, wait_until } from ksp::game
+use { Vec2, vec2 } from ksp::math
+use { active_object_assembly_builder, ObjectAssembly, ObjectAssemblyPart, ObjectAssemblyStageDeltaV, ObjectAssemblyEngine, ObjectAssemblyEngineDeltaV } from ksp::oab
+use { DeltaVSituation } from ksp::vessel
+use { Body, find_body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { Launchpad } from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+pub const window_width: float = 400
+pub const window_height: float = 200.0
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_editor() -> Result<Unit> = {
+	CONSOLE.clear()
+  
+  const azimuth_window = open_window("<b>AZIMUTH CORRECTION</b>",
+    (0.5*myScreen.x - window_width/2),
+    0.95*myScreen.y,
+    window_width,
+    window_height)
+
+  const launch_box = azimuth_window.add_vertical(10.0, Align.Stretch)
+  const LP_box = launch_box.add_horizontal(10.0, Align.Stretch)
+  const apo_box = launch_box.add_horizontal(10.0, Align.Stretch)
+  const inc_box = launch_box.add_horizontal(10.0, Align.Stretch)
+  launch_box.add_spacer(10.0)
+  const button_box = launch_box.add_horizontal(10.0, Align.Center)
+  launch_box.add_spacer(10.0)
+  
+  
+
+  const LP_number = Cell(1)
+  let LP_name = "LP" + LP_number.value.to_string()
+  let start_pos = Launchpad(LP_name)
+  let start_lat = start_pos.get_latitude()
+  let start_rot_vel = start_pos.get_rotation_velocity()
+
+  const LP_label = LP_box.add_label($"  Launchpad number:", Align.Start)
+  LP_label.font_size = text_font_size
+  const LP_input = LP_box.add_int_input(Align.Start, 10.0).bind(LP_number)
+  LP_input.font_size = text_font_size
+
+  const target_apo = Cell(120000.0)
+  const target_apo_label = apo_box.add_label($"   Target apoapsis:", Align.Start)
+  target_apo_label.font_size = text_font_size
+  const target_apo_input = apo_box.add_float_input(Align.Start, 10.0).bind(target_apo)
+  target_apo_input.font_size = text_font_size
+  
+
+  const target_inc = Cell(90.0)
+  const target_inc_label = inc_box.add_label($"Target inclination:", Align.Start)
+  target_inc_label.font_size = text_font_size
+  const target_inc_input = inc_box.add_float_input(Align.Start, 10.0).bind(target_inc)
+  target_inc_input.font_size = text_font_size
+
+  const click_button: Cell<bool> = Cell(false)
+  const compute_button = button_box.add_button("Compute Azimuth", Align.Center, 20.0)
+  
+  const answer_box = Cell(create_answer_box(launch_box, target_inc.value, target_apo.value, start_lat, start_rot_vel))
+
+
+
+  
+  while (!azimuth_window.is_closed) {
+    compute_button.on_click(fn() -> {
+			click_button.value = true
+			answer_box.value.remove()
+		})
+		if (click_button.value) {
+      LP_name = "LP" + LP_number.value.to_string()
+      start_pos = Launchpad(LP_name)
+      start_lat = start_pos.get_latitude()
+      start_rot_vel = start_pos.get_rotation_velocity()
+      
+      answer_box.value = create_answer_box(launch_box, target_inc.value, target_apo.value, start_lat, start_rot_vel)
+			
+      click_button.value = false
+		}
+		yield()
+  }
+
+}
+
+//____________________________________________________
+// OTHER FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+sync fn create_answer_box (box: Container, inc: float, apo: float, lat: float, rot: float) -> Container = {
+  let answer_box = box.add_vertical_panel(10.0, Align.Stretch)
+
+  const azimuth_AN = compute_azimuth(inc, apo, lat, rot)
+  const azimuth_DN = 180 - azimuth_AN
+
+  const azimuthAN_label = answer_box.add_label("<b>AZIMUTH (AN)</b>", Align.Center)
+  azimuthAN_label.font_size = text_font_size
+  const azimuthAN_answer = answer_box.add_label($"{azimuth_AN:N2}°", Align.Center)
+  answer_box.add_spacer(5.0)
+  const azimuthDN_label = answer_box.add_label("<b>AZIMUTH (DN)</b>", Align.Center)
+  azimuthDN_label.font_size = text_font_size
+  const azimuthDN_answer = answer_box.add_label($"{azimuth_DN:N2}°", Align.Center)  
+
+  answer_box
+}
+
+sync fn compute_velocity (peri: float, apo: float, craftAlt: float) -> float = {  
+  let rad = Kerbin.radius
+  let RV = rad + craftAlt // ship's altitude from Kerbin's center of mass
+  let RP = rad + peri // ship's periapsis from Kerbin's center of mass
+  let RA = rad + apo // ship's apoapsis from Kerbin's center of mass
+  let mu = Kerbin.grav_parameter
+  let SMA = (RA + RP) / 2 // Semi-Major Axis
+
+  return sqrt(mu * (2/RV - 1/SMA)) // sqrt = SQuare RooT
+}
+
+sync fn compute_inclination (inc: float, ell: float) -> float = {
+  const cos_inc = cos_deg(inc)
+  const cos_ell = cos_deg(ell)
+  const cos_zeta = cos_inc / cos_ell
+  
+  cos_zeta
+}
+
+sync fn compute_azimuth (target_inc: float, target_apo: float, ell: float, rot_vel: float) -> float = {
+  const cos_zeta = compute_inclination(target_inc, ell)
+  const orbit_velocity = compute_velocity(target_apo, target_apo, target_apo)
+  const wanted_vel = sqrt(orbit_velocity**2 + rot_vel**2 - 2 * orbit_velocity * rot_vel * cos_zeta)
+
+  const frac = (wanted_vel**2 + rot_vel**2 - orbit_velocity**2)/(2 * wanted_vel * rot_vel)
+  
+  asin_deg(-frac)
+}

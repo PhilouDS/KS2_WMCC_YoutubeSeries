@@ -21,11 +21,8 @@ use { vec2, Vec2 } from ksp::math
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-const myScreen: Vec2 = screen_size()
-const button_font_size: float = 20.0
-const text_font_size: float = 15.0
-const canva_font_size: float = 20.0
-const text_color:RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
+use * from lib::my_constants
+
 const window_width: float = myScreen.x/5.5
 const window_height: float = myScreen.y/4
 

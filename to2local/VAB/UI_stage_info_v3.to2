@@ -19,34 +19,33 @@ use { Body, find_body } from ksp::orbit
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { Launchpad } from lib::my_structures
+use { Launchpad, Stage_Info_VAB } from lib::my_structures
 
 //____________________________________________________
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-const myScreen: Vec2 = screen_size()
-const window_width: float = myScreen.x / 2
+use * from lib::my_constants
+
+
+const window_width: float = myScreen.x / 3
 const window_height: float = 250.0
-const text_font_size: float = 15.0
+
 const LP: Launchpad = Launchpad("LP1")
-const LP_alt: float = LP.get_altitude() + 500
-const kerbin: Body = find_body("Kerbin").value
-const OneAtmPressure: float = 101.325 //kpa
-const g0: float = 9.80665
+const LP_alt: float = LP.get_altitude() + 10
 
 //____________________________________________________
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn main_editor() -> Result<Unit, string> = {
+pub fn main_editor() -> Result<Unit> = {
 
 	CONSOLE.clear()
 	
 	
   const stage_window = open_window("<b>STAGE INFO v3</b>",
     0.5*(myScreen.x - window_width),
-    0.4*myScreen.y,
+    0.5*myScreen.y,
     window_width,
     window_height)
 
@@ -72,18 +71,23 @@ pub fn main_editor() -> Result<Unit, string> = {
 	}
 }
 
-fn create_info_box (window: Window) -> Result<Container, string> = {
+fn create_info_box (window: Window) -> Result<Container> = {
 	const builder = active_object_assembly_builder()?
 	const maybe_assembly = builder.main_assembly
 
 	let stage_number = 0
 	let stage_act_eng = 0
-	let twr_vac = 0.0
-	let twr_36km = 0.0
+
 	let twr_asl = 0.0
-	let dv_vac = 0.0
-	let dv_36km = 0.0
+	let twr_15km = 0.0
+	let twr_36km = 0.0
+	let twr_vac = 0.0
+
 	let dv_asl = 0.0
+	let dv_15km = 0.0
+	let dv_36km = 0.0
+	let dv_vac = 0.0
+
 	let b_time_str = "0"
 
 	const main_box = window.add_horizontal(10.0, Align.Center)
@@ -96,6 +100,10 @@ fn create_info_box (window: Window) -> Result<Container, string> = {
 	twr_asl_title.font_size = text_font_size
 	const dv_asl_title = first_column_box.add_label("ASL Δv", Align.End)
 	dv_asl_title.font_size = text_font_size
+	const twr_15km_title = first_column_box.add_label("15 km TWR", Align.End)
+	twr_15km_title.font_size = text_font_size
+	const dv_15km_title = first_column_box.add_label("15 km Δv", Align.End)
+	dv_15km_title.font_size = text_font_size
 	const twr_36km_title = first_column_box.add_label("36 km TWR", Align.End)
 	twr_36km_title.font_size = text_font_size
 	const dv_36km_title = first_column_box.add_label("36 km Δv", Align.End)
@@ -109,15 +117,19 @@ fn create_info_box (window: Window) -> Result<Container, string> = {
 
 	if (Some(assembly) = maybe_assembly) {
 		for (stg in assembly.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
-			stage_number = assembly.delta_v.stages.length - stg.stage
-			stage_act_eng = stg.active_engines.length
-			twr_vac = TWR_stg(stg)
-			twr_36km = TWR_stg(stg, 36000)
-			twr_asl = TWR_stg(stg, LP_alt)
-			dv_vac = dv_stg(stg)
-			dv_36km = dv_stg(stg, 36000)
-			dv_asl = dv_stg(stg, LP_alt)
-			b_time_str = min_sec(round(burn_time_stg(stg)*10)/10)
+			const this_stage = Stage_Info_VAB(stg)
+
+			stage_number = this_stage.get_stage_number(assembly.delta_v.stages.length)
+			stage_act_eng = this_stage.get_active_engines().length
+			twr_asl = this_stage.get_twr(LP_alt)
+			twr_15km = this_stage.get_twr(15000)
+			twr_36km = this_stage.get_twr(36000)
+			twr_vac = this_stage.get_twr()
+			dv_asl = this_stage.get_dv(LP_alt)
+			dv_15km = this_stage.get_dv(15000)
+			dv_36km = this_stage.get_dv(36000)
+			dv_vac = this_stage.get_dv()
+			b_time_str = min_sec(round(this_stage.get_burn_time()*10)/10)
 
 			let stage_column_box = main_box.add_vertical_panel(10.0, Align.Stretch)
 			
@@ -129,6 +141,10 @@ fn create_info_box (window: Window) -> Result<Container, string> = {
 			twr_asl_label.font_size = text_font_size
 			let dv_asl_label = display_info(stage_column_box, format("{0:N1}", dv_asl))
 			dv_asl_label.font_size = text_font_size
+			let twr_15km_label = display_info(stage_column_box, format("{0:N2}", twr_15km))
+			twr_15km_label.font_size = text_font_size
+			let dv_15km_label = display_info(stage_column_box, format("{0:N1}", dv_15km))
+			dv_15km_label.font_size = text_font_size
 			let twr_36km_label = display_info(stage_column_box, format("{0:N2}", twr_36km))
 			twr_36km_label.font_size = text_font_size
 			let dv_36km_label = display_info(stage_column_box, format("{0:N1}", dv_36km))
@@ -140,7 +156,9 @@ fn create_info_box (window: Window) -> Result<Container, string> = {
 			let b_time_label = display_info(stage_column_box, b_time_str)
 			b_time_label.font_size = text_font_size
 		}
+
 		const total_dv_asl = total_delta_v(assembly, LP_alt)
+		const total_dv_15km = total_delta_v(assembly, 15000)
 		const total_dv_36km = total_delta_v(assembly, 36000)
 		const total_dv_vac = total_delta_v(assembly)
 
@@ -155,6 +173,10 @@ fn create_info_box (window: Window) -> Result<Container, string> = {
 		empty_twr__asl_label.font_size = text_font_size
 		const total_dv_asl_label = display_info(total_column_box, format("{0:N1}", total_dv_asl))
 		total_dv_asl_label.font_size = text_font_size
+		const empty_twr_15km_label = display_info(total_column_box, "--")
+		empty_twr_15km_label.font_size = text_font_size
+		const total_dv_15km_label = display_info(total_column_box, format("{0:N1}", total_dv_15km))
+		total_dv_15km_label.font_size = text_font_size
 		const empty_twr_36km_label = display_info(total_column_box, "--")
 		empty_twr_36km_label.font_size = text_font_size
 		const total_dv_36km_label = display_info(total_column_box, format("{0:N1}", total_dv_36km))
@@ -183,134 +205,23 @@ sync fn display_info (box: Container, lab: string) -> ksp::ui::Label = {
 	box.add_label(lab, Align.Stretch)
 }
 
-sync fn list_of_engines (assembly: ObjectAssembly) -> ObjectAssemblyEngine[] = {
-	assembly.parts.filter_map(fn(p) -> p.engine)
-}
 
-sync fn list_of_liquid_tanks (assembly: ObjectAssembly) -> ObjectAssemblyPart[] = {
-	let list_tk: ObjectAssemblyPart[] = []
-	for(part in assembly.parts) {
-		if (part.part_name.contains("tank")) {
-			list_tk += part
-		}
-	}
-	list_tk
-}
-
-sync fn number_of_engines (assembly: ObjectAssembly) -> int = {
-	list_of_engines(assembly).length
-}
-
-sync fn init_mass_stg (stg: ObjectAssemblyStageDeltaV) -> float = {
-	stg.start_mass
-}
-
-sync fn final_mass_stg (stg: ObjectAssemblyStageDeltaV) -> float = {
-	stg.end_mass
-}
-
-
-sync fn atm_influence (body: Body, alt: float, engine :ObjectAssemblyEngineDeltaV) -> float = {
-    const thrustVac = engine.part.engine.value.max_thrust_output_vac
-    const thrustAtm = engine.part.engine.value.max_thrust_output_atm
-    thrustVac + (thrustAtm - thrustVac) * (body.atmosphere_pressure_kpa(alt) / OneAtmPressure)
-}
-
-sync fn thrust_engine (engine: ObjectAssemblyEngineDeltaV, alt: float) -> float = {
-	if (alt > kerbin.atmosphere_depth) {
-		return engine.part.engine.value.max_thrust_output_vac
-	} else {
-		return atm_influence(kerbin, alt, engine)
-	}
-}
-
-sync fn thrust_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-	let stgThrust = 0.0
-	const eng = stg.active_engines
-	for (e in eng) {
-		stgThrust += thrust_engine(e, alt)
-	}
-
-	stgThrust
-}
-
-sync fn fuel_flow_eng (engine: ObjectAssemblyEngineDeltaV, alt: float) -> float = {
-	engine.engine.max_fuel_flow * engine.engine.thrust_limiter
-}
-
-sync fn effective_velocity_engine (engine: ObjectAssemblyEngineDeltaV, alt: float) -> float = {
-	if (fuel_flow_eng(engine, alt) == 0.0) {
-		return 0.0
-	} else {
-		return thrust_engine(engine, alt) / fuel_flow_eng(engine, alt)
-	}
-}
-
-sync fn isp_engine (engine: ObjectAssemblyEngineDeltaV, alt: float) -> float = {
-	effective_velocity_engine(engine, alt) / g0
-}
-
-//https://wiki.kerbalspaceprogram.com/wiki/Specific_impulse#Multiple_engines
-
-sync fn isp_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-  let stgThrust = 0.0
-  let sumFuelCons = 0.0
-  const eng = stg.active_engines
-	for (e in eng) {
-    stgThrust += thrust_engine(e, alt)
-    sumFuelCons += thrust_engine(e, alt) / isp_engine(e, alt)
-  }
-	if (sumFuelCons == 0.0) {
-		return 0.0
-	}
-	else {
-		return (stgThrust / sumFuelCons)
-	}
-}
-
-sync fn effective_velocity_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-  return isp_stg(stg, alt) * g0
-}
-
-sync fn fuel_flow_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-  let fuelFlow = 0.0
-	if (effective_velocity_stg(stg, alt) != 0.0) {
-  	fuelFlow = (thrust_stg(stg, alt) / effective_velocity_stg(stg, alt))
-	}
-  return fuelFlow
-}
-
-sync fn dv_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-  let LN = log(init_mass_stg(stg) / final_mass_stg(stg))
-	return effective_velocity_stg(stg, alt) * LN
-}
-
-sync fn total_delta_v (assembly: ObjectAssembly, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
+sync fn total_delta_v (assembly: ObjectAssembly, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
 	let total_dv = 0.0
 	for (stg in assembly.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
-		total_dv += dv_stg(stg, alt)
+		const this_stage = Stage_Info_VAB(stg)
+		total_dv += this_stage.get_dv(alt)
 	}
 	total_dv
 }
 
-sync fn burn_time_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-  let burnTime = 0.0
-	if (fuel_flow_stg(stg, alt) != 0) {
-		burnTime = (init_mass_stg(stg) - final_mass_stg(stg)) / fuel_flow_stg(stg, alt)
-	}
-  return burnTime
-}
-
-sync fn total_burn_time (assembly: ObjectAssembly, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
+sync fn total_burn_time (assembly: ObjectAssembly, alt: float = Kerbin.atmosphere_depth + 20000) -> float = {
 	let total_time = 0.0
 	for (stg in assembly.delta_v.stages.filter(fn(s) -> s.active_engines.length > 0)) {
-		total_time += burn_time_stg(stg, alt)
+		const this_stage = Stage_Info_VAB(stg)
+		total_time += this_stage.get_burn_time(alt)
 	}
 	total_time
-}
-
-sync fn TWR_stg (stg: ObjectAssemblyStageDeltaV, alt: float = kerbin.atmosphere_depth + 20000) -> float = {
-  return (thrust_stg(stg, alt) / (init_mass_stg(stg) * g0))
 }
 
 sync fn min_sec (time: float) -> string = {

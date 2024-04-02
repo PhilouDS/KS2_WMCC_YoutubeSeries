@@ -1,7 +1,7 @@
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-
+use { round, floor } from core::math
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -19,6 +19,8 @@ use { Vessel } from ksp::vessel
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+pub sync fn f_round (f: float, n:int) -> float = round(f * 10**n)/10**n
+
 pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=true) -> Unit = {
   // for (i in 0..msg.length) {CONSOLE.print_at (row,i,"-")}
   CONSOLE.clear_line(row)
@@ -27,6 +29,10 @@ pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=
   //CONSOLE.print_at(row+1,0,(0..msg.length).reduce("", fn(strike, c) -> strike + "‾"))
   for (i in 0..msg.length) {CONSOLE.print_at(row+1,i,"‾")}
   if (!cursor_back) {CONSOLE.move_cursor(row+2,0)}
+}
+
+pub fn skip_line (l: int) -> Unit = {
+  CONSOLE.move_cursor(CONSOLE.cursor_row + l, 0)
 }
 
 pub fn end_of_mission (craft: Vessel) -> Unit = {
@@ -49,4 +55,31 @@ pub fn wait_alt (craft: Vessel, alt: float) -> Unit = {
 pub fn sign (f: float) -> int = {
   if (f < 0) {return -1}
   return 1
+}
+
+pub sync fn hms (f: float) -> string = {
+  let hf = floor(f/3600)
+  let hf_label = hf.to_string()
+  if (hf < 10) {hf_label = "0" + hf_label}
+  let mf = floor((f - hf*3600)/60)
+  let mf_label = hf.to_string()
+  if (mf < 10) {mf_label = "0" + mf_label}
+  let sf = f - hf*3600 - mf*60
+  let sf_label = hf.to_fixed(1)
+  if (sf < 10) {sf_label = "0" + sf_label}
+
+  hf_label + "h " + mf_label + "'' " + sf_label+"'"
+}
+
+
+pub fn min_of_list (list: float[]) -> (min: float, idx: int) = {
+  let temp_min = list[0]
+  let temp_idx = 0
+  for (i in 0..list.length) {
+    if (list[i] < temp_min) {
+      temp_min = list[i]
+      temp_idx = i
+    }
+  }
+  (min: temp_min, idx: temp_idx)
 }
