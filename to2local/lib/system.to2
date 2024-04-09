@@ -1,0 +1,47 @@
+// KONTROL SYSTEM 2 - v0.5.8.0
+//____________________________________________________
+// LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { yield } from ksp::game
+use * from lib::misc
+
+
+//____________________________________________________
+// FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn gears_on_off (craft: ksp::vessel::Vessel, on: bool = true) -> Unit = {
+  craft.actions.gear = on
+  yield()
+  if (on) {
+    popup("Gears extended")
+  } else {
+    popup("Gears retracted")
+  }
+}
+
+pub fn lights_on_off (craft: ksp::vessel::Vessel, on: bool = true) -> Unit = {
+  craft.actions.light = on
+  yield()
+  if (on) {
+    popup("Lights on")
+  } else {
+    popup("Lights off")
+  }
+}
+
+pub fn deploy_antenna (craft: ksp::vessel::Vessel, ext: bool = true) -> Unit = {
+  const list_of_antenna = craft.parts.filter(fn(prt) -> prt.part_name.contains("antenna"))
+
+  for (ant in list_of_antenna) {
+    if (ant.is_deployable) {
+      ant.deployable.value.set_extended(ext)
+      yield()
+      if (ext) {
+        popup("Antennas extended")
+      } else {
+        popup("Antennas retracted")
+      }
+    }
+  }
+}

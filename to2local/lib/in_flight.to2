@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.8.0
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -15,8 +15,9 @@ use { Vessel, ConnectionNodeStatus } from ksp::vessel
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { info_gt, info_orbit } from lib::show_info
-use { print_title } from lib::misc
+use * from lib::misc
 use * from lib::mission_logs
+use * from lib::system
 
 //____________________________________________________
 // FUNCTIONS
@@ -30,6 +31,8 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
   log_mission_event(craft, "Gravity turn started")
   add_left_entry($"  · Initial Speed: {craft.vertical_surface_speed:N1} m/s")
   add_left_entry($"  · Initial Angle: {pitch_angle:N2}°")
+
+  notif_orange("Gravity turn started")
 
   print_title("GRAVITY TURN IN PROGRESS", 0, false)
   const this_row = CONSOLE.cursor_row
@@ -72,15 +75,18 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
     craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
     info_gt(craft, this_row)
     info_orbit(craft, this_row + 4)
-    if (craft.orbit.apoapsis.value > 0.95 * target_apo) {craft.set_throttle(max(0.1, 30/craft.available_thrust))}
-    if (craft.altitude_sealevel > 86000 && jettison_fairing && !no_more_fairing) {
+    if (craft.orbit.apoapsis.value > 0.95 * target_apo) {craft.set_throttle(max(0.1, 60/craft.available_thrust))}
+    if (craft.altitude_sealevel > craft.main_body.atmosphere_depth && jettison_fairing && !no_more_fairing) {
       craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
       log_mission_event(craft, "Fairing jettisoned")
+      popup("Fairing jettisoned")
       no_more_fairing = true
       CONSOLE.clear()
       in_space = true
       print_title("IN SPACE", 0)
       log_mission_event(craft, "In space")
+      popup("In space")
+      deploy_antenna(craft)
       sleep(0.5)
     }
     yield()
@@ -91,10 +97,11 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
   CONSOLE.clear()
   print_title("GRAVITY TURN DONE", 0)
   log_mission_event(craft, "End of Gravity turn")
+  notif_orange("Gravity turn finished")
   sleep(1)
 
   if (!in_space) {
-    while(craft.altitude_sealevel < 86000) {
+    while(craft.altitude_sealevel < craft.main_body.atmosphere_depth) {
       angle_above_horizon = 90 - craft.up.angle_to(craft.orbit.prograde(current_time()))
       craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
       info_gt(craft, 2)
@@ -105,9 +112,12 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
     CONSOLE.clear()
     print_title("IN SPACE", 0)
       log_mission_event(craft, "In space")
+      popup("In space")
+      deploy_antenna(craft)
     if (!no_more_fairing && jettison_fairing) {
       craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
       log_mission_event(craft, "Fairing jettisoned")
+      popup("Fairing jettisoned")
     }
   }
   craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, 0).vector
@@ -138,9 +148,10 @@ pub fn check_staging (craft: Vessel) -> Unit = {
 }
 
 pub fn trigger_staging (craft: Vessel) -> Unit = {
-  wait_until(fn() -> craft.staging.ready || craft.connection_status == ConnectionNodeStatus.Disconnected)
+  wait_until(fn() -> craft.staging.ready)
   craft.staging.next()
   log_stage(craft)
+  popup("STAGE")
   yield()
 }
 

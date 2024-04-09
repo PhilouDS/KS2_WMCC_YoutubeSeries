@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.8.0
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -16,7 +16,7 @@ use { Orbit, Body } from ksp::orbit
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { print_title } from lib::misc
+use * from lib::misc
 use { Stage_Info } from lib::my_structures
 use * from lib::mission_logs
 
@@ -47,6 +47,7 @@ pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3) -> Unit = 
   log_mission_event(craft, "Liftoff")
   add_item($"Actual TWR    : {twr:N2}")
   add_item($"Actual Delta-V: {dv:N2} m/s")
+  popup("Liftoff")
 }
 
 pub fn launch_from_north (craft: Vessel, craft_target: Body, azimuth: float[]) -> float = {

@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - MUNOS800KM",
+  "VehicleName": "MUNOS800KM",
+  "Description": "Mun Orbiter - Orbital Survey - dv: ~6700 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - MUNOS800KM.png",
+  "Mass": 35.9697952,
+  "SaveTime": 638480141100675868,
+  "Parts": 57,
+  "Stages": 7,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

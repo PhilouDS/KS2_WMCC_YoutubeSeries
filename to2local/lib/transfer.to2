@@ -1,8 +1,8 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.8.0
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { sqrt, max, min, abs, exp, PI, floor } from core::math
+use { sqrt, max, min, abs, exp, PI, floor, RAD_TO_DEG } from core::math
 use { format } from core::str
 
 //____________________________________________________
@@ -19,9 +19,9 @@ use { Orbit, Body } from ksp::orbit
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { sign, print_title, min_of_list } from lib::misc
+use { sign, print_title, min_of_list, popup } from lib::misc
 use { check_staging } from lib::in_flight
-use { compute_burn_duration, h_transfer, limit_thrust } from lib::adjusted_mnv
+use { compute_burn_duration, h_transfer, limit_thrust, orientation } from lib::adjusted_mnv
 use * from lib::mission_logs
 
 //____________________________________________________
@@ -58,15 +58,16 @@ pub fn transfer_to_body (craft: Vessel, target_body: Body, adjust_pe: float, do_
   CONSOLE.clear()
   
   if (do_adjust) {
+    while (!craft.orbit.next_patch.defined) {
+      craft.set_throttle(0.01)
+      craft.autopilot.target_orientation = craft.orbit.orbital_velocity(current_time())
+      yield()
+    }
     if (craft.orbit.next_patch.value.periapsis < adjust_pe) {
-      craft.autopilot.target_orientation = (-1.0) * craft.orbit.prograde(current_time())
+      orientation(craft, (-1.0) * craft.orbit.prograde(current_time()))
       
-      limit_thrust(craft, 0.1)
       sleep(0.1)
-      wait_until(fn() -> craft.facing.vector.angle_to((-1.0) * craft.orbit.prograde(current_time())) < 1.5)
-      sleep(0.5)
-      craft.set_throttle(1)
-      sleep(0.1)
+      craft.set_throttle(0.01)
       while (craft.orbit.next_patch.value.periapsis < adjust_pe) {
         CONSOLE.print_at(2,0, $"   Next Periapsis Wanted: {adjust_pe:N0} m")
         CONSOLE.print_at(3,0, $"Adjusting Next Periapsis: {craft.orbit.next_patch.value.periapsis:N0} m    ")
@@ -75,15 +76,10 @@ pub fn transfer_to_body (craft: Vessel, target_body: Body, adjust_pe: float, do_
       yield()
       craft.set_throttle(0)
       sleep(0.1)
-      limit_thrust(craft, 1)
     } else {
-      craft.autopilot.target_orientation = craft.orbit.prograde(current_time())
-      
-      limit_thrust(craft, 0.1)
+      orientation(craft, craft.orbit.prograde(current_time()))
       sleep(0.1)
-      wait_until(fn() -> craft.facing.vector.angle_to(craft.orbit.prograde(current_time())) < 1.5)
-      sleep(0.5)
-      craft.set_throttle(1)
+      craft.set_throttle(0.01)
       while (craft.orbit.next_patch.value.periapsis > adjust_pe) {
         CONSOLE.print_at(2,0, $"   Next Periapsis Wanted: {adjust_pe:N0} m")
         CONSOLE.print_at(3,0, $"Adjusting Next Periapsis: {craft.orbit.next_patch.value.periapsis:N0} m    ")
@@ -99,14 +95,9 @@ pub fn transfer_to_body (craft: Vessel, target_body: Body, adjust_pe: float, do_
   log_mission_event(craft, $"End of the transfer maneuver in destination to: {target_body.name}")
 
   if (do_warp) {
-    CONSOLE.clear()
-    while (craft.main_body.name != target_body.name) {
-    set_warp_index(6)
-    }
-    cancel_warp()
-    wait_until(fn() -> current_warp_rate() < 1.1)
-    print_title($"We reached {target_body.name}'s SOI!",0)
-    log_mission_event(craft, $"SOI of {target_body.name} reached")
+    orientation(craft, craft.orbit.orbit_normal)
+    yield()
+    warp_SOI(craft, target_body)
   }
 }
 
@@ -126,7 +117,7 @@ sync fn compute_phase_angle(craft: Vessel, target_body: Body) -> float = {
 }
 
 sync fn vernal_angle(obt: Orbit) -> float = {
-  const angle = obt.LAN + obt.argument_of_periapsis + obt.true_anomaly_at_ut(obt.next_periapsis_time(current_time()))
+  const angle = obt.LAN + obt.argument_of_periapsis + true_anomaly(obt)
   angle - 360*floor(angle / 360)
 }
 
@@ -224,6 +215,43 @@ pub fn exe_transfer_mnv (craft: Vessel, dv_mnv: float, adjust_pe: float) -> Unit
 //_________________________________________________
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+// simple = only normal parameter
+pub fn set_periapsis_simple (craft: Vessel, wanted_per: float, start: float, margin_value: float = 3000, delta_change: float = 0.1) -> ManeuverNode = {
+  CONSOLE.clear()
+  let per_node = craft.maneuver.add(start, 0, 0, 0).value
+  
+  let normal_p = 0.0
+  let normal_m = 0.0
+
+  let old_per = per_node.expected_orbit.next_patch.value.periapsis
+
+  CONSOLE.print_at(0,0,$" Delta: {delta_change:N2} m/s")
+  CONSOLE.print_at(1,0,$"Target: {wanted_per:N2} m")
+  CONSOLE.print_at(2,0,$"Margin: {margin_value:N2} m")
+
+
+  while (abs(old_per - wanted_per) > margin_value) {
+    
+    CONSOLE.print_at(4,0,$"Periapsis: {old_per:N2} m               ")
+    CONSOLE.print_at(8,0,$"   Normal: {per_node.normal:N2} m/s   ")
+    
+    per_node.normal += delta_change
+    normal_p = abs(wanted_per - per_node.expected_orbit.next_patch.value.periapsis)
+    per_node.normal -= 2*delta_change
+    normal_m = abs(wanted_per - per_node.expected_orbit.next_patch.value.periapsis)
+
+    if (normal_p < normal_m) {
+      per_node.normal += 2*delta_change
+    }
+
+    old_per = per_node.expected_orbit.next_patch.value.periapsis
+    yield()
+  }
+
+  per_node
+}
+
+
 pub fn change_per(craft: Vessel, wanted_per: float, t0: float) -> ManeuverNode = {
   let per_node = craft.maneuver.add(t0, 0, 0, 0).value
   per_node = set_periapsis_next_patch(craft, 1.1 * wanted_per, per_node, 10000, 0.5)
@@ -232,7 +260,7 @@ pub fn change_per(craft: Vessel, wanted_per: float, t0: float) -> ManeuverNode =
   per_node
 }
 
-pub fn set_periapsis_next_patch (craft: Vessel, wanted_per: float, node: ManeuverNode, margin_value: float = 1000, delta_change: float = 0.1) -> ManeuverNode = {
+pub fn set_periapsis_next_patch (craft: Vessel, wanted_per: float, node: ManeuverNode, margin_value: float = 3000, delta_change: float = 0.1) -> ManeuverNode = {
   CONSOLE.clear()
   let per_node = node
   
@@ -281,6 +309,8 @@ pub fn set_periapsis_next_patch (craft: Vessel, wanted_per: float, node: Maneuve
 
     old_per = per_node.expected_orbit.next_patch.value.periapsis
     value_list = []
+    CONSOLE.print_at(10,0,$"   Normal: {per_node.normal:N2} m/s   ")
+    CONSOLE.print_at(10,0,$" total ΔV: {per_node.burn_vector.magnitude:N2} m/s   ")
     yield()
   }
 
@@ -359,4 +389,19 @@ pub fn set_inc_next_patch (craft: Vessel, wanted_inc: float, node: ManeuverNode,
   }
 
   inc_node
+}
+
+
+pub fn warp_SOI (craft: Vessel, target_body: Body, index: int = 6) -> Unit = {
+  CONSOLE.clear()
+  orientation(craft, craft.orbit.orbit_normal)
+  yield()
+  while (craft.main_body.name != target_body.name) {
+    set_warp_index(index)
+  }
+  cancel_warp()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  print_title($"We reached {target_body.name}'s SOI!",0)
+  popup($"{target_body.name}'s SOI")
+  log_mission_event(craft, $"SOI of {target_body.name} reached")
 }

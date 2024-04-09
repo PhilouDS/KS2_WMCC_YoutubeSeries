@@ -292,8 +292,8 @@ impl Stage_Info {
     total_dv
   }
 
-  sync fn get_twr (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
-    (self.get_thrust(sit) / (self.get_init_mass() * g0))
+  sync fn get_twr (self, sit: DeltaVSituation = DeltaVSituation.Vaccum, grav: float = g0) -> float = {
+    (self.get_thrust(sit) / (self.get_init_mass() * grav))
   }
 
   sync fn get_burn_time (self, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {

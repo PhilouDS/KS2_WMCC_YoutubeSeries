@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "SAT - MUNRS0.8SOIRA2",
+  "VehicleName": "MUNRS0.8SOI",
+  "Description": "Mun Relay Sat - dv: ~6700 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SAT - MUNRS0.8SOIRA2.png",
+  "Mass": 35.8406639,
+  "SaveTime": 638480158973509591,
+  "Parts": 57,
+  "Stages": 7,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

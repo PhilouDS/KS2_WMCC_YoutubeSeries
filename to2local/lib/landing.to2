@@ -1,0 +1,180 @@
+// KONTROL SYSTEM 2 - v0.5.8.0
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, acos_deg, abs } from core::math
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { yield, current_time, sleep, wait_until } from ksp::game
+use { cancel_warp, set_warp_index, current_warp_rate } from ksp::game::warp
+use { CONSOLE } from ksp::console
+use { Vessel, VesselSituation, ConnectionNodeStatus, DeltaVSituation } from ksp::vessel
+use { Body } from ksp::orbit
+use { pid_loop } from ksp::control
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::system
+use * from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn landing (craft: Vessel, lim_thrust: float = 100, Kp: float = 1, Ki: float = 0.05, Kd: float = 0.1, stop_srf_vel: float = 10, last_stage: bool = true) -> Unit = {
+  CONSOLE.clear()
+
+  log_mission_event(craft, "Starting landing procedure")
+  
+  orientation(craft, -1 * craft.surface_velocity)
+
+  const throt_mng = craft.set_throttle(0)
+  yield()
+
+  throt_mng.throttle = 1
+
+  while (craft.surface_velocity.magnitude > stop_srf_vel) {
+    check_staging(craft)
+    craft.autopilot.target_orientation = -1 * craft.surface_velocity
+    yield()
+  }
+
+  throt_mng.throttle = 0
+
+  if (last_stage) {
+    while (craft.staging.count > 1) {
+      trigger_staging(craft)
+      yield()
+    }
+    trigger_staging(craft)
+  }
+
+  limit_thrust(craft, lim_thrust)
+
+  sleep(0.5)
+
+  let grav_body = craft.main_body.grav_parameter / (craft.main_body.radius**2)
+
+  const this_stage = Stage_Info(craft, craft.staging.current)
+  let twr = this_stage.get_twr(DeltaVSituation.Vaccum, grav_body)
+  const dv = this_stage.get_total_delta_v(DeltaVSituation.Vaccum)
+
+  sleep(0.5)
+  
+  let altitude_ignition = craft.altitude_scenery / twr
+  sleep(0.5)
+
+  let V_m = sqrt(2 * (craft.altitude_scenery - altitude_ignition) * grav_body)
+  let T_m = V_m / ((twr - 1) * grav_body)
+  sleep(0.5)
+  CONSOLE.print_line($"             TWR: {twr:N2}")
+  CONSOLE.print_line($" burning delta V: {V_m:N2} m/s")
+  CONSOLE.print_line($"    burning time: {T_m:N2} s")
+  CONSOLE.print_line($"burning Altitude: {altitude_ignition:N1} m")
+
+  log_mission_event(craft, "Data calculation for engine ignition")
+  log_suicid_burn(twr, V_m, T_m, altitude_ignition)
+  sleep(0.5)
+
+  while (craft.altitude_scenery > 2.5*altitude_ignition) {
+    set_warp_index(2)
+    craft.autopilot.target_orientation = -1 * craft.surface_velocity
+    CONSOLE.print_at(8, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")
+    CONSOLE.print_at(9, 0, $"Vertical Velocity: {craft.vertical_surface_speed:N2} m/s          ")
+    yield()
+  }
+  
+  cancel_warp()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  sleep(0.5)
+
+  while (craft.altitude_scenery > altitude_ignition) {
+    craft.autopilot.target_orientation = -1 * craft.surface_velocity
+    CONSOLE.print_at(8, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")
+    CONSOLE.print_at(9, 0, $"Vertical Velocity: {craft.vertical_surface_speed:N2} m/s          ")
+    yield()
+  }
+
+  //----------------------
+  //-- STARTING SUICID BURN WITH A PID LOOP
+  //-- VERSION PID LOOP
+  //----------------------
+
+  throt_mng.throttle = 1.0
+  
+  const vert_speed_pid = pid_loop(Kp, Ki, Kd, 0.01, 1)
+  vert_speed_pid.setpoint = -20
+
+  while (craft.altitude_scenery > 250) {
+    throt_mng.throttle = vert_speed_pid.update(current_time(), craft.vertical_surface_speed)
+    CONSOLE.print_at(8, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")
+    CONSOLE.print_at(9, 0, $"Vertical Velocity: {craft.vertical_surface_speed:N2} m/s          ")
+    CONSOLE.print_at(10, 0, $"         Throttle: {throt_mng.throttle:P2}                ")
+    yield()
+  }
+
+  vert_speed_pid.setpoint = -10
+
+  (craft.altitude_scenery > 50) {
+    throt_mng.throttle = vert_speed_pid.update(current_time(), craft.vertical_surface_speed)
+    CONSOLE.print_at(8, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")
+    CONSOLE.print_at(9, 0, $"Vertical Velocity: {craft.vertical_surface_speed:N2} m/s          ")
+    CONSOLE.print_at(10, 0, $"        Throttle: {throt_mng.throttle:P2}                ")
+    yield()
+  }
+
+  vert_speed_pid.setpoint = -3
+
+  while (craft.situation != VesselSituation.Landed && craft.situation != VesselSituation.Splashed) {
+    throt_mng.throttle = vert_speed_pid.update(current_time(), craft.vertical_surface_speed)
+    CONSOLE.print_at(8, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")
+    CONSOLE.print_at(9, 0, $"Vertical Velocity: {craft.vertical_surface_speed:N2} m/s          ")
+    CONSOLE.print_at(10, 0, $"        Throttle: {throt_mng.throttle:P2}                ")
+    yield()
+  } 
+
+  throt_mng.release()
+  limit_thrust(craft, 100)
+  yield()
+  notif_green("Vessel has landed")
+  CONSOLE.clear()
+  log_landing(craft)
+  yield()
+}
+
+
+pub fn align_body (craft: Vessel) -> Unit = {
+  const frame = craft.main_body.parent_body.value.body_frame
+  orientation(craft, craft.orbit.orbit_normal)
+  let vec_craft = (craft.global_position - craft.main_body.parent_body.value.global_position).to_local(frame)
+  let vec_body = (craft.main_body.global_position - craft.main_body.parent_body.value.global_position).to_local(frame)
+  let vec_angle = vec_body.angle_to(vec_craft)
+  CONSOLE.print_line("=== Align Body ===")
+
+  while(vec_angle > 0.3 || vec_craft.magnitude > vec_body.magnitude || craft.connection_status != ConnectionNodeStatus.Connected) {
+  vec_craft = (craft.global_position - craft.main_body.parent_body.value.global_position).to_local(frame)
+  vec_body = (craft.main_body.global_position - craft.main_body.parent_body.value.global_position).to_local(frame)
+  vec_angle = vec_body.angle_to(vec_craft)
+    CONSOLE.print_at(3, 0, $"Ship connected to KSC: {craft.connection_status == ConnectionNodeStatus.Connected}  ")
+    CONSOLE.print_at(4, 0, $"                Angle: {vec_angle:N1}°")
+    set_warp_index(5)
+    yield()
+  }
+  cancel_warp()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  yield()
+}

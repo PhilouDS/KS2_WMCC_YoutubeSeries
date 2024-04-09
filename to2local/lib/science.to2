@@ -57,7 +57,7 @@ pub fn print_science (craft: Vessel) -> Unit = {
 
       CONSOLE.print_line(format("{1,-25} {0:N2}",
         (exp.definition.transmission_size, "--> Transmission size:")))
-
+      
       CONSOLE.print_line(format("{1,-25} {0}",
         (exp.current_experiment_state, "--> Current state:")))
       
@@ -74,6 +74,9 @@ pub fn print_science (craft: Vessel) -> Unit = {
 }
 
 fn check_new_exp (craft: Vessel, exp: Experiment) -> bool = {
+  if (exp.experiment_id.contains("orbital_survey_visual_mapping")) {
+    return false
+  }
   return (!reported_previous_flight(craft, exp) && !reported_this_flight(craft, exp))
 }
 
@@ -154,7 +157,7 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> (da
   let new_exp: Experiment[] = []
 
   for (i in 0..sciencePart.length) {
-    if (check_new_exp(craft, sciencePart[i])) {
+    if (check_new_exp(craft, sciencePart[i]) && !sciencePart[i].experiment_id.contains("orbital_survey_visual_mapping")) {
       printMsg = true
       new_exp += sciencePart[i]
       if (sciencePart[i].time_to_complete > max_time) {
@@ -211,13 +214,17 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> (da
   (data: data_sum, sample: sample_sum)
 }
 
-pub fn run_telemetry (craft: Vessel, waitExp: bool, transmit: bool = false) -> Unit = {
+pub fn run_telemetry (craft: Vessel, waitExp: bool, transmit: bool = false) -> (data: float, sample: float) = {
   const tel = listOfScienceExp(craft).filter(fn(e) -> e.definition.id == "wmcc_telemetry_report")
   const exp = tel[0]
+
+  let data_exp = exp.definition.data_value
+  let sample_exp = exp.definition.sample_value
 
   let science_row = 2
   
   exp.run_experiment()
+  log_science(craft, exp)
   
   if (waitExp) {
     CONSOLE.clear()
@@ -240,15 +247,21 @@ pub fn run_telemetry (craft: Vessel, waitExp: bool, transmit: bool = false) -> U
       transmit_data(craft)
     }
   }
+
+  (data: data_exp, sample: sample_exp)
 }
 
-pub fn run_env_survey (craft: Vessel, waitExp: bool, transmit: bool = false) -> Unit = {
+pub fn run_env_survey (craft: Vessel, waitExp: bool, transmit: bool = false) -> (data: float, sample: float) = {
   const Envsur = listOfScienceExp(craft).filter(fn(e) -> e.definition.id == "EnvironmentSurvey")
   const exp = Envsur[0]
+
+  let data_exp = exp.definition.data_value
+  let sample_exp = exp.definition.sample_value
 
   let science_row = 2
   
   exp.run_experiment()
+  log_science(craft, exp)
   
   if (waitExp) {
     CONSOLE.clear()
@@ -271,6 +284,8 @@ pub fn run_env_survey (craft: Vessel, waitExp: bool, transmit: bool = false) -> 
       transmit_data(craft)
     }
   }
+
+  (data: data_exp, sample: sample_exp)
 }
 
 pub fn run_orb_survey (craft: Vessel) -> Unit = {

@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.8.0
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -19,7 +19,7 @@ use { Orbit, Body } from ksp::orbit
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { sign } from lib::misc
+use * from lib::misc
 use { info_orbit } from lib::show_info
 use { check_staging } from lib::in_flight
 use { Stage_Info } from lib::my_structures
@@ -122,6 +122,7 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit =
   sleep(1)
   limit_thrust(craft, 100)
   CONSOLE.print_at(14,0, "Maneuver Done")
+  notif_green("Maneuver done")
   log_mission_event(craft, "MECO - end of maneuver", false)
   log_mission_event(craft, $"Actual velocity: {craft.orbital_velocity.magnitude:N2} m/s", false)
   sleep(0.5)
@@ -150,7 +151,6 @@ pub sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> fl
   }
 }
 
-
 // ORBITAL VELOCITY
 
 sync fn compute_vel(craft: Vessel, peri: float, apo: float, craftAlt: float) -> float = {  
@@ -163,7 +163,6 @@ sync fn compute_vel(craft: Vessel, peri: float, apo: float, craftAlt: float) -> 
 
   return sqrt(mu * (2/RV - 1/SMA)) // sqrt = SQuare RooT
 }
-
 
 // HOHMANN TRANSFER 
 
@@ -214,7 +213,7 @@ pub fn go_to_from (craft: Vessel, goTo: float, goFrom: string = "AP") -> float =
 
 // CIRC_AT
 
-pub fn circ_at_AP (craft: Vessel, ) -> Unit = {
+pub fn circ_at_AP (craft: Vessel) -> Unit = {
   exe_mnv(craft, do_circ(craft, "AP"), true)
   sleep(0.1)
 
@@ -227,27 +226,31 @@ pub fn circ_at_AP (craft: Vessel, ) -> Unit = {
 
   CONSOLE.clear()
   info_orbit(craft, 2)
-  sleep(5)
+  sleep(2)
 }
 
-pub fn circ_at_PE (craft: Vessel, ) -> Unit = {
-  while (!craft.orbit.apoapsis.defined) {
+pub fn circ_at_PE (craft: Vessel) -> Unit = {
+  orientation(craft, -1 * craft.orbit.orbital_velocity(current_time()))
+  while (!craft.orbit.apoapsis.defined || craft.orbit.apoapsis.value > 0.75*craft.main_body.SOI_radius) {
     craft.autopilot.target_orientation = -1 * craft.orbit.orbital_velocity(current_time())
-    wait_until(fn() -> craft.facing.vector.angle_to(-1 * craft.orbit.orbital_velocity(current_time())) < 1.5)
-    sleep(0.5)
     craft.set_throttle(1)
-    sleep(0.1)
+    yield()
   }
   craft.set_throttle(0)
-  sleep(1)
+  sleep(0.1)
 
   exe_mnv(craft, do_circ(craft, "PE"), true)
+  sleep(0.1)
+
+  if (craft.orbit.eccentricity > 0.0001) {
+    exe_mnv(craft, do_circ(craft, "PE"), false)
+  }
 
   sleep(1)
 
   CONSOLE.clear()
   info_orbit(craft, 2)
-  sleep(5)
+  sleep(2)
 }
 
 pub fn do_circ (craft: Vessel, at: string = "AP") -> float = {
@@ -299,8 +302,21 @@ fn best_circ_node (craft: Vessel, old_node: ManeuverNode, dv: float) -> float = 
   return min_bef
 }
 
+// CHANGE THRUST LIMITER
+
 pub fn limit_thrust (craft: Vessel, perc: float) -> Unit = {
   for (e in craft.engines) {
     e.thrust_limiter = perc/100
   }
+  popup($"Thrust limiter is now {perc/100:P2}")
+}
+
+
+// CHANGE ORIENTATION
+pub fn orientation (craft: Vessel, vect: Vec3, margin: float = 1) -> Unit = {
+  while (craft.facing.vector.angle_to(vect) > margin) {
+    craft.autopilot.target_orientation = vect
+    yield()
+  }
+  sleep(0.1)
 }

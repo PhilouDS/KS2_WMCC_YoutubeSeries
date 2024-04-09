@@ -1,3 +1,4 @@
+// KONTROL SYSTEM 2 - v0.5.8.1
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -7,20 +8,48 @@ use { round, floor } from core::math
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
 use { CONSOLE_WINDOW } from ksp::ui
-use { wait_until, sleep } from ksp::game
+use { wait_until, sleep, notification_alert, notification_passive, Importance, yield, wait_while } from ksp::game
 use { Vessel } from ksp::vessel
+use { SAVE_LOAD_CONTROL } from ksp::debug
 
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-
 //____________________________________________________
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub sync fn f_round (f: float, n:int) -> float = round(f * 10**n)/10**n
+//===============================
+// -> Quick Save
+//===============================
+pub fn save_now () -> Unit = {
+  SAVE_LOAD_CONTROL.quick_save()
+  wait_while(fn() -> SAVE_LOAD_CONTROL.is_saving) // If waiting for completion is necessary
+  CONSOLE.print_at(15, 0, "quick save done")
+  yield()
+}
 
+//===============================
+// -> recover vessel
+//===============================
+pub fn recover () -> Unit = {
+  SAVE_LOAD_CONTROL.try_recover_vessel()
+}
+
+//===============================
+// -> Notifications 
+//===============================
+//-> same as notif_orange pub fn notif (msg: string) -> Unit = notification_alert("Kontrol System", msg, Importance.None, 5)
+pub fn notif_green (msg: string) -> Unit = notification_alert("Kontrol System", msg, Importance.Low, 5)
+pub fn notif_orange (msg: string) -> Unit = notification_alert("Kontrol System", msg, Importance.Medium, 5)
+pub fn notif_red (msg: string) -> Unit = notification_alert("Kontrol System", msg, Importance.High, 5)
+pub fn popup (msg: string, duration: float = 5) -> Unit = notification_passive(msg, duration)
+
+//===============================
+// CONSOLE
+//===============================
+//-> to print a nice title in the console
 pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=true) -> Unit = {
   // for (i in 0..msg.length) {CONSOLE.print_at (row,i,"-")}
   CONSOLE.clear_line(row)
@@ -31,10 +60,14 @@ pub fn print_title (msg: string, row: int=CONSOLE.cursor_row, cursor_back: bool=
   if (!cursor_back) {CONSOLE.move_cursor(row+2,0)}
 }
 
+//-> to change the cursor row in the console
 pub fn skip_line (l: int) -> Unit = {
   CONSOLE.move_cursor(CONSOLE.cursor_row + l, 0)
 }
 
+//===============================
+//-> end of mission to close the terminal
+//===============================
 pub fn end_of_mission (craft: Vessel) -> Unit = {
   CONSOLE.clear()
   craft.set_throttle(0)
@@ -45,18 +78,27 @@ pub fn end_of_mission (craft: Vessel) -> Unit = {
     sleep(1)
   }
   CONSOLE.clear()
+  notif_green("Script finished")
+  yield()
   CONSOLE_WINDOW.close()
 }
 
-pub fn wait_alt (craft: Vessel, alt: float) -> Unit = {
-  wait_until(fn() -> craft.altitude_sealevel > alt)
-}
+//===============================
+//-> to round a float with n digits in the decimal part
+//===============================
+pub sync fn f_round (f: float, n:int) -> float = round(f * 10**n)/10**n
 
+//===============================
+//-> sign of a number
+//===============================
 pub fn sign (f: float) -> int = {
   if (f < 0) {return -1}
   return 1
 }
 
+//===============================
+//-> convert a float in a string " ... h ... '' ... ' "
+//===============================
 pub sync fn hms (f: float) -> string = {
   let hf = floor(f/3600)
   let hf_label = hf.to_string()
@@ -71,7 +113,9 @@ pub sync fn hms (f: float) -> string = {
   hf_label + "h " + mf_label + "'' " + sf_label+"'"
 }
 
-
+//===============================
+// -> Minimum of a list
+//===============================
 pub fn min_of_list (list: float[]) -> (min: float, idx: int) = {
   let temp_min = list[0]
   let temp_idx = 0
@@ -83,3 +127,5 @@ pub fn min_of_list (list: float[]) -> (min: float, idx: int) = {
   }
   (min: temp_min, idx: temp_idx)
 }
+
+

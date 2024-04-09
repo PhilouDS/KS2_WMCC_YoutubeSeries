@@ -1,11 +1,17 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.7.9
 
-use { screen_size } from ksp::ui
+use { screen_size, Window, Align, CONSOLE_WINDOW } from ksp::ui
 use { CONSOLE, RgbaColor, color } from ksp::console
 use { Vec2, vec2 } from ksp::math
 use { Body, find_body } from ksp::orbit
 
 use { Launchpad, Runway } from lib::my_structures
+
+//____________________________________________________
+// KONTROL SYSTEM VERSION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+pub const actual_version: string = $"Running with KontrolSystem {ksp::game::MAINFRAME.version}"
+pub fn last_change (ver: string) -> string = $"Last modification made with KontrolSystem {ver}"
 
 //____________________________________________________
 // CONSTANTS FOR UI
@@ -19,14 +25,27 @@ pub const canva_font_size: float = 20.0
 pub const text_color:RgbaColor = color(1, 1, 0.5) //color(1,0.498,0.208)
 pub const gap_box: float = 10.0
 
+pub fn create_version_box (window: Window, ver: string, fontsize: float = 0.75) -> Unit = {
+  const version_box = window.add_vertical(gap_box)
+  const actual_version_label = version_box.add_label("")
+  actual_version_label.font_size = fontsize * text_font_size
+  actual_version_label.text = "<i>" + actual_version + "</i>"
+  const last_version_label = version_box.add_label("")
+  last_version_label.font_size = fontsize * text_font_size
+  last_version_label.text = "<i>" + last_change(ver) + "</i>"
+}
+
 //____________________________________________________
 // CONSTANTS FOR CONSOLE_WINDOW
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-pub const console_size: Vec2 = vec2(500, 600)
+pub fn console_size (x: float, y: float) -> Unit = {CONSOLE_WINDOW.size = vec2(x, y)}
 
 //____________________________________________________
 // CELESTIAL BODIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub const list_of_planet: Body[] = find_body("Kerbol").value.orbiting_bodies
+pub const list_of_body: Body[] = (list_of_planet + list_of_planet.flat_map(fn(p) -> p.orbiting_bodies)).sort_by(fn(b) -> b.name)
 
 pub const Kerbin: Body = find_body("Kerbin").value
 pub const initial_rotation_kerbin: float = 90.0

@@ -1,0 +1,144 @@
+// KONTROL SYSTEM 2 - v0.5.7.6
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round, clamp_degrees360 } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index } from ksp::game::warp
+use { LogFile, MAIN_LOG } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation } from ksp::vessel
+use { Orbit, find_body, Body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::prep_launch
+use * from lib::show_info
+use * from lib::science
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::transfer
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, pitchAng: float = 85, pitchVel: float = 110, targetApo: float = 130000, az: float = 90) -> Unit = {
+  CONSOLE.clear()
+  MAIN_LOG.truncate()
+
+  log_mission("IMPACTING THE MUN")
+
+  CONSOLE.print_line($"Target: {Mun.name}")
+  
+  CONSOLE_WINDOW.open()
+  CONSOLE_WINDOW.size = vec2(500,600)
+
+  let final_data = 0.0
+  let final_sample = 0.0
+  let (data, sample) = (0.0, 0.0)
+    
+  sleep(0.5)
+
+  CONSOLE.clear()
+
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.mode = AutopilotMode.Autopilot
+  ship.autopilot.lock_direction = ship.heading_direction(90, 90, az)
+
+  log_general_info(ship, targetApo)
+
+  const main_fairing = ship.parts.filter_map(fn(p) -> p.fairing)[0]
+  ship.set_throttle(1)
+  countdown(ship, true, 3)
+
+  first_info([
+    format("Target apoapsis: {0:N1} m", (targetApo)),
+    "--",
+    format("Initiate GT at {0:N1} m/s", (pitchVel)),
+    format("... with a pitch of {0:N1}°", (pitchAng)),
+    format("... and an azimuth of {0:N1}°.", (clamp_degrees360(az)))
+  ])
+
+  while (ship.vertical_surface_speed < pitchVel) {
+    check_staging(ship)
+  }
+
+  gravity_turn(ship, targetApo, pitchAng, az, true)
+
+  sleep(1)
+
+  circ_at_AP(ship)
+
+  ship.autopilot.target_orientation = ship.orbit.orbit_normal
+  wait_until(fn() -> ship.facing.vector.angle_to(ship.orbit.orbit_normal) < 1)
+  log_orbit_info(ship.orbit)
+  
+
+  CONSOLE.clear()
+  warp_to(current_time() + (ship.orbit.period / 2))
+  yield()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  yield()
+  sleep(1)
+
+  CONSOLE.print_line($"Target: {Mun.name}")
+  const target_pe = -1 * Mun.radius/1.3
+  sleep(1)
+
+  transfer_to_body(ship, Mun, target_pe, false, true)
+
+  sleep(1)
+  
+  CONSOLE.clear()
+
+  let check_done = false
+  let stop_warp = false
+  while (ship.altitude_sealevel > 20000) {
+    CONSOLE.print_at(2,0, $"Altitude above sea: {ship.altitude_sealevel:N1} m  ")
+    if (ship.altitude_sealevel > 1_000_000) {set_warp_index(6)}
+    else {
+      if (ship.altitude_sealevel > 75_000) {set_warp_index(5)}
+      else {
+        set_warp_index(0)
+        wait_until(fn() -> current_warp_rate() < 1.1)
+        if (!check_done && check_science(ship)) {
+          (data, sample) = run_science(ship, true, true)      
+          yield()
+          final_data += data
+          final_sample += sample
+          check_done = true
+        }
+      }
+    }
+    yield()
+  }
+
+  log_mission_event(ship, ($"Craft is going to crash. Actual altitude: {ship.altitude_sealevel:N1} m"))
+  yield()
+  log_end_mission(ship, final_data, final_sample)
+  yield()
+  close_log()
+  yield()
+  ship.autopilot.target_orientation = ship.orbital_velocity
+  wait_until(fn() -> ship.facing.vector.angle_to(ship.orbital_velocity) < 1)
+  ship.set_throttle(1)
+  end_of_mission(ship)
+}

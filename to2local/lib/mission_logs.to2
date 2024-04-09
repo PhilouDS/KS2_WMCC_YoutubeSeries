@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.8.0
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -7,7 +7,7 @@ use { floor } from core::math
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { LogFile, MAIN_LOG } from ksp::debug
-use { current_time } from ksp::game
+use { current_time, MAINFRAME } from ksp::game
 use { CONSOLE } from ksp::console
 use { Vessel, DeltaVSituation, VesselSituation } from ksp::vessel
 use { Orbit } from ksp::orbit
@@ -17,6 +17,7 @@ use { Experiment, ResearchLocation } from ksp::science
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use * from lib::my_structures
+use { notif_green, notif_orange, notif_red, popup } from lib::misc
 
 //____________________________________________________
 // GLOBAL CONSTANTS
@@ -25,50 +26,45 @@ use * from lib::my_constants
 
 const logWidth: int = 91
 const edge: string = "|"
-
+fn log_updated (duration: float = 1) -> Unit = popup("Log updated", duration)
 
 //____________________________________________________
 // STARTING LOGS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
 pub fn log_mission (title: string) -> Unit = {
+  MAIN_LOG.log($"Kerbal Space Program 2 with Kontrol System v. {MAINFRAME.version}")
   underscore_line(1, "·")
   add_centered_entry("~ " + title + " ~")
   upperscore_line(1, "·")
   empty_log()
+  log_updated()
 }
 
 pub fn log_general_info (craft: Vessel, apo: float, wanted_inc: float = LP_one.get_latitude(), launch_az: float = 90.0) -> Unit = {
-  // log_section("ÉTAT SPACE CENTER")
-  // add_left_entry("FONDS      : √ {grandNombre(tmpFonds, 2))
-  // add_left_entry("SCIENCE    : {grandNombre(tmpScience, 2))
-  // add_left_entry("RÉPUTATION : {grandNombre(tmpReputation, 2))
-  
-  // empty_log()
-
   const this_stage = Stage_Info(craft, craft.staging.current)
   const twr = this_stage.get_twr(DeltaVSituation.Altitude)
   const dv = this_stage.get_total_delta_v(DeltaVSituation.Vaccum)
   
   log_section("GENERAL INFORMATION")
-  add_left_entry($"DATE            : {time_to_date(current_time())}")
+  add_left_entry($"DATE          : {time_to_date(current_time())}")
   empty_log()
-  add_left_entry($"CRAFT           : {craft.name}")
+  add_left_entry($"CRAFT         : {craft.name}")
   empty_log()
-  add_left_entry($"MASS            : {craft.mass:N3} t")
-  add_left_entry($"Theoric TWR     : {twr:N2}")
-  add_left_entry($"Delta-V Vaccum  : {dv:N2} m/s")
-  add_left_entry($"STAGE number    : {craft.staging.count}")
+  add_left_entry($"MASS          : {craft.mass:N3} t")
+  add_left_entry($"Theoric TWR   : {twr:N2}")
+  add_left_entry($"Delta-V Vaccum: {dv:N2} m/s")
+  add_left_entry($"STAGE number  : {craft.staging.count}")
   
   empty_log()
 
   log_section("LAUNCH - INITIAL DATA")
-  add_left_entry($"WANTED APOAPSIS   : {apo:N0} m")
-  add_left_entry($"LAUNCH INCLINATION: {wanted_inc:N2}°")
-  add_left_entry($"LAUNCH AZIMUTH    : {launch_az:N2}°")
+  add_left_entry($"WANTED APOAPSIS: {apo:N0} m")
+  add_left_entry($"LAUNCH LATITUDE: {wanted_inc:N2}°")
+  add_left_entry($"LAUNCH AZIMUTH : {launch_az:N2}°")
   empty_log()
-  
   log_section("MISSION EVENTS")
+  log_updated()
 }
 
 //____________________________________________________
@@ -87,6 +83,7 @@ pub fn log_stage (craft: Vessel, ) -> Unit = {
   add_left_entry($"  · SURFACE VELOCITY    : {craft.surface_velocity.magnitude:N2} m/s")
   add_left_entry($"  · ORBITAL VELOCITY    : {craft.orbital_velocity.magnitude:N2} m/s")
   add_left_entry($"  · ATMOSPHERIC PRESSURE: {craft.dynamic_pressure_kpa:N3} kPa")
+  log_updated()
 }
 
 pub fn log_hohmann (craft: Vessel, init: float, final: float, delta: float) -> Unit = {
@@ -94,6 +91,7 @@ pub fn log_hohmann (craft: Vessel, init: float, final: float, delta: float) -> U
   add_left_entry($"  · Initial velocity: {init:N2} m/s")
   add_left_entry($"  · Final velocity  : {final:N2} m/s")
   add_left_entry($"  · Delta-V         : {delta:N2} m/s")
+  log_updated()
 }
 
 pub fn log_node (craft: Vessel, burnTime: float, burnETA: float, newNode: bool = true) -> Unit = {
@@ -105,22 +103,25 @@ pub fn log_node (craft: Vessel, burnTime: float, burnETA: float, newNode: bool =
   }
   add_left_entry($"  · Maneuver duration   : {burnTime:N2} s")
   add_left_entry($"  · Time before maneuver: {time_to_clock(burnETA)}")
+  log_updated()
 }
 
-pub fn log_science (craft: Vessel, exp: Experiment, ) -> Unit = {
+pub fn log_science (craft: Vessel, exp: Experiment) -> Unit = {
   log_mission_event(craft, "Science experiment started")
   add_left_entry($"  *** " + exp.experiment_id + " ***")
   add_left_entry($"  · Location        : {exp_loc_id_log(craft, exp)}")
   add_left_entry($"  · Data value      : {exp.definition.data_value:N2}")
   add_left_entry($"  · Sample value    : {exp.definition.sample_value:N2}")
   add_left_entry($"  · Report size     : {exp.definition.transmission_size:N2}")
-  add_left_entry($"  · Time to complete: {exp.time_to_complete:N2} s")   
+  add_left_entry($"  · Time to complete: {exp.time_to_complete:N2} s")
+  log_updated()
 }
 
 pub fn log_mission_event (craft: Vessel, event: string, add_empty: bool = true) -> Unit = {
   if (add_empty) {empty_log()}
   const event_time = time_to_clock(craft.time_since_launch)
   add_left_entry("T+ " + event_time + ": " + event)
+  log_updated()
 }
 
 
@@ -130,8 +131,7 @@ pub fn log_mission_event (craft: Vessel, event: string, add_empty: bool = true) 
 
 pub fn log_orbit_info (obt: Orbit) -> Unit = {
   empty_log()
-  
-  log_section("ORBIT CARACTERISTICS")
+  log_section($"ORBIT CARACTERISTICS - (Body: {obt.reference_body.name})")
   add_left_entry($"Apoapsis                   : {obt.apoapsis.value:N2} m")
   add_left_entry($"Periapsis                  : {obt.periapsis:N2} m")
   add_left_entry($"Argument of periapsis      : {obt.argument_of_periapsis:N1}°")
@@ -140,6 +140,7 @@ pub fn log_orbit_info (obt: Orbit) -> Unit = {
   add_left_entry($"Inclination                : {obt.inclination:N2}°")
   add_left_entry($"Longitude of Ascending Node: {obt.LAN:N2}°")
   upperscore_line(2)
+  log_updated()
 }
 
 
@@ -156,6 +157,7 @@ pub fn log_suicid_burn (twr: float, Vm: float, Tm: float, burningAltitude: float
   add_left_entry($"Ignition duration: {Tm:N2} s")
   add_left_entry($"Ignition altitude: {burningAltitude:N2} m")
   upperscore_line(2)
+  log_updated()
 }
 
 pub fn log_landing (craft: Vessel) -> Unit = {
@@ -172,9 +174,10 @@ pub fn log_landing (craft: Vessel) -> Unit = {
   add_left_entry($"  · longitude   : {craft.geo_coordinates.longitude:N2}°")
   add_left_entry($"  · altitude asl: {craft.altitude_sealevel:N1} m")
   empty_log()
+  log_updated()
 }
 
-pub fn log_end_mission (craft: Vessel, data_point: float, sample_point: float) -> Unit = {
+pub fn log_end_mission (craft: Vessel, data_point: float, sample_point: float, close: bool = true) -> Unit = {
   underscore_line()
   add_centered_entry("~ END OF THE MISSION ~")
   upperscore_line()
@@ -186,11 +189,14 @@ pub fn log_end_mission (craft: Vessel, data_point: float, sample_point: float) -
   add_left_entry($"DATA VALUE  : {data_point:N2}")
   add_left_entry($"SAMPLE VALUE: {sample_point:N2}")
   empty_log()
+  if (close) {close_log()}
+  log_updated()
 }
 
 pub fn close_log (empty: bool = false) -> Unit = {
   if (empty) {empty_log()}
   underscore_line(1, "·")
+  log_updated()
 }
 
 
