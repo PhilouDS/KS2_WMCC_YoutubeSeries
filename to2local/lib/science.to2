@@ -193,10 +193,10 @@ pub fn run_science (craft: Vessel, waitExp: bool, transmit: bool = false) -> (da
 
       while(exp.current_running_time > 0) {
         exp_time = (exp.time_to_complete-exp.current_running_time)/exp.time_to_complete
-        time_line = round(floor(exp_time*100)/5)
+        time_line = round(floor(exp_time*100)/5.0)
 
         print_title("Collecting Science...", science_row)
-        CONSOLE.print_at(science_row+3, 0, format("|| {0:P2}", exp_time))
+        CONSOLE.print_at(science_row+3, 0, $"|| {exp_time:P2}")
         CONSOLE.print_at(science_row+3, time_line.to_int+11, "|")
         yield()
       }

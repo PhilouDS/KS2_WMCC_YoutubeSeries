@@ -1,0 +1,111 @@
+// KONTROL SYSTEM 2 - v0.5.8.1
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round, clamp_degrees360 } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index, cancel_warp } from ksp::game::warp
+use { LogFile, MAIN_LOG } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation, ManeuverNode } from ksp::vessel
+use { Orbit, find_body, Body } from ksp::orbit
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::prep_launch
+use * from lib::show_info
+use * from lib::science
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::transfer
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, pitchAng: float = 85, pitchVel: float = 50, targetApo: float = 150000, az: float = 90) -> Unit = {
+  const ship_target = start_with_target(ship, "RELAY SAT OF THE MUN 2", Mun)
+  const has_fairing = check_fairing(ship)
+  const has_clamps = check_clamps(ship)    
+  sleep(0.25)
+
+  ship.autopilot.lock_direction = ship.heading_direction(90, 90, az)
+  log_general_info(ship, targetApo)
+  
+  ship.set_throttle(1)
+  countdown(ship, has_clamps, 3)
+
+  first_info([
+    format("Target apoapsis: {0:N1} m", (targetApo)),
+    "--",
+    format("Initiate GT at {0:N1} m/s", (pitchVel)),
+    format("... with a pitch of {0:N1}°", (pitchAng)),
+    format("... and an azimuth of {0:N1}°.", (clamp_degrees360(az)))
+  ])
+
+  while (ship.vertical_surface_speed < pitchVel) {
+    check_staging(ship)
+  }
+
+  gravity_turn(ship, targetApo, pitchAng, az, has_fairing)
+
+  circ_at_AP(ship)
+  sleep(0.1)
+  log_orbit_info(ship.orbit)
+
+  orientation(ship, ship.orbit.orbit_normal)
+  CONSOLE.clear()
+
+  do_warp(current_time() + (ship.orbit.period / 2))
+  CONSOLE.print_line($"Target: {ship_target.name}")
+  sleep(0.25)
+
+  transfer_to_body(ship, ship_target, 800_000, false, true)
+
+  do_warp(ship.orbit.next_periapsis_time(current_time()) - 30)  
+  
+  orientation(ship, (-1 * ship.orbital_velocity))
+  sleep(0.25)
+
+  const now = ship.orbit.next_periapsis_time(current_time())
+  wait_until(fn() ->  now - current_time() < 15)
+
+  while (!ship.orbit.apoapsis.defined || ship.orbit.apoapsis.value > 500_000 * ship.main_body.SOI_radius) {
+    ship.autopilot.target_orientation = -1 * ship.orbit.orbital_velocity(current_time())
+    wait_until(fn() -> ship.facing.vector.angle_to(-1 * ship.orbit.orbital_velocity(current_time())) < 1.5)
+    sleep(0.5)
+    ship.set_throttle(1)
+    sleep(0.1)
+  }
+  ship.set_throttle(0)
+  sleep(1)
+
+  exe_mnv(ship, go_to_from(ship, 800_000, "PE"), false)
+
+  circ_at_AP(ship)
+  sleep(0.1)
+  log_orbit_info(ship.orbit)
+
+  orientation(ship, ship.orbit.orbit_normal)
+  
+  log_end_mission(ship)
+  yield()
+  end_of_mission(ship)
+}

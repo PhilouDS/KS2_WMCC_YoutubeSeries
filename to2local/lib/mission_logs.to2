@@ -16,7 +16,7 @@ use { Experiment, ResearchLocation } from ksp::science
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use * from lib::my_structures
+use { Spot, Stage_Info } from lib::my_structures
 use { notif_green, notif_orange, notif_red, popup } from lib::misc
 
 //____________________________________________________
@@ -129,9 +129,9 @@ pub fn log_mission_event (craft: Vessel, event: string, add_empty: bool = true) 
 // ORBIT
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn log_orbit_info (obt: Orbit) -> Unit = {
+pub fn log_orbit_info (obt: Orbit, title: string = "ORBIT CARACTERISTICS") -> Unit = {
   empty_log()
-  log_section($"ORBIT CARACTERISTICS - (Body: {obt.reference_body.name})")
+  log_section($"{title} - (Body: {obt.reference_body.name})")
   add_left_entry($"Apoapsis                   : {obt.apoapsis.value:N2} m")
   add_left_entry($"Periapsis                  : {obt.periapsis:N2} m")
   add_left_entry($"Argument of periapsis      : {obt.argument_of_periapsis:N1}°")
@@ -165,7 +165,7 @@ pub fn log_landing (craft: Vessel) -> Unit = {
   log_section("LANDING DONE")
   let biome = "unknown region"
   if (craft.research_location.defined) {biome = craft.research_location.value.id}
-  log_mission_event(craft, "Craft stable", false)
+  log_mission_event(craft, "Vessel stable", false)
   add_left_entry($"LOCATION")
   add_left_entry($"  · {craft.main_body.name} / {biome}")
   add_left_entry($"  · {craft.situation.to_string()}")
@@ -177,7 +177,29 @@ pub fn log_landing (craft: Vessel) -> Unit = {
   log_updated()
 }
 
-pub fn log_end_mission (craft: Vessel, data_point: float, sample_point: float, close: bool = true) -> Unit = {
+pub fn log_landing_with_target (craft: Vessel, land_point: Spot, dist: float) -> Unit = {
+  empty_log()
+  log_section("LANDING DONE")
+  let biome = "unknown region"
+  if (craft.research_location.defined) {biome = craft.research_location.value.id}
+  log_mission_event(craft, "Vessel stable", false)
+  add_left_entry($"LOCATION")
+  add_left_entry($"  · {craft.main_body.name} / {biome}")
+  add_left_entry($"  · {craft.situation.to_string()}")
+  add_left_entry($"COORDINATES")
+  add_left_entry($"  · latitude    : {craft.geo_coordinates.latitude:N2}°")
+  add_left_entry($"  · longitude   : {craft.geo_coordinates.longitude:N2}°")
+  add_left_entry($"  · altitude asl: {craft.altitude_sealevel:N1} m")
+  empty_log()
+  add_left_entry($"LANDING POINT")
+  add_left_entry($"  · {land_point.name} / {land_point.body.name}")
+  add_left_entry($"  · latitude    : {land_point.lat:N2}°")
+  add_left_entry($"  · longitude   : {land_point.long:N2}°")
+  add_left_entry($"  · Distance    : {dist:N1} m")
+  log_updated()
+}
+
+pub fn log_end_mission (craft: Vessel, data_point: float = 0.0, sample_point: float = 0.0, close: bool = true) -> Unit = {
   underscore_line()
   add_centered_entry("~ END OF THE MISSION ~")
   upperscore_line()
@@ -297,32 +319,33 @@ pub fn add_item (item: string, loc: string = "L", border: string = edge) -> Unit
 // SUB FUNCTIONS FOR NUMBERS AND DATES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-fn time_to_clock (time: float) -> string = {
-  const nHours = floor(time / 3600)
+pub fn time_to_clock (time: float) -> string = {
+  const nDay = floor(time / (hours_per_day * 3600)).to_int
+  const nHours = floor((time - nDay*(hours_per_day*3600)) / 3600)
   let nHours_label = nHours.to_int.to_string()
-  if (nHours < 10) {nHours_label = "0" + nHours.to_int.to_string()}
-  const nMin = floor((time - nHours*3600) / 60)
+  if (nHours < 10 && nHours >= 0) {nHours_label = "0" + nHours.to_int.to_string()}
+  const nMin = floor((time - nDay*(hours_per_day*3600) - nHours*3600) / 60)
   let nMin_label = nMin.to_int.to_string()
-  if (nMin < 10) {nMin_label = "0" + nMin.to_int.to_string()}
-  const nSec = floor(time - nHours*3600 - nMin*60)
+  if (nMin < 10 && nMin >= 0) {nMin_label = "0" + nMin.to_int.to_string()}
+  const nSec = floor(time - nDay*(hours_per_day*3600) - nHours*3600 - nMin*60)
   let nSec_label = nSec.to_string()
-  if (nSec < 10) {nSec_label = "0" + nSec.to_int.to_string()}
-  const time_string = nHours_label + " h " + nMin_label + " min " + nSec_label + " sec"
+  if (nSec < 10 && nSec >= 0) {nSec_label = "0" + nSec.to_int.to_string()}
+  const time_string = nDay.to_string() + " d " + nHours_label + " h " + nMin_label + " min " + nSec_label + " sec"
 
   time_string
 }
 
-fn time_to_date (time: float) -> string = {
+pub fn time_to_date (time: float) -> string = {
   const nDay = floor(time / (hours_per_day * 3600)).to_int
   const nHours = floor((time - nDay*(hours_per_day*3600)) / 3600)
   let nHours_label = nHours.to_int.to_string()
-  if (nHours < 10) {nHours_label = "0" + nHours.to_int.to_string()}
+  if (nHours < 10 && nHours >= 0) {nHours_label = "0" + nHours.to_int.to_string()}
   const nMin = floor((time - nDay*(hours_per_day*3600) - nHours*3600) / 60)
   let nMin_label = nMin.to_int.to_string()
-  if (nMin < 10) {nMin_label = "0" + nMin.to_int.to_string()}
+  if (nMin < 10 && nMin >= 0) {nMin_label = "0" + nMin.to_int.to_string()}
   const nSec = floor(time - nDay*(hours_per_day*3600) - nHours*3600 - nMin*60)
   let nSec_label = nSec.to_string()
-  if (nSec < 10) {nSec_label = "0" + nSec.to_int.to_string()}
+  if (nSec < 10 && nSec >= 0) {nSec_label = "0" + nSec.to_int.to_string()}
   const time_string = (nDay+1).to_string() + " d " + nHours_label + " h " + nMin_label + " min " + nSec_label + " sec"
 
   time_string

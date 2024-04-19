@@ -1,0 +1,151 @@
+// KONTROL SYSTEM 2 - v0.5.8.2
+// Ziegler-Nichols Method
+// https://en.wikipedia.org/wiki/Ziegler%E2%80%93Nichols_method
+
+// https://web.archive.org/web/20170918055307/http://staff.guilan.ac.ir/staff/users/chaibakhsh/fckeditor_repo/file/documents/Optimum%20Settings%20for%20Automatic%20Controllers%20(Ziegler%20and%20Nichols,%201942).pdf
+
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { abs } from core::math
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { wait_until, yield, current_time, sleep } from ksp::game
+use { Vessel, Autopilot, AutopilotMode, VesselSituation, DeltaVSituation } from ksp::vessel
+use { LogFile, MAIN_LOG } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { pid_loop } from ksp::control
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { limit_thrust } from lib::adjusted_mnv
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+use * from lib::my_structures
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, KU: float = 1.0, Tu: float = 0.0) -> Unit = {
+  CONSOLE.clear()
+  CONSOLE_WINDOW.open()
+  console_size(400,600)
+  limit_thrust(ship, 100)
+  sleep(1)
+
+  MAIN_LOG.truncate()
+
+  let grav_body = ship.main_body.grav_parameter / (ship.main_body.radius**2)
+  const this_stage = Stage_Info(ship, ship.staging.current)
+  let old_twr = this_stage.get_twr(DeltaVSituation.Vaccum, grav_body)
+  CONSOLE.print_line($"{old_twr:N2}")
+
+  const lim_thrust = 3 * 100 / old_twr
+  yield()
+  sleep(0.25)
+
+  limit_thrust(ship, lim_thrust)
+  yield()
+  sleep(0.25)
+  let new_twr = this_stage.get_twr(DeltaVSituation.Vaccum, grav_body)
+  yield()
+  CONSOLE.print_line($"{new_twr:N2}")
+  sleep(0.25)
+  CONSOLE.clear()
+
+  let end = false
+  const power = Cell(0.0)
+  let t0 = 0.0
+
+  ship.autopilot.enabled = false // SAS off
+  ship.autopilot.mode = AutopilotMode.Autopilot
+  ship.autopilot.target_orientation = ship.up
+
+  const throt = ship.manage_throttle(fn(deltaT) -> power.value)
+
+  let Ku = KU
+  let Kp = Ku
+  let Ki = 0.0
+  let Kd = 0.0
+
+  if (Tu != 0.0) {
+    Kp = 0.6 * Ku
+    Ki = 1.2 * Ku / Tu
+    Kd = 0.075 * Ku * Tu
+  }
+
+  let VPID = pid_loop(Kp, Ki, Kd, 0, 1)
+  VPID.setpoint = 0.0
+  CONSOLE.print_at(0,0,"PID configured")
+
+  ship.staging.next()
+
+  power.value = 1.0
+  //throt.throttle = power
+
+  wait_until(fn() -> ship.altitude_scenery > 10)
+
+  power.value = 0.0
+
+  MAIN_LOG.log("Time: ; Throttle: ; VertSpeed: ; init Ku")
+  MAIN_LOG.log($"{t0} ; {power.value:N2} ; {ship.vertical_surface_speed:N2} ; {KU}")
+
+  while(abs(ship.vertical_surface_speed) > 2) {
+    CONSOLE.print_at(6,0, $"VertSpeed: {ship.vertical_surface_speed:N2} m/s        ")
+    yield()
+  }
+
+  VPID.reset_i()
+  t0 = current_time()
+
+  while (ship.situation != VesselSituation.Landed) {
+    power.value = VPID.update(current_time(), ship.vertical_surface_speed)
+
+    CONSOLE.print_at(3,0, $"PID SETPOINT : {VPID.setpoint}")
+    
+    CONSOLE.print_at(5,0, $"Throttle : {power.value:N2}        ")
+    CONSOLE.print_at(6,0, $"VertSpeed: {ship.vertical_surface_speed:N2} m/s        ")
+    CONSOLE.print_at(7,0, $"Error    : {VPID.error:N2} m/s           ")
+    CONSOLE.print_at(8,0, $"Kp       : {Kp}")
+    CONSOLE.print_at(9,0, $"Ku       : {Ku}")
+
+    CONSOLE.print_at(12,0, $"Altitude : {ship.altitude_scenery:N1} m        ")
+
+    if (!end) {
+      MAIN_LOG.log($"{current_time() - t0:N1} ; {power.value:N2} ; {ship.vertical_surface_speed:N2}           ")
+      CONSOLE.print_at(13,0, $"Chrono   : {(t0 + 10 - current_time()):N1} s                   ")
+    }
+
+    if (!end && (current_time() - t0) > 10) {
+      end = true
+      VPID.setpoint = -4
+      if (Tu == 0.0) {
+        Ku = Kp
+        Kp = 0.8 * Ku
+      }
+    }
+    yield()
+  }
+
+  CONSOLE.clear()
+
+  CONSOLE.print_at(12, 0, "test is over.")
+  if (Tu == 0.0) {
+    CONSOLE.print_at(16, 0, $"Ku = {Ku}")
+  } else {
+    CONSOLE.print_at(15, 0, $"Kp = {Kp}")
+    CONSOLE.print_at(16, 0, $"Ki = {Ki:N6}")
+    CONSOLE.print_at(17, 0, $"Kd = {Kd:N6}")
+  }
+
+  throt.release()
+  sleep(1)
+}

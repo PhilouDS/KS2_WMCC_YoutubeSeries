@@ -8,9 +8,10 @@ use { format } from core::str
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
 use { sleep, yield } from ksp::game
 use { LogFile, MAIN_LOG } from ksp::debug
-use { Vessel, DeltaVSituation } from ksp::vessel
+use { Vessel, DeltaVSituation, AutopilotMode, Targetable } from ksp::vessel
 use { Orbit, Body } from ksp::orbit
 
 //____________________________________________________
@@ -19,11 +20,73 @@ use { Orbit, Body } from ksp::orbit
 use * from lib::misc
 use { Stage_Info } from lib::my_structures
 use * from lib::mission_logs
+use * from lib::my_constants
 
 
 //____________________________________________________
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+//===============================
+//-> check for particular parts
+//===============================
+
+pub fn check_fairing (craft: Vessel) -> bool = craft.parts.filter_map(fn(p) -> p.fairing).length > 0
+pub fn check_clamps (craft: Vessel) -> bool = craft.parts.filter_map(fn(p) -> p.launch_clamp).length > 0
+
+//===============================
+//-> Starting the script with or without target
+//===============================
+
+pub fn start_with_target (craft: Vessel, title: string, targ: Body, refresh_log: bool = true) -> Body = {
+  CONSOLE.clear()
+  CONSOLE_WINDOW.open()
+  console_size(500,600)
+  notif_green("Initialisation of the script")
+  sleep(1)
+  craft.target = targ
+  sleep(0.1)
+  const ship_target = craft.target.value.body.value
+  CONSOLE.print_line($"Target: {ship_target.name}")
+
+  if (refresh_log) {
+    MAIN_LOG.truncate()
+    log_mission(title) 
+  }  
+    
+  sleep(0.25)
+
+  CONSOLE.clear()
+
+  craft.autopilot.enabled = false // SAS
+  craft.autopilot.mode = AutopilotMode.Autopilot
+
+  ship_target
+}
+
+pub fn start (craft: Vessel, title: string, refresh_log: bool = true) -> Unit = {
+  CONSOLE.clear()
+  CONSOLE_WINDOW.open()
+  console_size(500,600)
+  notif_green("Initialisation of the script")
+  sleep(1)
+
+  if (refresh_log) {MAIN_LOG.truncate()}
+
+  log_mission(title) 
+    
+  sleep(0.25)
+
+  CONSOLE.clear()
+
+  craft.autopilot.enabled = false // SAS
+  craft.autopilot.mode = AutopilotMode.Autopilot
+}
+
+//===============================
+//-> countdown
+//===============================
 
 pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3) -> Unit = {
   CONSOLE.clear()
@@ -49,6 +112,11 @@ pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3) -> Unit = 
   add_item($"Actual Delta-V: {dv:N2} m/s")
   popup("Liftoff")
 }
+
+
+//===============================
+//-> Launch with 2 given azimuth, selection of the good one
+//===============================
 
 pub fn launch_from_north (craft: Vessel, craft_target: Body, azimuth: float[]) -> float = {
   let angle_from_north = 90.0

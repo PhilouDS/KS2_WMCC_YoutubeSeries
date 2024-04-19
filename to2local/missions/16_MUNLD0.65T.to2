@@ -1,0 +1,124 @@
+// KONTROL SYSTEM 2 - v0.5.8.1
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round, clamp_degrees360, floor, log10, acos_deg } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sleep, wait_until, yield, current_time, wait_while } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index, cancel_warp } from ksp::game::warp
+use { LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation, ManeuverNode, ParachuteDeployState } from ksp::vessel
+use { Orbit, find_body, Body } from ksp::orbit
+use { pid_loop, PIDLoop } from ksp::control
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::prep_launch
+use * from lib::show_info
+use * from lib::science
+use * from lib::system
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::transfer
+use * from lib::landing
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, pitchAng: float = 80, pitchVel: float = 22, targetApo: float = 135000, az: float = 90) -> Unit = {
+  yield()
+  const ship_target = start_with_target(ship, "LANDING ON THE MUN", Mun, false)
+  const has_fairing = check_fairing(ship)
+  const has_clamps = check_clamps(ship)    
+  sleep(0.25)
+
+  let (final_data, final_sample) = (0.0, 0.0)
+  let (data, sample) = (0.0, 0.0)
+  
+  ship.autopilot.lock_direction = ship.heading_direction(90, 90, az)
+  log_general_info(ship, targetApo)
+
+  ship.set_throttle(1)
+  countdown(ship, has_clamps, 3)
+
+  first_info([
+    format("Target apoapsis: {0:N1} m", (targetApo)),
+    "--",
+    format("Initiate GT at {0:N1} m/s", (pitchVel)),
+    format("... with a pitch of {0:N1}°", (pitchAng)),
+    format("... and an azimuth of {0:N1}°.", (clamp_degrees360(az)))
+  ])
+
+  while (ship.vertical_surface_speed < pitchVel) {
+    check_staging(ship)
+  }
+
+  gravity_turn(ship, targetApo, pitchAng, az, has_fairing)
+
+  deploy_antenna(ship)
+  yield()
+
+  exe_mnv(ship, go_to_from(ship, 150_000), false)
+
+  sleep(0.5)
+  circ_at_AP(ship)
+
+  orientation(ship, ship.orbit.orbit_normal)
+  CONSOLE.clear()
+  do_warp(current_time() + (ship.orbit.period / 2))
+  
+  save_now(ship)
+  transfer_to_body(ship, ship_target, 30000, true, true)
+  yield()
+  orientation(ship, ship.orbit.orbit_normal)
+  
+  save_now(ship)
+  do_warp(ship.orbit.next_periapsis_time(current_time()) - 20)
+
+  capture_SOI(ship)
+  sleep(0.1)
+  circ_at_PE(ship)
+
+  CONSOLE.clear()
+  align_body(ship, false)
+  yield()
+
+  manual_action("<b>Activate the Gears</b>")
+  
+  save_now(ship)
+  
+  const vert_speed_pid = pid_loop(1.38, 6.052632, 0.078660, 0.01, 1)
+  sleep(0.1)
+
+  landing(ship, 3, vert_speed_pid, 5)
+  sleep(0.1)
+  
+  (data, sample) = run_science(ship, true, true)      
+  yield()
+  final_data += data
+  final_sample += sample
+  yield()
+
+  log_end_mission(ship, final_data, final_sample)
+  yield()
+
+  end_of_mission(ship)
+}

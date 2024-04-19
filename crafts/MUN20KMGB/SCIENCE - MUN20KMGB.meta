@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - MUN20KMGB",
+  "VehicleName": "MUN20KMGB",
+  "Description": "3.61 t",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - MUN20KMGB.png",
+  "Mass": 3.6102,
+  "SaveTime": 638480975645512491,
+  "Parts": 21,
+  "Stages": 2,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}

@@ -23,6 +23,9 @@ use * from lib::system
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+//===============================
+//-> Gravity turn
+//===============================
 pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimuth: float, jettison_fairing: bool = false) -> Unit = {
   CONSOLE.clear()
 
@@ -124,6 +127,9 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
   sleep(1)
 }
 
+//===============================
+//-> Staging
+//===============================
 pub fn check_staging (craft: Vessel) -> Unit = {
   let check = false
   const engine_in_stage = list_engine_stage(craft, craft.staging.current)
@@ -155,7 +161,9 @@ pub fn trigger_staging (craft: Vessel) -> Unit = {
   yield()
 }
 
-
+//===============================
+//-> list of engines
+//===============================
 fn list_engine_stage (craft: Vessel, stage_num: int) -> ksp::vessel::ModuleEngine[] = {
   let list_engine: ksp::vessel::ModuleEngine[] = []
   for (prt in craft.staging.parts_in_stage(stage_num)) {

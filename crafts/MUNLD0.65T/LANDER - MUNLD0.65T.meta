@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "LANDER - MUNLD0.65T",
+  "VehicleName": "MUNLD0.65T",
+  "Description": "Transfer module -> Land on Mun",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LANDER - MUNLD0.65T.png",
+  "Mass": 0.65165,
+  "SaveTime": 638482803177046320,
+  "Parts": 24,
+  "Stages": 1,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

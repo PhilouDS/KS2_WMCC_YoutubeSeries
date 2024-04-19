@@ -1,0 +1,260 @@
+﻿Kerbal Space Program 2 with Kontrol System v. 0.5.8.3
+·_________________________________________________________________________________________·
+|                                 ~ LANDING ON THE MUN ~                                  |
+·‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾·
+|                                                                                         |
+|# GENERAL INFORMATION                                                                    |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|DATE          : 26 d 04 h 11 min 02 sec                                                  |
+|                                                                                         |
+|CRAFT         : LV3.61T + MUNLD0.65T-12                                                  |
+|                                                                                         |
+|MASS          : 51.343 t                                                                 |
+|Theoric TWR   : 1.01                                                                     |
+|Delta-V Vaccum: 8,030.55 m/s                                                             |
+|STAGE number  : 11                                                                       |
+|                                                                                         |
+|# LAUNCH - INITIAL DATA                                                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|WANTED APOAPSIS: 135,000 m                                                               |
+|LAUNCH LATITUDE: -0.55°                                                                  |
+|LAUNCH AZIMUTH : 90.00°                                                                  |
+|                                                                                         |
+|# MISSION EVENTS                                                                         |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 01 sec: Liftoff                                                       |
+|  · Actual TWR    : 0.84                                                                 |
+|  · Actual Delta-V: 5,551.97 m/s                                                         |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 04 sec: Gravity turn started                                          |
+|  · Initial Speed: 24.5 m/s                                                              |
+|  · Initial Angle: 80.00°                                                                |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 19 sec: Following surface prograde vector: 215.7 m/s                  |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 42 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 2.57                                                           |
+|  · ACTUAL Delta-V      : 6,431.77 m/s                                                   |
+|  · ALTITUDE            : 10,053.5 m                                                     |
+|  · SURFACE VELOCITY    : 626.66 m/s                                                     |
+|  · ORBITAL VELOCITY    : 947.28 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 77.554 kPa                                                     |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 43 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 1.84                                                           |
+|  · ACTUAL Delta-V      : 6,448.12 m/s                                                   |
+|  · ALTITUDE            : 10,613.7 m                                                     |
+|  · SURFACE VELOCITY    : 623.93 m/s                                                     |
+|  · ORBITAL VELOCITY    : 946.12 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 71.616 kPa                                                     |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 44 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 1.84                                                           |
+|  · ACTUAL Delta-V      : 6,448.12 m/s                                                   |
+|  · ALTITUDE            : 10,999.5 m                                                     |
+|  · SURFACE VELOCITY    : 614.78 m/s                                                     |
+|  · ORBITAL VELOCITY    : 940.02 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 66.170 kPa                                                     |
+|                                                                                         |
+|T+ 0 d 00 h 01 min 29 sec: Following orbital prograde vector: 1,529.6 m/s                |
+|                                                                                         |
+|T+ 0 d 00 h 01 min 53 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 0.77                                                           |
+|  · ACTUAL Delta-V      : 5,069.89 m/s                                                   |
+|  · ALTITUDE            : 52,828.2 m                                                     |
+|  · SURFACE VELOCITY    : 1,661.54 m/s                                                   |
+|  · ORBITAL VELOCITY    : 2,078.13 m/s                                                   |
+|  · ATMOSPHERIC PRESSURE: 0.843 kPa                                                      |
+|                                                                                         |
+|T+ 0 d 00 h 01 min 54 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 0.77                                                           |
+|  · ACTUAL Delta-V      : 5,069.89 m/s                                                   |
+|  · ALTITUDE            : 53,377.9 m                                                     |
+|  · SURFACE VELOCITY    : 1,659.50 m/s                                                   |
+|  · ORBITAL VELOCITY    : 2,076.96 m/s                                                   |
+|  · ATMOSPHERIC PRESSURE: 0.782 kPa                                                      |
+|                                                                                         |
+|T+ 0 d 00 h 02 min 46 sec: Fairing jettisoned                                            |
+|                                                                                         |
+|T+ 0 d 00 h 02 min 47 sec: In space                                                      |
+|                                                                                         |
+|T+ 0 d 00 h 04 min 09 sec: End of Gravity turn                                           |
+|                                                                                         |
+|T+ 0 d 00 h 04 min 19 sec: Hohmann transfer                                              |
+|  · Initial velocity: 3,023.53 m/s                                                       |
+|  · Final velocity  : 3,682.45 m/s                                                       |
+|  · Delta-V         : 658.93 m/s                                                         |
+|                                                                                         |
+|T+ 0 d 00 h 04 min 20 sec: New maneuver node                                             |
+|  · Maneuver duration   : 47.83 s                                                        |
+|  · Time before maneuver: 0 d 00 h 01 min 41 sec                                         |
+|                                                                                         |
+|T+ 0 d 00 h 06 min 01 sec: Engine Ignition - maneuver started                            |
+|                                                                                         |
+|T+ 0 d 00 h 06 min 31 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 1.66                                                           |
+|  · ACTUAL Delta-V      : 3,501.50 m/s                                                   |
+|  · ALTITUDE            : 134,193.6 m                                                    |
+|  · SURFACE VELOCITY    : 2,891.45 m/s                                                   |
+|  · ORBITAL VELOCITY    : 3,367.85 m/s                                                   |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|                                                                                         |
+|T+ 0 d 00 h 06 min 31 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 1.66                                                           |
+|  · ACTUAL Delta-V      : 3,501.50 m/s                                                   |
+|  · ALTITUDE            : 134,157.1 m                                                    |
+|  · SURFACE VELOCITY    : 2,893.87 m/s                                                   |
+|  · ORBITAL VELOCITY    : 3,370.93 m/s                                                   |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|T+ 0 d 00 h 06 min 56 sec: MECO - end of maneuver                                        |
+|T+ 0 d 00 h 06 min 56 sec: Actual velocity: 3,685.71 m/s                                 |
+|                                                                                         |
+|T+ 0 d 00 h 07 min 02 sec: Hohmann transfer                                              |
+|  · Initial velocity: 3,625.44 m/s                                                       |
+|  · Final velocity  : 3,646.36 m/s                                                       |
+|  · Delta-V         : 20.91 m/s                                                          |
+|                                                                                         |
+|T+ 0 d 00 h 07 min 13 sec: New maneuver node                                             |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 31 min 13 sec                                         |
+|                                                                                         |
+|T+ 0 d 00 h 38 min 26 sec: Engine Ignition - maneuver started                            |
+|T+ 0 d 00 h 38 min 43 sec: MECO - end of maneuver                                        |
+|T+ 0 d 00 h 38 min 43 sec: Actual velocity: 3,646.34 m/s                                 |
+|                                                                                         |
+|# ORBIT CARACTERISTICS - (Body: Kerbin)                                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 160,186.21 m                                                |
+|Periapsis                  : 159,986.96 m                                                |
+|Argument of periapsis      : 86.0°                                                       |
+|Eccentricity               : 0.60 x 10^(-4)                                              |
+|Period                     : 0 d 00 h 47 min 40 sec                                      |
+|Inclination                : 0.54°                                                       |
+|Longitude of Ascending Node: 25.31°                                                      |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 0 d 01 h 02 min 33 sec: Transfer to Mun started                                       |
+|                                                                                         |
+|T+ 0 d 01 h 20 min 22 sec: Hohmann transfer                                              |
+|  · Initial velocity: 3,646.50 m/s                                                       |
+|  · Final velocity  : 5,019.69 m/s                                                       |
+|  · Delta-V         : 1,373.19 m/s                                                       |
+|                                                                                         |
+|T+ 0 d 01 h 20 min 23 sec: New maneuver node                                             |
+|  · Maneuver duration   : 62.40 s                                                        |
+|  · Time before maneuver: 0 d 00 h 03 min 48 sec                                         |
+|                                                                                         |
+|T+ 0 d 01 h 24 min 12 sec: Engine Ignition - transfer maneuver started                   |
+|T+ 0 d 01 h 25 min 19 sec: MECO - end of maneuver                                        |
+|T+ 0 d 01 h 25 min 19 sec: Actual velocity: 5,003.82 m/s                                 |
+|                                                                                         |
+|T+ 0 d 01 h 25 min 40 sec: End of the transfer maneuver in destination to: Mun           |
+|                                                                                         |
+|T+ 2 d 00 h 41 min 22 sec: SOI of Mun reached                                            |
+|                                                                                         |
+|T+ 2 d 03 h 00 min 27 sec: Hohmann transfer                                              |
+|  · Initial velocity: 1,157.73 m/s                                                       |
+|  · Final velocity  : 880.17 m/s                                                         |
+|  · Delta-V         : -277.56 m/s                                                        |
+|                                                                                         |
+|T+ 2 d 03 h 00 min 38 sec: New maneuver node                                             |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 00 min 19 sec                                         |
+|                                                                                         |
+|T+ 2 d 03 h 00 min 57 sec: Engine Ignition - maneuver started                            |
+|T+ 2 d 03 h 01 min 13 sec: MECO - end of maneuver                                        |
+|T+ 2 d 03 h 01 min 13 sec: Actual velocity: 880.14 m/s                                   |
+|                                                                                         |
+|T+ 2 d 03 h 01 min 15 sec: Hohmann transfer                                              |
+|  · Initial velocity: 880.89 m/s                                                         |
+|  · Final velocity  : 880.54 m/s                                                         |
+|  · Delta-V         : -0.35 m/s                                                          |
+|                                                                                         |
+|T+ 2 d 03 h 01 min 16 sec: New maneuver node                                             |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 45 min 49 sec                                         |
+|                                                                                         |
+|T+ 2 d 03 h 47 min 06 sec: Engine Ignition - maneuver started                            |
+|T+ 2 d 03 h 47 min 21 sec: MECO - end of maneuver                                        |
+|T+ 2 d 03 h 47 min 21 sec: Actual velocity: 880.54 m/s                                   |
+|                                                                                         |
+|# ORBIT CARACTERISTICS - (Body: Mun)                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 25,068.93 m                                                 |
+|Periapsis                  : 25,063.29 m                                                 |
+|Argument of periapsis      : 79.8°                                                       |
+|Eccentricity               : 0.05 x 10^(-4)                                              |
+|Period                     : 0 d 01 h 02 min 26 sec                                      |
+|Inclination                : 1.77°                                                       |
+|Longitude of Ascending Node: 260.16°                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 2 d 04 h 28 min 56 sec: Starting landing procedure                                    |
+|                                                                                         |
+|T+ 2 d 04 h 29 min 15 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 3.13                                                           |
+|  · ACTUAL Delta-V      : 933.80 m/s                                                     |
+|  · ALTITUDE            : 25,017.8 m                                                     |
+|  · SURFACE VELOCITY    : 359.97 m/s                                                     |
+|  · ORBITAL VELOCITY    : 374.98 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|                                                                                         |
+|T+ 2 d 04 h 29 min 15 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 3.13                                                           |
+|  · ACTUAL Delta-V      : 933.80 m/s                                                     |
+|  · ALTITUDE            : 25,011.9 m                                                     |
+|  · SURFACE VELOCITY    : 353.64 m/s                                                     |
+|  · ORBITAL VELOCITY    : 366.52 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|                                                                                         |
+|T+ 2 d 04 h 29 min 26 sec: Data calculation for last burn                                |
+|                                                                                         |
+|# LANDING PROCEDURE                                                                      |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|TWR              : 3.00                                                                  |
+|Delta-v needed   : 211.42 m/s                                                            |
+|Ignition duration: 70.88 s                                                               |
+|Ignition altitude: 7,493.22 m                                                            |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|# LANDING DONE                                                                           |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|T+ 2 d 04 h 36 min 10 sec: Vessel stable                                                 |
+|LOCATION                                                                                 |
+|  · Mun / Mun_Landed_MunMare                                                             |
+|  · Landed                                                                               |
+|COORDINATES                                                                              |
+|  · latitude    : 1.57°                                                                  |
+|  · longitude   : -137.90°                                                               |
+|  · altitude asl: 2,540.5 m                                                              |
+|                                                                                         |
+|                                                                                         |
+|T+ 2 d 04 h 36 min 16 sec: Science experiment started                                    |
+|  *** wmcc_telemetry_report ***                                                          |
+|  · Location        : Mun_Landed_MunMare                                                 |
+|  · Data value      : 3.00                                                               |
+|  · Sample value    : 0.00                                                               |
+|  · Report size     : 4.00                                                               |
+|  · Time to complete: 30.00 s                                                            |
+|                                                                                         |
+|T+ 2 d 04 h 36 min 16 sec: Science experiment started                                    |
+|  *** EnvironmentSurvey ***                                                              |
+|  · Location        : Mun_Landed_MunMare                                                 |
+|  · Data value      : 5.00                                                               |
+|  · Sample value    : 5.00                                                               |
+|  · Report size     : 10.00                                                              |
+|  · Time to complete: 0.00 s                                                             |
+|_________________________________________________________________________________________|
+|                                 ~ END OF THE MISSION ~                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+|                                                                                         |
+|# RECAP                                                                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|END UT      : 29 d 02 h 47 min 52 sec                                                    |
+|MISSION TIME: 2 d 04 h 36 min 47 sec                                                     |
+|                                                                                         |
+|DATA VALUE  : 8.00                                                                       |
+|SAMPLE VALUE: 5.00                                                                       |
+|                                                                                         |
+·_________________________________________________________________________________________·

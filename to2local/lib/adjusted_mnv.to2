@@ -9,7 +9,7 @@ use { format } from core::str
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { current_time, wait_until, sleep, yield } from ksp::game
-use { set_warp_index, current_warp_rate } from ksp::game::warp
+use { set_warp_index, current_warp_rate, warp_to, cancel_warp } from ksp::game::warp
 use { LogFile, MAIN_LOG } from ksp::debug
 use { CONSOLE } from ksp::console
 use { Vec3, vec3, GlobalVelocity } from ksp::math
@@ -29,8 +29,9 @@ use * from lib::mission_logs
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-// EXECUTE MNV
-
+//===============================
+// EXECUTE A MANEUVER NODE
+//===============================
 pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit = {
   craft.autopilot.enabled = false // SAS
   craft.autopilot.mode = AutopilotMode.Autopilot
@@ -47,7 +48,7 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit =
     
   craft.maneuver.remove_all()
   yield()
-  save_time -= time_offset 
+   
   let old_burn = compute_burn_duration(craft, dv_mnv, craft.staging.current)
   sleep(0.25)
   if (old_burn < 10) {
@@ -55,10 +56,15 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit =
     sleep(0.25)
     burn_duration = compute_burn_duration(craft, dv_mnv, craft.staging.current)
     sleep(0.1)
+    if (adjust_mnv) {
+      time_offset = best_circ_node(craft, nextNode, dv_mnv)
+    }
     save_time -= (burn_duration - old_burn)
   } else {
     burn_duration = old_burn
   }
+  sleep(0.1)
+  save_time -= time_offset
   sleep(0.1)
   CONSOLE.print_at(7, 0, $"Burn duration: {burn_duration:N2} s")
   CONSOLE.print_at(8, 0, $"Total delta-v: {save_dv_vector.magnitude:N2} m/s")
@@ -128,12 +134,14 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit =
   sleep(0.5)
 }
 
-pub sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> float = {
+//===============================
+// Compute burn duration
+//===============================
+pub sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int, sit: DeltaVSituation = DeltaVSituation.Vaccum) -> float = {
   let b_Time = 0.0
   let abs_dv = abs(dv)
   let new_dv = 0.0
   let new_stg_num = 0
-  const sit = DeltaVSituation.Vaccum
   const stg = Stage_Info(craft, stg_num)
   const stgInitMass = stg.get_init_mass()
   const stgEffectiveVelocity = stg.get_effective_velocity(sit)
@@ -151,8 +159,9 @@ pub sync fn compute_burn_duration (craft: Vessel, dv: float, stg_num: int) -> fl
   }
 }
 
+//===============================
 // ORBITAL VELOCITY
-
+//===============================
 sync fn compute_vel(craft: Vessel, peri: float, apo: float, craftAlt: float) -> float = {  
   let rad = craft.main_body.radius
   let RV = rad + craftAlt // craft's altitude from Kerbin's center of mass
@@ -164,8 +173,9 @@ sync fn compute_vel(craft: Vessel, peri: float, apo: float, craftAlt: float) -> 
   return sqrt(mu * (2/RV - 1/SMA)) // sqrt = SQuare RooT
 }
 
+//===============================
 // HOHMANN TRANSFER 
-
+//===============================
 pub fn h_transfer (craft: Vessel, craftAlt: float, targetAlt: float) -> float = {
   CONSOLE.clear()
   let initVel = 0.0
@@ -194,11 +204,13 @@ pub fn h_transfer (craft: Vessel, craftAlt: float, targetAlt: float) -> float = 
   deltaVneeded
 }
 
-// GO TO FROM
-
+//===============================
+//-> Go to ... from ...
+//===============================
 pub fn go_to_from (craft: Vessel, goTo: float, goFrom: string = "AP") -> float = {
   let craftFrom = craft.orbit.periapsis  
   let node_UT = craft.orbit.next_periapsis_time()
+  orientation(craft, -1 * craft.orbit.orbital_velocity(current_time()))
 
   if (goFrom == "AP") {
     craftFrom = craft.orbit.apoapsis.value
@@ -211,9 +223,23 @@ pub fn go_to_from (craft: Vessel, goTo: float, goFrom: string = "AP") -> float =
   return deltaVneeded
 }
 
-// CIRC_AT
+pub fn capture_SOI (craft: Vessel, perc: float = 0.5) -> Unit = {
+  orientation(craft, -1 * craft.orbit.orbital_velocity(current_time()))
+  while (!craft.orbit.apoapsis.defined || craft.orbit.apoapsis.value > perc * craft.main_body.SOI_radius) {
+    craft.autopilot.target_orientation = -1 * craft.orbit.orbital_velocity(current_time())
+    craft.set_throttle(1)
+    yield()
+  }
+  craft.set_throttle(0)
+  sleep(0.1)
+}
 
+//===============================
+//-> CIRCULARIZATION FUNCTIONS
+//===============================
 pub fn circ_at_AP (craft: Vessel) -> Unit = {
+  orientation(craft, -1 * craft.orbit.orbital_velocity(current_time()))
+  sleep(.1)
   exe_mnv(craft, do_circ(craft, "AP"), true)
   sleep(0.1)
 
@@ -226,17 +252,12 @@ pub fn circ_at_AP (craft: Vessel) -> Unit = {
 
   CONSOLE.clear()
   info_orbit(craft, 2)
+  log_orbit_info(craft.orbit)
   sleep(2)
 }
 
 pub fn circ_at_PE (craft: Vessel) -> Unit = {
   orientation(craft, -1 * craft.orbit.orbital_velocity(current_time()))
-  while (!craft.orbit.apoapsis.defined || craft.orbit.apoapsis.value > 0.75*craft.main_body.SOI_radius) {
-    craft.autopilot.target_orientation = -1 * craft.orbit.orbital_velocity(current_time())
-    craft.set_throttle(1)
-    yield()
-  }
-  craft.set_throttle(0)
   sleep(0.1)
 
   exe_mnv(craft, do_circ(craft, "PE"), true)
@@ -250,6 +271,7 @@ pub fn circ_at_PE (craft: Vessel) -> Unit = {
 
   CONSOLE.clear()
   info_orbit(craft, 2)
+  log_orbit_info(craft.orbit)
   sleep(2)
 }
 
@@ -302,7 +324,46 @@ fn best_circ_node (craft: Vessel, old_node: ManeuverNode, dv: float) -> float = 
   return min_bef
 }
 
-// CHANGE THRUST LIMITER
+//===============================
+//-> CHANGING INCLINATION OF ORBIT AT APOAPSIS
+//===============================
+
+pub fn change_inc_obt (craft: Vessel, inc: float, per: float) -> Unit = {
+  CONSOLE.print_line("Current orbit inclination is to low to land at the target")
+  orientation(craft, -1*craft.orbit.orbit_normal)
+  do_warp(craft.orbit.next_apoapsis_time(current_time()).value)
+
+  const time_apo = craft.orbit.next_apoapsis_time(current_time()).value
+  while(time_apo - current_time() > 5) {
+    set_warp_index(2)
+    yield()
+  }
+  cancel_warp()
+  yield()
+
+  craft.set_throttle(0.5)
+  while (craft.orbit.inclination < inc) {
+    CONSOLE.print_at(5,0, $"Inclination: {craft.orbit.inclination:N2}°")
+    yield()
+  }
+  craft.set_throttle(0)
+  yield()
+
+  if (craft.orbit.periapsis < per) {
+    orientation(craft, craft.orbital_velocity)
+    while (craft.orbit.periapsis < per) {
+      craft.set_throttle(0.01)
+      yield()
+    }
+    craft.set_throttle(0)
+  }
+}
+
+
+
+//===============================
+//-> Change thrust limiter
+//===============================
 
 pub fn limit_thrust (craft: Vessel, perc: float) -> Unit = {
   for (e in craft.engines) {
@@ -311,8 +372,9 @@ pub fn limit_thrust (craft: Vessel, perc: float) -> Unit = {
   popup($"Thrust limiter is now {perc/100:P2}")
 }
 
-
-// CHANGE ORIENTATION
+//===============================
+//-> change orientation of the craft and wait until the angle is < margin
+//===============================
 pub fn orientation (craft: Vessel, vect: Vec3, margin: float = 1) -> Unit = {
   while (craft.facing.vector.angle_to(vect) > margin) {
     craft.autopilot.target_orientation = vect
@@ -320,3 +382,4 @@ pub fn orientation (craft: Vessel, vect: Vec3, margin: float = 1) -> Unit = {
   }
   sleep(0.1)
 }
+

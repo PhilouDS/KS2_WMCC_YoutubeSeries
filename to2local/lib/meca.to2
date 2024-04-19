@@ -1,0 +1,198 @@
+// KONTROL SYSTEM 2 - v0.5.8.3
+// FORMULAS FROM "Mécanique spatiale - v3" WRITTEN BY ROMAIN POIRIER.
+// A BIG THANKS TO HIM
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sin_deg, cos_deg, atan_deg, atan2_deg, clamp_degrees360 } from core::math
+use { sqrt, PI, abs } from core::math
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { CONSOLE } from ksp::console
+use { current_time } from ksp::game
+use { Vec3, vec3 } from ksp::math
+use { Orbit, Body, GeoCoordinates } from ksp::orbit
+use { Vessel } from ksp::vessel
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+
+// normal vector of an orbit knowing the LAN and the inclination
+// instead of ship.orbit.orbit_normal
+pub sync fn norm_obt (lan: float, inc: float) -> Vec3 = {
+  const a = sin_deg(lan) * sin_deg(inc)
+  const b = -cos_deg(lan) * sin_deg(inc)
+  const c = cos_deg(inc)
+
+  vec3(a, b, c)
+}
+
+// Position vector in inertial frame
+// same as ship.global_position ??
+pub sync fn inertial_pos (obt: Orbit, t0: float) -> Vec3 = {
+	const lan = obt.LAN
+  const inc = obt.inclination
+  const arg_p = obt.argument_of_periapsis
+  const rp = obt.periapsis_radius
+  const e = obt.eccentricity
+  const tht = true_anomaly_deg(obt, t0)
+
+	const r = rp * (1 + e) / (1 + e * cos_deg(tht))
+
+	const pos_x = r * (cos_deg(lan) * cos_deg(arg_p + tht) - sin_deg(lan) * cos_deg(inc) * sin_deg(arg_p + tht))
+	const pos_y = r * (sin_deg(lan) * cos_deg(arg_p + tht) + cos_deg(lan) * cos_deg(inc) * sin_deg(arg_p + tht))
+	const pos_z = r * (sin_deg(inc) * sin_deg(arg_p + tht))
+
+	vec3(pos_x, pos_y, pos_z)
+}
+
+// Position vector in inertial frame in a given orbit
+pub sync fn inertial_pos_for (lan: float, inc: float, arg_p: float, rp: float, e: float, tht: float) -> Vec3 = {
+	const r = rp * (1 + e) / (1 + e * cos_deg(tht))
+
+	const pos_x = r * (cos_deg(lan) * cos_deg(arg_p + tht) - sin_deg(lan) * cos_deg(inc) * sin_deg(arg_p + tht))
+	const pos_y = r * (sin_deg(lan) * cos_deg(arg_p + tht) + cos_deg(lan) * cos_deg(inc) * sin_deg(arg_p + tht))
+	const pos_z = r * (sin_deg(inc) * sin_deg(arg_p + tht))
+
+	vec3(pos_x, pos_y, pos_z)
+}
+
+// speed vector in inertial frame
+// same as ship.orbital_velocity ??
+pub sync fn inertial_speed (obt: Orbit, t0: float) -> Vec3 = {
+	const lan = obt.LAN
+  const inc = obt.inclination
+  const arg_p = obt.argument_of_periapsis
+  const rp = obt.periapsis_radius
+  const e = obt.eccentricity
+  const tht = true_anomaly_deg(obt, t0)
+	const Mu = obt.reference_body.grav_parameter
+
+	const Vp = sqrt(Mu / rp * (1 + e))
+
+	const v_x = Vp / (e + 1) * (cos_deg(lan) * (cos_deg(arg_p + tht) * e * sin_deg(tht) - sin_deg(arg_p + tht) * (e * cos_deg(tht) + 1)) - sin_deg(lan) * (cos_deg(inc) * (sin_deg(arg_p + tht) * e * sin_deg(tht) + cos_deg(arg_p + tht) * (e * cos_deg(tht) + 1))))
+
+	const v_y = Vp / (e + 1) * (sin_deg(lan) * (cos_deg(arg_p + tht) * e * sin_deg(tht) - sin_deg(arg_p + tht) * (e * cos_deg(tht) + 1)) + cos_deg(lan) * (cos_deg(inc) * (sin_deg(arg_p + tht) * e * sin_deg(tht) + cos_deg(arg_p + tht) * (e * cos_deg(tht) + 1))))
+	
+  const v_z = Vp / (e + 1) * (sin_deg(inc) * (sin_deg(arg_p + tht) * e * sin_deg(tht) + cos_deg(arg_p + tht) * (e * cos_deg(tht) + 1)))
+
+	vec3(v_x,v_y,v_z)
+}
+
+// velocity at periapsis in an elliptical orbit
+pub sync fn V_per (obt: Orbit) -> float = {
+  const mu = obt.reference_body.grav_parameter
+  const ecc = obt.eccentricity
+  const Pe = obt.periapsis_radius
+  sqrt((mu / Pe) * (1 + ecc))
+}
+
+// velocity at apoapsis in an elliptical orbit
+pub sync fn V_apo (obt: Orbit) -> float = {
+  const mu = obt.reference_body.grav_parameter
+  const ecc = obt.eccentricity
+  const Apo = obt.apoapsis_radius.value
+  sqrt(mu * (1 - ecc) / Apo)
+}
+
+// velocity at apoapsis in circular orbit (velocity is constant anywhere in the orbit)
+pub sync fn V_circ (bod: Body, apo: float) -> float = sqrt(bod.grav_parameter / apo)
+
+
+// true anomaly in degrees ([0 ; 360]) at time t0 to a given orbit
+pub sync fn true_anomaly_deg(obt: Orbit, t0: float) -> float = {
+  const true_anomaly = obt.true_anomaly_from_vector(obt.relative_position(t0))
+  
+  true_anomaly * 180.0 / PI
+}
+
+// compute the period of an orbit knowing apoapsis and periapsis
+pub sync fn orbit_period (bod: Body, apo: float, pe: float) -> float = {
+  const SMA = (apo + pe) / 2
+  const mu = bod.grav_parameter
+
+  2*PI * sqrt(SMA**(3.0) / mu)
+}
+
+
+// sideral longitudes to a target latitude from a greater inclination
+// /!\ no warning if the inclination < latitude
+// also works from starting latitude to target inclination (eg from launchpad to Minmus inclination)
+pub sync fn sid_long (obt: Orbit, geo_coord: GeoCoordinates) -> (Lsid0: float, Lsid1: float) = {
+  const lan = obt.LAN
+  const inc = obt.inclination
+  const lat = geo_coord.latitude
+  const radius = obt.reference_body.radius
+
+  const A = radius * cos_deg(lat) * sin_deg(lan) * sin_deg(inc)
+  const B = (-1) * radius * cos_deg(lat) * cos_deg(lan) * sin_deg(inc)
+  const C = radius * sin_deg(lat) * cos_deg(inc)
+
+  const (sol1, sol2) = trig_equation_solver(A, B, C)
+
+  (Lsid0: sol1, Lsid1: sol2)
+}
+
+pub sync fn trig_equation_solver (A: float, B: float, C: float) -> (sol1: float, sol2: float) = {
+  const Delta = 4 * (A**2 + B**2 - C**2)
+
+	const t1 = (-2 * B + sqrt(abs(Delta))) / (2 * (C-A))
+	const t2 = (-2 * B - sqrt(abs(Delta))) / (2 * (C-A))
+
+	const x1 = deg360(2 * atan_deg(t1))
+	const x2 = deg360(2 * atan_deg(t2))
+
+  (sol1: x1, sol2: x2)
+}
+
+// angle_on_orbit calculates the angle between vec1 and vec2 in the direct sens around orbit's normal vector, [0 ; 360]
+pub sync fn angle_on_orbit (vec1: Vec3, vec2: Vec3, normal_vec: Vec3) -> float = {
+	let angle = vec1.angle_to(vec2)
+	const sens = vec1.cross(vec2)
+
+	if (sens.z * normal_vec.z < 0) {
+		angle = 360.0 - angle
+	}
+
+	angle
+}
+
+
+pub sync fn rotation (V: Vec3, U: Vec3, a: float) -> Vec3 = {
+	// V = Vec3 rotated
+	// U = axe of rotation
+	// a = angle of rotation
+
+	const axe = U.normalized
+
+	const c = cos_deg(a)
+	const s = sin_deg(a)
+
+	const P1 = axe.x * axe
+	const P2 = axe.y * axe
+	const P3 = axe.z * axe
+
+	const Q1 = vec3(0, -axe.z, axe.y)
+	const Q2 = vec3(axe.z, 0, -axe.x)
+	const Q3 = vec3(-axe.y, axe.x, 0)
+
+	const I1 = vec3(1, 0, 0)
+	const I2 = vec3(0, 1, 0)
+	const I3 = vec3(0, 0, 1)
+
+	const R1 = P1 + c * (I1 - P1) + s * Q1
+	const R2 = P2 + c * (I2 - P2) + s * Q2
+	const R3 = P3 + c * (I3 - P3) + s * Q3
+
+	vec3(R1 * V, R2 * V, R3 *V)	
+}
+

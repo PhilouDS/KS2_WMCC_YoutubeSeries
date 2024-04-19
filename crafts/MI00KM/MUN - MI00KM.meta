@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "MUN - MI00KM",
+  "VehicleName": "MI00KM",
+  "Description": "MUn Impactor - dv: ~6300 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\MUN - MI00KM.png",
+  "Mass": 24.5563087,
+  "SaveTime": 638476043226248609,
+  "Parts": 77,
+  "Stages": 8,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

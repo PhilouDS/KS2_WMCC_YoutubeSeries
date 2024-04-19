@@ -150,11 +150,11 @@ impl Runway {
 //____________________________________________________
 // WAYPOINT - called SPOT because Waypoint is now a structure in to2
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-pub struct Spot(wp_name: string, wp_lat : float, wp_long: float, wp_body: string) {
-  name: string = wp_name
-  lat: float = wp_lat
-  long: float = wp_long
-  body: Body = find_body(wp_body).value
+pub struct Spot(spot_name: string, spot_lat : float, spot_long: float, spot_body: string) {
+  name: string = spot_name
+  lat: float = spot_lat
+  long: float = spot_long
+  body: Body = find_body(spot_body).value
 }
 
 impl Spot {

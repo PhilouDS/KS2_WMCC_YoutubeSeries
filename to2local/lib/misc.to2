@@ -2,13 +2,14 @@
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { round, floor } from core::math
+use { round, floor, clamp_degrees360 } from core::math
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
-use { CONSOLE_WINDOW } from ksp::ui
+use { CONSOLE_WINDOW, screen_size, open_window, Align, Window, Container } from ksp::ui
 use { wait_until, sleep, notification_alert, notification_passive, Importance, yield, wait_while } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index } from ksp::game::warp
 use { Vessel } from ksp::vessel
 use { SAVE_LOAD_CONTROL } from ksp::debug
 
@@ -23,11 +24,15 @@ use { SAVE_LOAD_CONTROL } from ksp::debug
 //===============================
 // -> Quick Save
 //===============================
-pub fn save_now () -> Unit = {
+pub fn save_now (craft: Vessel) -> Unit = {
+  craft.autopilot.enabled = true // SAS
+  yield()
   SAVE_LOAD_CONTROL.quick_save()
   wait_while(fn() -> SAVE_LOAD_CONTROL.is_saving) // If waiting for completion is necessary
   CONSOLE.print_at(15, 0, "quick save done")
   yield()
+  craft.autopilot.enabled = false // SAS
+  sleep(0.1)
 }
 
 //===============================
@@ -35,6 +40,17 @@ pub fn save_now () -> Unit = {
 //===============================
 pub fn recover () -> Unit = {
   SAVE_LOAD_CONTROL.try_recover_vessel()
+}
+
+//===============================
+//-> Warp to and wait until warp_rate < 1.1
+//===============================
+
+pub fn do_warp (UT: float) -> Unit = {
+  warp_to(UT)
+  yield()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  sleep(0.25)
 }
 
 //===============================
@@ -65,10 +81,25 @@ pub fn skip_line (l: int) -> Unit = {
   CONSOLE.move_cursor(CONSOLE.cursor_row + l, 0)
 }
 
+pub fn manual_action (title: string) -> Unit = {
+  const window_w = 500.0
+  const window_h = 150.0
+  const center_x = (screen_size().x - window_w)/2
+  const center_y = screen_size().y - window_h
+  const gear_window = open_window(title, center_x, center_y, window_w, window_h)
+  gear_window.add_spacer(10.0)
+  const label1 = gear_window.add_label("Waiting for human action", Align.Center)
+  const label2 = gear_window.add_label("Close this window when finished", Align.Center)
+  label1.font_size = 20
+  label2.font_size = 15
+  wait_until(fn() -> gear_window.is_closed)
+  yield()
+}
+
 //===============================
 //-> end of mission to close the terminal
 //===============================
-pub fn end_of_mission (craft: Vessel) -> Unit = {
+pub fn end_of_mission (craft: Vessel, recover: bool = false) -> Unit = {
   CONSOLE.clear()
   craft.set_throttle(0)
   print_title("End of the mission.", CONSOLE.cursor_row, false)
@@ -81,12 +112,21 @@ pub fn end_of_mission (craft: Vessel) -> Unit = {
   notif_green("Script finished")
   yield()
   CONSOLE_WINDOW.close()
+  yield()
+  if (recover) {
+    SAVE_LOAD_CONTROL.try_recover_vessel()
+  }
 }
 
 //===============================
 //-> to round a float with n digits in the decimal part
 //===============================
 pub sync fn f_round (f: float, n:int) -> float = round(f * 10**n)/10**n
+
+//===============================
+// shortcut for clamp_degrees360
+//===============================
+pub sync fn deg360 (ang: float) -> float = clamp_degrees360(ang)
 
 //===============================
 //-> sign of a number

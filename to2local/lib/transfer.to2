@@ -56,41 +56,55 @@ pub fn transfer_to_body (craft: Vessel, target_body: Body, adjust_pe: float, do_
   exe_transfer_mnv(craft, dV, adjust_pe)
   sleep(0.5)
   CONSOLE.clear()
+
+  while (!craft.orbit.next_patch.defined) {
+    craft.set_throttle(0.01)
+    craft.autopilot.target_orientation = craft.orbit.orbital_velocity(current_time())
+    yield()
+  }
+
+  CONSOLE.print_line("Next patch defined")
+  craft.set_throttle(0)
+  sleep(1)
   
   if (do_adjust) {
-    while (!craft.orbit.next_patch.defined) {
-      craft.set_throttle(0.01)
-      craft.autopilot.target_orientation = craft.orbit.orbital_velocity(current_time())
-      yield()
-    }
-    if (craft.orbit.next_patch.value.periapsis < adjust_pe) {
-      orientation(craft, (-1.0) * craft.orbit.prograde(current_time()))
-      
-      sleep(0.1)
-      craft.set_throttle(0.01)
-      while (craft.orbit.next_patch.value.periapsis < adjust_pe) {
-        CONSOLE.print_at(2,0, $"   Next Periapsis Wanted: {adjust_pe:N0} m")
-        CONSOLE.print_at(3,0, $"Adjusting Next Periapsis: {craft.orbit.next_patch.value.periapsis:N0} m    ")
+    CONSOLE.print_line("Adjusting")
+    sleep(1)
+    let try = 0
+    while (abs(craft.orbit.next_patch.value.periapsis - adjust_pe) > 2000 && try < 3) {
+      try += 1
+      if (craft.orbit.next_patch.value.periapsis < adjust_pe) {
+        orientation(craft, (-1.0) * craft.orbit.prograde(current_time()))
+        
+        sleep(0.1)
+        craft.set_throttle(0.005/try)
+        while (craft.orbit.next_patch.value.periapsis < adjust_pe) {
+          CONSOLE.print_at(4,0, $"   Next Periapsis Wanted: {adjust_pe:N0} m")
+          CONSOLE.print_at(5,0, $"Adjusting Next Periapsis: {craft.orbit.next_patch.value.periapsis:N0} m    ")
+          yield()
+        }
         yield()
+        craft.set_throttle(0)
+        sleep(0.1)
+      } else {
+        orientation(craft, craft.orbit.prograde(current_time()))
+        sleep(0.1)
+        craft.set_throttle(0.005/try)
+        while (craft.orbit.next_patch.value.periapsis > adjust_pe) {
+          CONSOLE.print_at(4,0, $"   Next Periapsis Wanted: {adjust_pe:N0} m")
+          CONSOLE.print_at(5,0, $"Adjusting Next Periapsis: {craft.orbit.next_patch.value.periapsis:N0} m    ")
+          yield()
+        }
+        craft.set_throttle(0)
       }
-      yield()
-      craft.set_throttle(0)
-      sleep(0.1)
-    } else {
-      orientation(craft, craft.orbit.prograde(current_time()))
-      sleep(0.1)
-      craft.set_throttle(0.01)
-      while (craft.orbit.next_patch.value.periapsis > adjust_pe) {
-        CONSOLE.print_at(2,0, $"   Next Periapsis Wanted: {adjust_pe:N0} m")
-        CONSOLE.print_at(3,0, $"Adjusting Next Periapsis: {craft.orbit.next_patch.value.periapsis:N0} m    ")
-        yield()
-      }
-      craft.set_throttle(0)
     }
     yield()
-    CONSOLE.clear_line(2)
-    CONSOLE.clear_line(3)
+    CONSOLE.clear_line(4)
+    CONSOLE.clear_line(5)
   }
+
+  CONSOLE.print_line("Adjustment done")
+  sleep(0.5)
 
   log_mission_event(craft, $"End of the transfer maneuver in destination to: {target_body.name}")
 
@@ -98,6 +112,8 @@ pub fn transfer_to_body (craft: Vessel, target_body: Body, adjust_pe: float, do_
     orientation(craft, craft.orbit.orbit_normal)
     yield()
     warp_SOI(craft, target_body)
+    yield()
+    CONSOLE.clear()
   }
 }
 
