@@ -113,7 +113,7 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true) -> Unit =
     craft_throttle.throttle = min(dv.magnitude / max_acc, 1)
 
     if(dv0 * dv < 0) break
-    if (current_time() > start_mnv + burn_duration + 10) break
+    if (current_time() > start_mnv + burn_duration + 20) break
 
     CONSOLE.print_at(10,0, $"remaining dV: {dv.magnitude:N2} m/s  ")
     CONSOLE.print_at(11,0, $"  actual Vel: {craft.orbit.orbital_velocity(current_time()).magnitude:N2} m/s  ")
@@ -232,6 +232,8 @@ pub fn capture_SOI (craft: Vessel, perc: float = 0.5) -> Unit = {
   }
   craft.set_throttle(0)
   sleep(0.1)
+  log_orbit_info(craft.orbit, "CAPTURE ORBIT")
+  save_now(craft)
 }
 
 //===============================
@@ -329,29 +331,41 @@ fn best_circ_node (craft: Vessel, old_node: ManeuverNode, dv: float) -> float = 
 //===============================
 
 pub fn change_inc_obt (craft: Vessel, inc: float, per: float) -> Unit = {
-  CONSOLE.print_line("Current orbit inclination is to low to land at the target")
-  orientation(craft, -1*craft.orbit.orbit_normal)
-  do_warp(craft.orbit.next_apoapsis_time(current_time()).value)
+  CONSOLE.print_line("Changing inclination")
 
   const time_apo = craft.orbit.next_apoapsis_time(current_time()).value
-  while(time_apo - current_time() > 5) {
-    set_warp_index(2)
+  do_warp(time_apo)
+  while(time_apo - current_time() > 15) {
+    set_warp_index(3)
     yield()
   }
   cancel_warp()
   yield()
 
+  orientation(craft, -1 * abs(inc) * craft.orbit.orbit_normal)
+
   craft.set_throttle(0.5)
-  while (craft.orbit.inclination < inc) {
+  while (craft.orbit.inclination < abs(inc)) {
     CONSOLE.print_at(5,0, $"Inclination: {craft.orbit.inclination:N2}°")
     yield()
   }
   craft.set_throttle(0)
   yield()
+  change_periapsis_here(craft, per)
+}
 
-  if (craft.orbit.periapsis < per) {
+pub fn change_periapsis_here (craft: Vessel, wanted_pe: float) -> Unit = {
+  if (craft.orbit.periapsis < wanted_pe) {
     orientation(craft, craft.orbital_velocity)
-    while (craft.orbit.periapsis < per) {
+    while (craft.orbit.periapsis < wanted_pe) {
+      craft.set_throttle(0.01)
+      yield()
+    }
+    craft.set_throttle(0)
+  }
+  if (craft.orbit.periapsis > wanted_pe + 1000) {
+    orientation(craft, -1*craft.orbital_velocity)
+    while (craft.orbit.periapsis > wanted_pe) {
       craft.set_throttle(0.01)
       yield()
     }

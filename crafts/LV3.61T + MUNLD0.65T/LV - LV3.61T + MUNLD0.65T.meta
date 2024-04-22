@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "LV - LV3.61T + MUNLD0.65T",
+  "VehicleName": "LV3.61T + MUNLD0.65T",
+  "Description": "Launch Vehicle -> Mun lander 0.65T - dv ~8030 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LV - LV3.61T + MUNLD0.65T.png",
+  "Mass": 51.42752,
+  "SaveTime": 638483430732717416,
+  "Parts": 66,
+  "Stages": 11,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

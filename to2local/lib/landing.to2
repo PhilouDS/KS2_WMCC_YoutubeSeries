@@ -2,12 +2,13 @@
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { sqrt, acos_deg, abs } from core::math
+use { sqrt, acos_deg, abs, cos_deg, sin_deg } from core::math
 
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { yield, current_time, sleep, wait_until } from ksp::game
+use { vec3, Vec3 } from ksp::math
 use { cancel_warp, set_warp_index, current_warp_rate } from ksp::game::warp
 use { CONSOLE } from ksp::console
 use { Vessel, VesselSituation, ConnectionNodeStatus, DeltaVSituation, ParachuteDeployState } from ksp::vessel
@@ -168,6 +169,8 @@ pub fn cancel_surface_velocity_with_target (craft: Vessel, land_point: Spot) -> 
 
   let guidance_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
   let downrange_to_target = 0.0
+
+  const start_ground_distance = ground_dist(craft, land_point)
   
   yield()
 
@@ -179,19 +182,22 @@ pub fn cancel_surface_velocity_with_target (craft: Vessel, land_point: Spot) -> 
 
     guidance_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
     downrange_to_target = guidance_to_target.magnitude
-    const ground_distance = sqrt(guidance_to_target.sqr_magnitude - craft.altitude_scenery**2) 
+    const ground_distance = ground_dist(craft, land_point)
     
     craft.autopilot.target_orientation = -1* craft.surface_velocity
 
-    CONSOLE.print_at(5,0, $"  Surface velocity: {craft.surface_velocity.magnitude:N1} m/s        ")
-		CONSOLE.print_at(6,0, $"Distance to target: {downrange_to_target:N1} m        ")
-		CONSOLE.print_at(7, 0, $"         Throttle: {throt.throttle:P1}              ") 
+    CONSOLE.print_at(5, 0, $"  Surface velocity: {craft.surface_velocity.magnitude:N1} m/s        ")
+		CONSOLE.print_at(6, 0, $"Distance to target: {downrange_to_target:N1} m        ")
+		CONSOLE.print_at(7, 0, $"          Throttle: {throt.throttle:P1}              ")
+    CONSOLE.print_at(11, 0, $"   Ground distance: {ground_distance:N1}              ")
     
     yield()
   }
   yield()
 
   throt.release()
+
+  const stop_ground_distance = ground_dist(craft, land_point)
 
   CONSOLE.clear_line(5)
   CONSOLE.clear_line(6)
@@ -251,10 +257,10 @@ pub fn suicid_burn (craft: Vessel, terrain_alt: float, pid: PIDLoop, wanted_twr:
     yield()
   }
 
-  pid.setpoint = -8
+  pid.setpoint = -15
   const throt = craft.set_throttle(1)
 
-  while (craft.altitude_scenery > 30) {
+  while (craft.altitude_scenery > 50) {
     throt.throttle = pid.update(current_time(), craft.vertical_surface_speed)
     craft.autopilot.target_orientation = -1 * craft.surface_velocity
     CONSOLE.print_at(12, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")
@@ -281,4 +287,13 @@ pub fn suicid_burn (craft: Vessel, terrain_alt: float, pid: PIDLoop, wanted_twr:
   CONSOLE.clear()
   log_landing(craft)
   yield()
+}
+
+
+pub fn ground_dist (craft: Vessel, land_point: Spot) -> float = {
+  const craft_geo = craft.geo_coordinates
+  const above_point = vec3(cos_deg(craft_geo.latitude) * cos_deg(craft_geo.longitude), cos_deg(craft_geo.latitude) * sin_deg(craft_geo.longitude), sin_deg(craft_geo.latitude))
+  const target_point = vec3(cos_deg(land_point.lat) * cos_deg(land_point.long), cos_deg(land_point.lat) * sin_deg(land_point.long), sin_deg(land_point.lat))
+
+  craft.main_body.radius * (above_point - target_point).magnitude
 }

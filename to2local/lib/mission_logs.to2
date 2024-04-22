@@ -6,7 +6,7 @@ use { floor } from core::math
 //____________________________________________________
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { LogFile, MAIN_LOG } from ksp::debug
+use { LogFile, MAIN_LOG, open_log_file } from ksp::debug
 use { current_time, MAINFRAME } from ksp::game
 use { CONSOLE } from ksp::console
 use { Vessel, DeltaVSituation, VesselSituation } from ksp::vessel
@@ -236,7 +236,7 @@ fn empty_log (border: string = edge) -> Unit = {
   MAIN_LOG.log(emptyLine)
 }
 
-fn log_section (title: string) -> Unit = {
+pub fn log_section (title: string) -> Unit = {
   let sec_title = "# " + title
   add_left_entry(sec_title)
   upperscore_line(2)
@@ -274,7 +274,7 @@ fn upperscore_line (fraction: float = 1, border: string = edge) -> Unit = {
   MAIN_LOG.log(upperscoreLine)
 }
 
-fn add_centered_entry (msg: string, border: string = edge) -> Unit = {
+pub fn add_centered_entry (msg: string, border: string = edge) -> Unit = {
   let entry = msg
   if (entry.length%2 == 0) {
     entry += " "

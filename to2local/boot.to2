@@ -1,57 +1,208 @@
-// KONTROL SYSTEM 2 - v0.5.7.5
+// KONTROL SYSTEM 2 - v0.5.8.4
 
 use { CONSOLE } from ksp::console
-use { CONSOLE_WINDOW, screen_size, open_window, Align, Window, Container } from ksp::ui
+use { CONSOLE_WINDOW, screen_size, open_window, open_centered_window, Align, Window, Container, StringInputField } from ksp::ui
 use { DEBUG } from ksp::debug
 use { vec2 } from ksp::math
-use { MAINFRAME, wait_until, sleep, yield } from ksp::game
-use { Vessel } from ksp::vessel
+use { MAINFRAME, Process, wait_until, sleep, yield } from ksp::game
+use { Vessel, DeltaVSituation } from ksp::vessel
 
 //____________________________________________________
 // GLOBAL CONSTANTS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+use { Stage_Info } from lib::my_structures
 use * from lib::my_constants
 
-pub const window_width: float = 400
-pub const window_height: float = 200.0
+pub const window_width: float = 500
+pub const window_height: float = 500
 
-/// Entry Point
+pub const last_modification: string = "0.5.7.9"
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
 pub fn main_flight(ship: Vessel) -> Result<Unit> = {
-  const nbr = Cell(0.0)
-  const n = MAINFRAME.available_processes.length
+  CONSOLE.clear()
 
-  const mission_window = open_window("<b>CHOOSE MISSION</b>",
-    (0.5*myScreen.x - window_width/2),
-    0.95*myScreen.y,
-    window_width,
-    window_height)
-  
-  const all_missions = MAINFRAME.available_processes
-  
 
-  const mission_name_box = mission_window.add_label(all_missions[nbr.value.to_int].name, Align.Center)
-  mission_name_box.font_size = title_font_size
+  const idx = Cell(0)
+  const run_script = Cell(false)
+  const change_mission = Cell(false)
+  const list_of_field: Cell<StringInputField[]> = Cell([])
+  const list_of_arguments: Cell<string[]> = Cell([])
+
+  const mission_window = open_centered_window("<b>CHOOSE MISSION</b>", window_width, window_height)
+  
+  const all_missions = MAINFRAME.available_processes.
+    filter(fn(p) -> p.name.contains("missions::")).reverse()
+
+  mission_window.add_spacer(5)
+
+  create_version_box(mission_window, last_modification)
+
+  const best_suggested_box = mission_window.add_vertical(gap_box, Align.Start)
+  const craft_name_label = best_suggested_box.add_label($"<b> {ship.name} </b>", Align.Start)
+  craft_name_label.font_size = 0.8*text_font_size
+  // const this_stage = Stage_Info(ship, ship.staging.current)
+  // const twr = this_stage.get_twr(DeltaVSituation.Vaccum)
+  // const twr_label = best_suggested_box.add_label($"{"Actual twr:", 26} {twr:N2}", Align.Start)
+  // twr_label.font_size = 0.7*text_font_size
+  // const pa = get_pitch_angle(twr)
+  // const p_ang_label = best_suggested_box.add_label($"{"Suggested pitch angle:", 26} {pa:N2}°", Align.Start)
+  // p_ang_label.font_size = 0.7*text_font_size
+  // const pv = get_pitch_velocity(twr, pa)
+  // const p_vel_label = best_suggested_box.add_label($"{"Suggested pitch velocity:", 26} {pv:N2} m/s", Align.Start)
+  // p_vel_label.font_size = 0.7*text_font_size
 
   mission_window.add_spacer(10)
 
-  const slide = mission_window.add_horizontal_slider(0, n-1, Align.Stretch).bind(nbr)
+  const dropdown = mission_window.add_dropdown(all_missions.map(fn(p) -> p.name.replace("missions::", "")))
 
   mission_window.add_spacer(10)
 
-  const start_button = mission_window.add_button("Start", Align.Center)
+  const button_box = mission_window.add_vertical(gap_box, Align.Stretch)
+  
+  const validate_button = button_box.add_button("Validate parameters", Align.Stretch)
+  validate_button.font_size = button_font_size
+
+  const sub_button_box = button_box.add_horizontal(gap_box, Align.Stretch)
+  const start_button = sub_button_box.add_button("Start mission", Align.Stretch, window_width/2)
   start_button.font_size = button_font_size
+  start_button.enabled = false
+  const back_button = sub_button_box.add_button("Back", Align.Stretch,window_width/2)
+  back_button.font_size = button_font_size
+  back_button.enabled = false
 
-  while (!mission_window.is_closed) {
+  mission_window.add_spacer(10)
+
+  const mission_box = Cell(mission_window.add_vertical_panel(gap_box, Align.Stretch))
+
+  const mission_label = Cell(mission_box.value.add_label("<b>Mission parameters</b>", Align.Center))
+  mission_label.value.font_size = 1.5*text_font_size
+  
+  mission_box.value.add_spacer(gap_box)
+
+  const parameter_box = Cell(mission_box.value.add_horizontal(gap_box, Align.Stretch))
+  const arg_label_box = Cell(parameter_box.value.add_vertical(1.7*gap_box, Align.Start, window_width/2.5))
+  const arg_input_box = Cell(parameter_box.value.add_vertical(gap_box, Align.Stretch, window_width/1.667))
+
+  if (all_missions[idx.value].arguments.length == 0) {
+    mission_box.value.add_label("<b>NO PARAMETERS</b>", Align.Center)
+  } else {
+    for (arg in all_missions[idx.value].arguments) {
+      let parameter_label = arg_label_box.value.add_label($"{arg.name}: ", Align.End)
+      parameter_label.font_size = 1.1*text_font_size
+      let parameter_input = arg_input_box.value.add_string_input(Align.Stretch)
+      parameter_input.value = arg.default_value
+      parameter_input.font_size = text_font_size
+      list_of_field.value += [parameter_input]
+    }
+  }
+
+
+  while (!mission_window.is_closed) { 
+    validate_button.on_click(fn() -> {
+      list_of_arguments.value = list_of_arguments.value.filter(fn(a) -> a == "xxxxxxxxxxxxxxxxx")
+      start_button.enabled = true
+      back_button.enabled = true
+      validate_button.enabled = false
+      for (field in list_of_field.value) {
+        list_of_arguments.value += [field.value]
+        field.enabled = false
+      } 
+    })
+    back_button.on_click(fn() -> {
+      start_button.enabled = false
+      back_button.enabled = false
+      validate_button.enabled = true
+      for (field in list_of_field.value) {
+        field.enabled = true
+      } 
+    })
     start_button.on_click(fn() -> {
+      run_script.value = true
       mission_window.close()
     })
-    slide.on_change(fn(f) -> {
-      nbr.value = f
-      mission_name_box.text = all_missions[f.to_int].name
+    dropdown.on_change(fn(i) -> {
+      list_of_field.value = list_of_field.value.filter(fn(i) -> i.value == "xxxxxxxxxxxxxxxxx")
+      mission_box.value.remove()
+      idx.value = i
+      mission_box.value = mission_window.add_vertical_panel(gap_box, Align.Stretch)
+      mission_label.value = mission_box.value.add_label("<b>Mission parameters</b>", Align.Center)
+      mission_label.value.font_size = 1.5*text_font_size
+      
+      mission_box.value.add_spacer(gap_box)
+
+      parameter_box.value = mission_box.value.add_horizontal(gap_box, Align.Stretch)
+      arg_label_box.value = parameter_box.value.add_vertical(1.7*gap_box, Align.Start, window_width/2.5)
+      arg_input_box.value = parameter_box.value.add_vertical(gap_box, Align.Stretch, window_width/1.667)
+
+      if (all_missions[idx.value].arguments.length == 0) {
+        mission_box.value.add_label("<b>NO PARAMETERS</b>", Align.Center)
+      }
+      
+      for (arg in all_missions[idx.value].arguments) {
+        let parameter_label = arg_label_box.value.add_label($"{arg.name}: ", Align.End)
+        parameter_label.font_size = 1.1*text_font_size
+        const parameter_input = arg_input_box.value.add_string_input(Align.Stretch)
+        parameter_input.value = arg.default_value
+        parameter_input.font_size = text_font_size
+        list_of_field.value += [parameter_input]
+      }
     })
+
     yield()
   }
 
-  all_missions[nbr.value.to_int].start() 
+  
+
+  if (run_script.value) {
+    all_missions[idx.value].start(ship, list_of_arguments.value)
+  }
+
 }
+
+
+fn get_pitch_angle (twr: float) -> float = {
+  if (twr < 1.7) {
+    return 85.0
+  }
+  if (twr < 1.8) {
+    return 80.0
+  }
+  if (twr < 1.9) {
+    return 75.0
+  }
+  if (twr < 2) {
+    return 70.0
+  }
+  if (twr >= 2) {
+    return 65.0
+  }
+  0.0
+}
+
+fn get_pitch_velocity (twr: float, pa: float) -> float = {
+  const x = twr
+  if (pa == 85) {
+    return 42.857 * x**2 - 210 * x + 232.34
+  }
+  if (pa == 80) {
+    return 50 * x**2 - 249.57 * x + 287.63
+  }
+  if (pa == 75) {
+    return 35.714 * x**2 - 223.57 * x + 292.71
+  }
+  if (pa == 70) {
+    return 40.476 * x**2 - 255 * x + 340.1
+  } 
+  if (pa == 65) {
+    return 32.143 * x**2 - 249.4 * x + 364.42
+  }
+  0.0 
+}
+
+

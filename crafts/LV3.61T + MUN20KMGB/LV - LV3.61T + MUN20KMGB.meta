@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "LV - LV3.61T + MUN20KMGB",
+  "VehicleName": "LV3.61T + MUN20KMGB",
+  "Description": "Launch Vehicle -> Mun Explorer 3.61T - dv ~7300 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LV - LV3.61T + MUN20KMGB.png",
+  "Mass": 52.74366,
+  "SaveTime": 638482592920986679,
+  "Parts": 58,
+  "Stages": 10,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}

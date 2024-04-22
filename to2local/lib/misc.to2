@@ -81,7 +81,7 @@ pub fn skip_line (l: int) -> Unit = {
   CONSOLE.move_cursor(CONSOLE.cursor_row + l, 0)
 }
 
-pub fn manual_action (title: string) -> Unit = {
+pub fn manual_action (craft: Vessel, title: string) -> Unit = {
   const window_w = 500.0
   const window_h = 150.0
   const center_x = (screen_size().x - window_w)/2
@@ -93,6 +93,7 @@ pub fn manual_action (title: string) -> Unit = {
   label1.font_size = 20
   label2.font_size = 15
   wait_until(fn() -> gear_window.is_closed)
+  save_now(craft)
   yield()
 }
 

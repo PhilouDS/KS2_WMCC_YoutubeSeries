@@ -10,7 +10,7 @@ use { format } from core::str
 use { CONSOLE } from ksp::console
 use { CONSOLE_WINDOW } from ksp::ui
 use { sleep, yield } from ksp::game
-use { LogFile, MAIN_LOG } from ksp::debug
+use { open_log_file, LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
 use { Vessel, DeltaVSituation, AutopilotMode, Targetable } from ksp::vessel
 use { Orbit, Body } from ksp::orbit
 
@@ -83,6 +83,32 @@ pub fn start (craft: Vessel, title: string, refresh_log: bool = true) -> Unit = 
   craft.autopilot.enabled = false // SAS
   craft.autopilot.mode = AutopilotMode.Autopilot
 }
+
+// //===============================
+// //-> logs GT parameters of the craft and returns it
+// //===============================
+
+// pub fn new_craft_parameters (craft: Vessel, launcher: string, pitch_angle: float, pitch_vel: float) -> (pitchAng: float, pitchVel: float) = {
+//   const crafts_file = open_log_file("crafts_parameters")
+//   const crafts_list = crafts_file.read_lines()
+//   let new_param = true
+//   for (i in 0..crafts_list.length) {
+//     if (crafts_list[i].contains(launcher)) {new_param = false}
+//   }
+//   let pitchAng = pitch_angle
+//   let pitchVel = pitch_vel
+
+//   if (new_param) {
+//     crafts_file.log(launcher)
+//     crafts_file.log(pitch_angle.to_string())
+//     crafts_file.log(pitch_vel.to_string())
+//     crafts_file.log(" ")
+//     CONSOLE.print_line("New parameters")
+//   } else {
+//     CONSOLE.print_line("No new parameters")
+//   }
+//   (pitchAng: pitchAng, pitchVel: pitchVel)
+// }
 
 //===============================
 //-> countdown
