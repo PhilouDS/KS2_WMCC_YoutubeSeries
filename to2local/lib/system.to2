@@ -1,8 +1,8 @@
-// KONTROL SYSTEM 2 - v0.5.8.0
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.4
 //____________________________________________________
 // LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { yield } from ksp::game
+use { yield, sleep } from ksp::game
 use * from lib::misc
 
 
@@ -18,6 +18,7 @@ pub fn gears_on_off (craft: ksp::vessel::Vessel, on: bool = true) -> Unit = {
   } else {
     popup("Gears retracted")
   }
+  yield()
 }
 
 pub fn lights_on_off (craft: ksp::vessel::Vessel, on: bool = true) -> Unit = {
@@ -28,20 +29,70 @@ pub fn lights_on_off (craft: ksp::vessel::Vessel, on: bool = true) -> Unit = {
   } else {
     popup("Lights off")
   }
+  yield()
+}
+
+pub fn deploy_panels (craft: ksp::vessel::Vessel, ext: bool = true) -> Unit = {
+  const list_of_panels = craft.parts.filter(fn(prt) -> prt.is_solar_panel)
+
+  if (list_of_panels.length != 0) {
+    for (sp in list_of_panels) {
+      if (sp.is_deployable) {
+        sp.deployable.value.set_extended(ext)
+        yield()
+        if (ext) {
+          popup("Solar panels extended")
+        } else {
+          popup("Solar panels retracted")
+        }
+      }
+    }
+  }
+  sleep(2)
 }
 
 pub fn deploy_antenna (craft: ksp::vessel::Vessel, ext: bool = true) -> Unit = {
   const list_of_antenna = craft.parts.filter(fn(prt) -> prt.part_name.contains("antenna"))
 
-  for (ant in list_of_antenna) {
-    if (ant.is_deployable) {
-      ant.deployable.value.set_extended(ext)
-      yield()
-      if (ext) {
-        popup("Antennas extended")
-      } else {
-        popup("Antennas retracted")
+  if (list_of_antenna.length != 0) {
+    for (ant in list_of_antenna) {
+      if (ant.is_deployable) {
+        ant.deployable.value.set_extended(ext)
+        yield()
+        if (ext) {
+          popup("Antennas extended")
+        } else {
+          popup("Antennas retracted")
+        }
       }
     }
   }
+  yield()
+}
+
+
+pub fn deploy_single_antenna (craft: ksp::vessel::Vessel, ext: bool = true) -> Unit = {
+  const ant = craft.parts.filter(fn(prt) -> prt.part_name.contains("antenna"))[0]
+  yield()
+  ant.deployable.value.set_extended(ext)
+  yield()
+  if (ext) {
+    popup("Antennas extended")
+  } else {
+    popup("Antennas retracted")
+  }
+  yield()
+}
+
+pub fn deploy_single_panels (craft: ksp::vessel::Vessel, ext: bool = true) -> Unit = {
+  const sp = craft.parts.filter(fn(prt) -> prt.is_solar_panel)[0]
+  yield()
+  sp.deployable.value.set_extended(ext)
+  yield()
+  if (ext) {
+    popup("Solar panels extended")
+  } else {
+    popup("Solar panels retracted")
+  }
+  yield()
 }

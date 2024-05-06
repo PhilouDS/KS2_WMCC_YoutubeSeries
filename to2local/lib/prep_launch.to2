@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.8.0
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -9,7 +9,7 @@ use { format } from core::str
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
 use { CONSOLE_WINDOW } from ksp::ui
-use { sleep, yield } from ksp::game
+use { MAINFRAME, Process, sleep, yield, current_time } from ksp::game
 use { open_log_file, LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
 use { Vessel, DeltaVSituation, AutopilotMode, Targetable } from ksp::vessel
 use { Orbit, Body } from ksp::orbit
@@ -42,17 +42,19 @@ pub fn check_clamps (craft: Vessel) -> bool = craft.parts.filter_map(fn(p) -> p.
 pub fn start_with_target (craft: Vessel, title: string, targ: Body, refresh_log: bool = true) -> Body = {
   CONSOLE.clear()
   CONSOLE_WINDOW.open()
-  console_size(500,600)
+  console_size(400,500)
   notif_green("Initialisation of the script")
-  sleep(1)
+  const this_mission = MAINFRAME.available_processes.filter(fn(p) -> p.is_running)[0]
+  sleep(0.5)
   craft.target = targ
-  sleep(0.1)
+  sleep(0.5)
   const ship_target = craft.target.value.body.value
   CONSOLE.print_line($"Target: {ship_target.name}")
 
   if (refresh_log) {
     MAIN_LOG.truncate()
-    log_mission(title) 
+    log_mission(title, MAIN_LOG) 
+    open_log_file("missions_list").log(this_mission.name)
   }  
     
   sleep(0.25)
@@ -68,13 +70,16 @@ pub fn start_with_target (craft: Vessel, title: string, targ: Body, refresh_log:
 pub fn start (craft: Vessel, title: string, refresh_log: bool = true) -> Unit = {
   CONSOLE.clear()
   CONSOLE_WINDOW.open()
-  console_size(500,600)
+  console_size(400,500)
   notif_green("Initialisation of the script")
-  sleep(1)
+  const this_mission = MAINFRAME.available_processes.filter(fn(p) -> p.is_running)[0]
+  open_log_file("missions_list").log(this_mission.name)
+  sleep(0.5)
 
-  if (refresh_log) {MAIN_LOG.truncate()}
-
-  log_mission(title) 
+  if (refresh_log) {
+    MAIN_LOG.truncate()
+    log_mission(title, MAIN_LOG) 
+  }
     
   sleep(0.25)
 
@@ -84,46 +89,57 @@ pub fn start (craft: Vessel, title: string, refresh_log: bool = true) -> Unit = 
   craft.autopilot.mode = AutopilotMode.Autopilot
 }
 
+pub fn go_to_orbit(craft: Vessel, targetApo: float, launcher: string) -> Unit = {
+  MAINFRAME.available_processes.filter(fn(p) -> p.name == "to_orbit")[0].start(craft, [targetApo.to_string(), launcher])
+  yield()
+  MAINFRAME.available_processes.filter(fn(p) -> (p.name.contains("missions") && p.is_running))[0].stop()
+}
+
+
 // //===============================
 // //-> logs GT parameters of the craft and returns it
 // //===============================
 
-// pub fn new_craft_parameters (craft: Vessel, launcher: string, pitch_angle: float, pitch_vel: float) -> (pitchAng: float, pitchVel: float) = {
-//   const crafts_file = open_log_file("crafts_parameters")
-//   const crafts_list = crafts_file.read_lines()
-//   let new_param = true
-//   for (i in 0..crafts_list.length) {
-//     if (crafts_list[i].contains(launcher)) {new_param = false}
-//   }
-//   let pitchAng = pitch_angle
-//   let pitchVel = pitch_vel
+pub fn launcher_parameters (craft: Vessel, launcher: string) -> (pitchAng: float, pitchVel: float) = {
+  const crafts_file = open_log_file("launchers")
+  const crafts_list = crafts_file.read_lines()
+  let new_param = true
+  let pitchAng = 0.0
+  let pitchVel = 0.0
+  let find_lv = false
 
-//   if (new_param) {
-//     crafts_file.log(launcher)
-//     crafts_file.log(pitch_angle.to_string())
-//     crafts_file.log(pitch_vel.to_string())
-//     crafts_file.log(" ")
-//     CONSOLE.print_line("New parameters")
-//   } else {
-//     CONSOLE.print_line("No new parameters")
-//   }
-//   (pitchAng: pitchAng, pitchVel: pitchVel)
-// }
+  for (i in 0..crafts_list.length) {
+    if (crafts_list[i].contains(launcher)) {
+      new_param = false
+      pitchAng = crafts_list[i+1].to_float().value
+      pitchVel = crafts_list[i+2].to_float().value
+      CONSOLE.print_line("Parameters loaded")
+      find_lv = true
+      break
+    }
+  }
+
+  if (!find_lv) {manual_action(craft, "Launcher vehicule not found")}
+
+  (pitchAng: pitchAng, pitchVel: pitchVel)
+}
 
 //===============================
 //-> countdown
 //===============================
 
-pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3) -> Unit = {
-  CONSOLE.clear()
-  CONSOLE.print_at(0,0, "Liftoff in: ")
-  for (i in 0..count) {
-    CONSOLE.print_at(0,12,format("{0:N0} s", (count - i)))
-    if (clamps && i == count - 1) {
+pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3, file: LogFile = MAIN_LOG) -> Unit = {
+  CONSOLE.clear_line(4)
+  const lift_time = current_time() + 3
+  let ignition = false
+  while (current_time() < lift_time) {
+    CONSOLE.print_at(4,0, $"{"Liftoff in:", 20} {(lift_time - current_time()):N1} s")
+    if (!ignition && clamps && current_time() > lift_time - 1) {
       craft.staging.next()
-      CONSOLE.print_at(1,0, "Ignition")
+      CONSOLE.print_at(6,0, "Ignition")
+      ignition = true
     }
-    sleep(1)
+    yield()
   }
   craft.staging.next()
   CONSOLE.clear()
@@ -133,9 +149,9 @@ pub fn countdown (craft: Vessel, clamps: bool = true, count: int = 3) -> Unit = 
   const twr = this_stage.get_twr(DeltaVSituation.Altitude)
   const dv = this_stage.get_total_delta_v(DeltaVSituation.Altitude)
   
-  log_mission_event(craft, "Liftoff")
-  add_item($"Actual TWR    : {twr:N2}")
-  add_item($"Actual Delta-V: {dv:N2} m/s")
+  log_mission_event(craft, "Liftoff", file)
+  add_item($"Actual TWR    : {twr:N2}", "L", file)
+  add_item($"Actual Delta-V: {dv:N2} m/s", "L", file)
   popup("Liftoff")
 }
 

@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.8.4
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.4
 // 
 // FORMULAS FROM "Mécanique spatiale - v3" WRITTEN BY ROMAIN POIRIER.
 // Script 90% inspired by him and his kOS script for KSP1
@@ -7,7 +7,7 @@
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { PI, cos_deg, sin_deg, tan_deg, atan_deg, acos_deg, RAD_TO_DEG, atan2_deg } from core::math
-use { sqrt, max, min, abs, round, exp, log10, floor } from core::math
+use { sqrt, max, min, abs, round, exp, log10, floor, clamp } from core::math
 
 //____________________________________________________
 // KSP LIBRARIES
@@ -49,7 +49,7 @@ use * from lib::my_constants
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: float = 5000, wanted_per: float = 15000) -> Unit = {
+pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: float = 5000, wanted_per: float = 15000, file: LogFile = MAIN_LOG) -> Unit = {
   CONSOLE.clear()
   CONSOLE_WINDOW.size = vec2(500,500)
 
@@ -98,10 +98,15 @@ pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: f
   // Correction of the inclination if lower than the target latitude
   //==========================================
   if (craft.orbit.inclination < abs(land_point.lat)) {
-    change_inc_obt(craft, land_point.lat * 1.5, wanted_per)
-  } else {
-    change_periapsis_here(craft, wanted_per)
+    const inc_node = change_inc_obt(craft, clamp(land_point.lat  + 5, land_point.lat, 90), craft.orbit.next_apoapsis_time(current_time()).value, 0.1, 0.05)
+    yield()
+    CONSOLE.clear()
+    yield()
+    exe_mnv(craft, inc_node.burn_vector.magnitude, false, file)
   }
+  
+  change_periapsis_here(craft, wanted_per)
+  
 
   CONSOLE.clear()
   yield()
@@ -624,12 +629,15 @@ fn phasing_mnv (craft: Vessel, time_to_circ: float, vel_per: float, UT: float) -
 }
 
 
-fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float) -> Unit = {
+fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: LogFile = MAIN_LOG) -> Unit = {
   const frame = craft.main_body.celestial_frame
   const throt = craft.set_throttle(0)
 
   let vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
   let ground_distance = ground_dist(craft, land_point)
+
+  if (Stage_Info(craft, craft.staging.current).get_deltav() < 25) {craft.staging.next()}
+  sleep(0.25)
 
   CONSOLE.clear_line(2)
 
@@ -656,9 +664,8 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float) -> Unit
 
   delta_d = 0.92*delta_d
   yield()
-  
 
-  while (ground_distance > 50_000) {
+  while (ground_distance > delta_d + 80_000) {
     if ((ground_distance - delta_d) > 250_000) {
       set_warp_index(floor(log10(ground_distance - delta_d)).to_int)
     } else {
@@ -675,39 +682,34 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float) -> Unit
   wait_until(fn() -> current_warp_rate() < 1.1)
   sleep(0.25)
 
-  const steer = control_steering(craft)
-
-  let local_vec_to_target_nav = navball(craft, vector_to_target.to_local(frame).to_direction())
-  let wanted_yaw = deg360(180 + local_vec_to_target_nav.y)
-  let delta = navball(craft, (-1*craft.surface_velocity).to_direction()).y - wanted_yaw
-
-  const st_p = -navball(craft, (-1*craft.surface_velocity).to_direction()).x
-  const st_y = navball(craft, (-1*craft.surface_velocity).to_direction()).y + 90 * sign(delta)
-  const st_r = 0.0
-  const dir = euler(st_p, st_y, st_r).to_global(craft.horizon_frame).to_local(frame)
-
-  steer.set_direction(dir)
-  sleep(5)
+  approach_angle(craft, land_point, 0.1)
+  yield()
   
-  throt.throttle = 0.3
-  
-  while (abs(delta) > 0.0005) {
-    throt.throttle = abs(delta)/2.5
-    local_vec_to_target_nav = navball(craft, vector_to_target.to_local(frame).to_direction())
-    wanted_yaw = deg360(180 + local_vec_to_target_nav.y)
-    delta = navball(craft, (-1*craft.surface_velocity).to_direction()).y - wanted_yaw
-    CONSOLE.print_at(10, 0, $"delta: {delta:N4}°")
+  while (ground_distance > delta_d + 40_000) {
+    if ((ground_distance - delta_d) > 250_000) {
+      set_warp_index(floor(log10(ground_distance - delta_d)).to_int)
+    } else {
+      set_warp_index(floor(log10(ground_distance - delta_d)).to_int - 2)
+    }
+    vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
+    ground_distance = ground_dist(craft, land_point)
+    craft.autopilot.target_orientation = -1*craft.orbital_velocity
+    CONSOLE.print_at(2, 0, $"  ETA Periapsis: {(craft.orbit.next_periapsis_time(current_time()) - current_time()):N2} s        ")
+    CONSOLE.print_at(3, 0, $"Distance target: {ground_distance:N1} m        ")
     yield()
   }
-  CONSOLE.clear_line(10)
+  cancel_warp()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  sleep(0.25)
 
-  throt.release()
-  steer.release()
+  approach_angle(craft, land_point, 0.05)
+  yield()
 
   CONSOLE.print_at(2,0, $"distance: {delta_d:N2} m")
   
   CONSOLE.clear_line(2)
-  const margin_dist = 5000.0
+
+  const margin_dist = 7500.0
 
   while (ground_distance > (delta_d + margin_dist)) {
     set_warp_index(floor(log10(ground_distance - delta_d - margin_dist)).to_int - 2)
@@ -722,6 +724,9 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float) -> Unit
   }
   cancel_warp()
   wait_until(fn() -> current_warp_rate() < 1.1)
+  yield()
+
+  approach_angle(craft, land_point)
   yield()
 
   orientation(craft, -1* craft.surface_velocity)
@@ -739,4 +744,37 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float) -> Unit
   CONSOLE.clear_line(2)
   CONSOLE.clear_line(3)
   CONSOLE.clear_line(5)
+}
+
+
+
+fn approach_angle (craft: Vessel, land_point: Spot, delta_margin: float = 0.0005, file:LogFile = MAIN_LOG) -> Unit = {
+  const frame = craft.main_body.celestial_frame
+  const target_alt = craft.main_body.terrain_height(land_point.lat, land_point.long)
+  let vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
+  const throt = craft.set_throttle(0)
+  let local_vec_to_target_nav = navball(craft, vector_to_target.to_local(frame).to_direction())
+  let wanted_yaw = deg360(180 + local_vec_to_target_nav.y)
+  let delta = navball(craft, (-1*craft.surface_velocity).to_direction()).y - wanted_yaw
+
+  let st_p = -navball(craft, (-1*craft.surface_velocity).to_direction()).x
+  let st_y = navball(craft, (-1*craft.surface_velocity).to_direction()).y + 90 * sign(delta)
+  let st_r = 0.0
+  let dir = euler(st_p, st_y, st_r).to_global(craft.horizon_frame).to_local(frame)
+
+  orientation(craft, dir.vector)
+  yield()
+  
+  while (abs(delta) > delta_margin) {
+    throt.throttle = abs(delta)/2.5
+    local_vec_to_target_nav = navball(craft, vector_to_target.to_local(frame).to_direction())
+    wanted_yaw = deg360(180 + local_vec_to_target_nav.y)
+    delta = navball(craft, (-1*craft.surface_velocity).to_direction()).y - wanted_yaw
+    CONSOLE.print_at(10, 0, $"delta: {delta:N4}°")
+    check_staging(craft, file)
+    yield()
+  }
+  throt.release()
+  CONSOLE.clear_line(10)
+  yield()
 }

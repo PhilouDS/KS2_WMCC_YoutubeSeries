@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - MINOS300KM",
+  "VehicleName": "MINOS300KM",
+  "Description": "Orbital Survey of Minmus : 0.68T",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - MINOS300KM.png",
+  "Mass": 0.684625,
+  "SaveTime": 638503446040978467,
+  "Parts": 20,
+  "Stages": 1,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}

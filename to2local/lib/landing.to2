@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.8.3
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.3
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -11,9 +11,14 @@ use { yield, current_time, sleep, wait_until } from ksp::game
 use { vec3, Vec3 } from ksp::math
 use { cancel_warp, set_warp_index, current_warp_rate } from ksp::game::warp
 use { CONSOLE } from ksp::console
-use { Vessel, VesselSituation, ConnectionNodeStatus, DeltaVSituation, ParachuteDeployState } from ksp::vessel
+use { Vessel, VesselSituation, ConnectionNodeStatus, DeltaVSituation, ParachuteDeployState, AutopilotMode } from ksp::vessel
 use { Body } from ksp::orbit
 use { pid_loop, PIDLoop } from ksp::control
+
+//____________________________________________________
+// STD LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { navball } from std::navball
 
 //____________________________________________________
 // PERSONAL LIBRARIES
@@ -38,20 +43,24 @@ use * from lib::my_constants
 pub fn reentry_and_landing (craft: Vessel) -> Unit = {
   const chute = craft.parts.filter(fn(p) -> p.is_parachute).map(fn(c) -> c.parachute.value)[0]
   yield()
+  craft.autopilot.enabled = false // SAS
+  craft.autopilot.mode = AutopilotMode.Autopilot
 
   while (chute.deploy_state != ParachuteDeployState.ARMED) {
     trigger_staging(craft)
     yield()
   }
-  sleep(0.5)
-  deploy_antenna(craft, false)
-  sleep(0.5)
+  CONSOLE.print_line("Parachutes activated")
 
   orientation(craft, -1*craft.orbital_velocity)
   yield()
 
-  while (craft.altitude_sealevel > craft.main_body.atmosphere_depth + 1000) {
+  CONSOLE.print_line("In position")
+
+  while (craft.altitude_sealevel > craft.main_body.atmosphere_depth + 2000) {
+    orientation(craft, -1*craft.orbital_velocity)
     set_warp_index(3)
+    yield()
   }
   cancel_warp()
   wait_until(fn() -> current_warp_rate() < 1.1)
@@ -182,9 +191,22 @@ pub fn cancel_surface_velocity_with_target (craft: Vessel, land_point: Spot) -> 
 
     guidance_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
     downrange_to_target = guidance_to_target.magnitude
-    const ground_distance = ground_dist(craft, land_point)
+    let ground_distance = ground_dist(craft, land_point)
     
     craft.autopilot.target_orientation = -1* craft.surface_velocity
+
+    if (craft.surface_velocity.magnitude < 20 && ground_distance > 500) {
+      throt.throttle = 0
+      while (ground_distance > 500) {
+        ground_distance = ground_dist(craft, land_point)
+        CONSOLE.print_at(5, 0, $"  Surface velocity: {craft.surface_velocity.magnitude:N1} m/s        ")
+        CONSOLE.print_at(6, 0, $"Distance to target: {downrange_to_target:N1} m        ")
+        CONSOLE.print_at(7, 0, $"          Throttle: {throt.throttle:P1}              ")
+        CONSOLE.print_at(11, 0, $"   Ground distance: {ground_distance:N1}              ")
+        yield()
+      }
+      throt.throttle = 1
+    }
 
     CONSOLE.print_at(5, 0, $"  Surface velocity: {craft.surface_velocity.magnitude:N1} m/s        ")
 		CONSOLE.print_at(6, 0, $"Distance to target: {downrange_to_target:N1} m        ")
@@ -260,7 +282,7 @@ pub fn suicid_burn (craft: Vessel, terrain_alt: float, pid: PIDLoop, wanted_twr:
   pid.setpoint = -15
   const throt = craft.set_throttle(1)
 
-  while (craft.altitude_scenery > 50) {
+  while (craft.altitude_scenery > 100) {
     throt.throttle = pid.update(current_time(), craft.vertical_surface_speed)
     craft.autopilot.target_orientation = -1 * craft.surface_velocity
     CONSOLE.print_at(12, 0, $"     Altitude AGL: {craft.altitude_scenery:N1} m          ")

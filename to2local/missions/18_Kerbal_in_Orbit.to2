@@ -1,0 +1,107 @@
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.5
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round, clamp_degrees360, floor, log10, acos_deg } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { MAINFRAME, Process, sleep, wait_until, yield, current_time, wait_while } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index, cancel_warp } from ksp::game::warp
+use { open_log_file, LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation, ManeuverNode, ParachuteDeployState } from ksp::vessel
+use { Orbit, find_body, Body } from ksp::orbit
+use { pid_loop, PIDLoop } from ksp::control
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::prep_launch
+use * from lib::show_info
+use * from lib::science
+use * from lib::system
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::transfer
+use * from lib::landing
+use * from lib::precise_landing
+use { Spot } from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, targetApo: float = 130000, az: float = 90) -> Unit = {
+  CONSOLE.clear()
+  CONSOLE_WINDOW.open()
+  console_size(400,500)
+  sleep(0.5)
+
+  const launcher = "LV3.4T"
+
+  const preLaunch = ship.situation == VesselSituation.PreLaunch
+  let (final_data, final_sample) = (0.0, 0.0)
+  let (data, sample) = (0.0, 0.0)
+
+  start(ship, "FIRST KERBAL IN ORBIT", preLaunch)
+  
+  if (preLaunch) {
+    MAINFRAME.available_processes.filter(fn(p) -> p.name == "to_orbit")[0].start(ship, [targetApo.to_string(), launcher])
+    yield()
+    MAINFRAME.available_processes.filter(fn(p) -> (p.name.contains("missions") && p.is_running))[0].stop()
+  }
+
+  (data, sample) = run_science(ship, true, false)      
+  yield()
+  final_data += data
+  final_sample += sample
+  yield()
+
+  exe_mnv(ship, go_to_from(ship, 200_000, "PE"), false)
+
+  warp_to(ship.orbit.next_apoapsis_time().value)
+  sleep(1)
+
+  (data, sample) = run_science(ship, true, false)      
+  yield()
+  final_data += data
+  final_sample += sample
+  yield()
+
+  wait_until (fn() -> ship.altitude_sealevel < (ship.main_body.atmosphere_depth + 2000))
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.mode = AutopilotMode.Autopilot
+
+  deploy_antenna(ship, false)
+
+  CONSOLE.print_line("Prepared for reentry")
+
+  reentry_and_landing(ship)
+  yield()
+
+  (data, sample) = run_science(ship, true, false)      
+  yield()
+  final_data += data
+  final_sample += sample
+  yield()
+
+  log_end_mission(ship, final_data, final_sample)
+  yield()
+
+  end_of_mission(ship)
+
+}

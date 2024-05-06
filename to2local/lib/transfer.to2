@@ -1,8 +1,9 @@
-// KONTROL SYSTEM 2 - v0.5.8.0
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { sqrt, max, min, abs, exp, PI, floor, RAD_TO_DEG } from core::math
+use { cos_deg, sin_deg, tan_deg, atan_deg, asin_deg } from core::math
 use { format } from core::str
 
 //____________________________________________________
@@ -19,10 +20,17 @@ use { Orbit, Body } from ksp::orbit
 //____________________________________________________
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-use { sign, print_title, min_of_list, popup } from lib::misc
+use * from lib::misc
 use { check_staging } from lib::in_flight
 use { compute_burn_duration, h_transfer, limit_thrust, orientation } from lib::adjusted_mnv
 use * from lib::mission_logs
+use { Launchpad } from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
 
 //____________________________________________________
 // MAIN FUNCTION
@@ -58,7 +66,7 @@ pub fn transfer_to_body (craft: Vessel, target_body: Body, adjust_pe: float, do_
   CONSOLE.clear()
 
   while (!craft.orbit.next_patch.defined) {
-    craft.set_throttle(0.01)
+    craft.set_throttle(0.1)
     craft.autopilot.target_orientation = craft.orbit.orbital_velocity(current_time())
     yield()
   }
@@ -143,7 +151,7 @@ sync fn true_anomaly(obt: Orbit) -> float = {
   true_anomaly * 180.0 / PI
 }
 
-pub fn exe_transfer_mnv (craft: Vessel, dv_mnv: float, adjust_pe: float) -> Unit = {
+pub fn exe_transfer_mnv (craft: Vessel, dv_mnv: float, adjust_pe: float, file: LogFile = MAIN_LOG) -> Unit = {
   craft.autopilot.enabled = false // SAS
   craft.autopilot.mode = AutopilotMode.Autopilot
   let nextNode = craft.maneuver.next_node().value   
@@ -152,7 +160,7 @@ pub fn exe_transfer_mnv (craft: Vessel, dv_mnv: float, adjust_pe: float) -> Unit
   
   const expectedVel = nextNode.expected_orbit.orbital_velocity(nextNode.time + burn_duration).magnitude
 
-  log_node(craft, burn_duration, nextNode.ETA)
+  log_node(craft, dv_mnv, burn_duration, nextNode.ETA, true, file)
 
   while (nextNode.ETA > 25) {
     set_warp_index(5)
@@ -218,8 +226,8 @@ pub fn exe_transfer_mnv (craft: Vessel, dv_mnv: float, adjust_pe: float) -> Unit
   }
   sleep(1)
   CONSOLE.print_at(14,0, "Maneuver Done")
-  log_mission_event(craft, "MECO - end of maneuver", false)
-  log_mission_event(craft, $"Actual velocity: {craft.orbital_velocity.magnitude:N2} m/s", false)
+  log_mission_event(craft, "MECO - end of maneuver", file, false)
+  log_mission_event(craft, $"Actual velocity: {craft.orbital_velocity.magnitude:N2} m/s", file, false)
   sleep(0.5)
 }
 
@@ -284,7 +292,7 @@ pub fn set_periapsis_next_patch (craft: Vessel, wanted_per: float, node: Maneuve
 
   let old_per = per_node.expected_orbit.next_patch.value.periapsis
 
-  CONSOLE.print_at(0,0,$"Delta: {delta_change:N2} m/s")
+  CONSOLE.print_at(0,0,$" Delta: {delta_change:N2} m/s")
   CONSOLE.print_at(1,0,$"Target: {wanted_per:N2} m")
   CONSOLE.print_at(2,0,$"Margin: {margin_value:N2} m")
 
@@ -325,7 +333,64 @@ pub fn set_periapsis_next_patch (craft: Vessel, wanted_per: float, node: Maneuve
 
     old_per = per_node.expected_orbit.next_patch.value.periapsis
     value_list = []
-    CONSOLE.print_at(10,0,$"   Normal: {per_node.normal:N2} m/s   ")
+    CONSOLE.print_at(10,0,$" total ΔV: {per_node.burn_vector.magnitude:N2} m/s   ")
+    yield()
+  }
+
+  per_node
+}
+
+pub fn adjust_periapsis (craft: Vessel, wanted_per: float, margin_value: float = 3000, delta_change: float = 0.1) -> ManeuverNode = {
+  CONSOLE.clear()
+  let per_node = craft.maneuver.add(current_time() + 180, 0, 0, 0).value
+  
+  let delta_applied = 0.1
+
+  let value_list: float[] = []
+
+  let old_per = craft.orbit.periapsis
+
+  CONSOLE.print_at(1,0,$"   Target: {wanted_per:N2} m")
+  CONSOLE.print_at(2,0,$"   Margin: {margin_value:N2} m")
+
+
+  while (abs(old_per - wanted_per) > margin_value) {
+    if (abs(old_per - wanted_per) < 5*margin_value) {delta_applied = delta_change}
+    CONSOLE.print_at(0,0,$"    Delta: {delta_applied:N2} m/s   ")
+    CONSOLE.print_at(4,0,$"Periapsis: {old_per:N2} m               ")
+    CONSOLE.print_at(6,0,$" Prograde: {per_node.prograde:N2} m/s   ")
+    CONSOLE.print_at(7,0,$"   Radial: {per_node.radial_out:N2} m/s   ")
+    CONSOLE.print_at(8,0,$"   Normal: {per_node.normal:N2} m/s   ")
+    
+    per_node.radial_out += delta_applied
+    value_list += abs(wanted_per - per_node.expected_orbit.periapsis)
+    per_node.radial_out -= 2*delta_applied
+    value_list += abs(wanted_per - per_node.expected_orbit.periapsis)
+    per_node.radial_out += delta_applied
+    
+    per_node.normal += delta_applied
+    value_list += abs(wanted_per - per_node.expected_orbit.periapsis)
+    per_node.normal -= 2*delta_applied
+    value_list += abs(wanted_per - per_node.expected_orbit.periapsis)
+    per_node.normal += delta_applied
+
+    per_node.prograde += delta_applied
+    value_list += abs(wanted_per - per_node.expected_orbit.periapsis)
+    per_node.prograde -= 2*delta_applied
+    value_list += abs(wanted_per - per_node.expected_orbit.periapsis)
+    per_node.prograde += delta_applied
+
+    let (new_correction @min, idx) = min_of_list(value_list)
+
+    if (idx == 0) {per_node.radial_out += delta_applied}
+    else if (idx == 1) {per_node.radial_out -= delta_applied}
+    else if (idx == 2) {per_node.normal += delta_applied}
+    else if (idx == 3) {per_node.normal -= delta_applied}
+    else if (idx == 4) {per_node.prograde += delta_applied}
+    else if (idx == 5) {per_node.prograde -= delta_applied}
+
+    old_per = per_node.expected_orbit.periapsis
+    value_list = []
     CONSOLE.print_at(10,0,$" total ΔV: {per_node.burn_vector.magnitude:N2} m/s   ")
     yield()
   }
@@ -407,17 +472,169 @@ pub fn set_inc_next_patch (craft: Vessel, wanted_inc: float, node: ManeuverNode,
   inc_node
 }
 
+//_________________________________________________
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+// WARP UNTIL CHANGE OF SOI
+//_________________________________________________
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn warp_SOI (craft: Vessel, target_body: Body, index: int = 6) -> Unit = {
+
+pub fn warp_SOI (craft: Vessel, target_body: Body, index: int = 4) -> Unit = {
   CONSOLE.clear()
   orientation(craft, craft.orbit.orbit_normal)
   yield()
+  do_warp(craft.orbit.end_ut - 1800)
+  sleep(2)
   while (craft.main_body.name != target_body.name) {
     set_warp_index(index)
   }
   cancel_warp()
   wait_until(fn() -> current_warp_rate() < 1.1)
-  print_title($"We reached {target_body.name}'s SOI!",0)
+  print_title($"We reached SOI of {target_body.name}!",0)
   popup($"{target_body.name}'s SOI")
   log_mission_event(craft, $"SOI of {target_body.name} reached")
+}
+
+
+
+//_________________________________________________
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+// LAUNCH WINDOW TO BODY WITH INCLINED ORBIT
+//_________________________________________________
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn launch_window (craft: Vessel, target_body: Body, target_apo: float = 130000, lp: string = "LP1") -> (az: float, launch_time: float) = {
+  if (target_body.name == "Mun") {
+    return (az: 90, launch_time: current_time() + 30)
+  }
+  else {
+    const LP = Launchpad(lp)
+    const lp_lat = LP.get_latitude()
+    const lp_long = LP.get_longitude()
+    const lp_rot_velocity = LP.get_rotation_velocity()
+
+    const target_obt = target_body.orbit
+    const target_inc = target_obt.inclination
+    
+    const coef = floor(current_time() / Kerbin.rotation_period)
+
+    const upper_omega = target_obt.LAN
+    const inc = target_inc
+    const lower_omega = 360 / Kerbin.rotation_period
+
+    const upper_A = cos_deg(lp_lat) * sin_deg(upper_omega) * sin_deg(inc)
+    const upper_B = -cos_deg(lp_lat) * cos_deg(upper_omega) * sin_deg(inc)
+    const upper_C = sin_deg(lp_lat) * cos_deg(inc)
+
+    const lower_A = upper_C - upper_A
+    const lower_B = 2 * upper_B
+    const lower_C = upper_C + upper_A
+
+    const delta = lower_B**2 - 4 * lower_A * lower_C
+
+    const sid_one = 2 * atan_deg((-lower_B + sqrt(delta))/ (2*lower_A))
+    const sid_two = 2 * atan_deg((-lower_B - sqrt(delta))/ (2*lower_A))
+
+    let launch_time_one = -1.0
+    let coef_one = coef
+    while (launch_time_one <= current_time()) {
+      launch_time_one = (sid_one - initial_rotation_kerbin - lp_long) / (lower_omega) + coef_one * Kerbin.rotation_period
+      coef_one += 1
+      yield()
+    }
+
+    
+    let launch_time_two = -1.0
+    let coef_two = coef
+    while (launch_time_two <= current_time()) {
+      launch_time_two = (sid_two - initial_rotation_kerbin - lp_long) / (lower_omega) + coef_two * Kerbin.rotation_period
+      coef_two += 1
+      yield()
+    }
+
+    const launch_time = if (launch_time_one < launch_time_two) launch_time_one else launch_time_two
+    
+    CONSOLE.print_at(3, 0, $"UT Launch: {time_to_date(launch_time)}")
+
+    do_warp(launch_time - 30)
+    
+    yield()
+
+    const target_velocity = compute_velocity (Kerbin, target_apo, target_apo, target_apo)
+
+    const cos_zeta = compute_inclination(lp_lat, target_inc)
+
+    const speed_needed = sqrt(target_velocity**2 + lp_rot_velocity**2 - 2 * target_velocity * lp_rot_velocity * cos_zeta)
+
+    const azimuth_DN = asin_deg(-(speed_needed**2 + lp_rot_velocity**2 - target_velocity**2)/(2 * speed_needed * lp_rot_velocity))
+    const azimuth_AN = 180 - azimuth_DN
+
+    let az = 0.0
+    
+    const time_to_an = time_to_relative_node(craft, target_body, "AN")
+    const time_to_dn = time_to_relative_node(craft, target_body, "DN")
+    if (time_to_an < time_to_dn) {
+      az = azimuth_AN
+    } else {
+      az = azimuth_DN
+    }
+
+    return (az: az, launch_time: launch_time)
+  }
+}
+
+
+fn relative_node_angle (craft: Vessel, target_body: Body, node: string = "AN") -> float = {
+  const vecNormalShip = craft.orbit.normal_plus(current_time())
+  const vecNormalTarget = target_body.orbit.normal_plus(current_time())
+  let vecNode = vecNormalShip.cross(vecNormalTarget).normalized
+  if (node != "AN") {
+    vecNode = -1 * vecNormalShip.cross(vecNormalTarget).normalized
+  }
+
+  let angle = (craft.position - craft.main_body.position).angle_to(vecNode)
+  let signVector = (craft.position - craft.main_body.position).cross(vecNode)
+  let sign = vecNormalShip * signVector
+  if (sign < 0) {
+    angle = -1 * angle
+  }
+  
+  angle
+}
+
+fn time_to_relative_node (craft: Vessel, target_body: Body, node: string = "AN") -> float = {
+  const targetNode = relative_node_angle(craft, target_body, node)
+  const shipAngularVelocity = craft.angular_velocity.magnitude
+  
+  return targetNode * shipAngularVelocity
+}
+
+
+
+
+//____________________________________________________
+// OTHER FUNCTIONS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+fn compute_velocity (bod: ksp::orbit::Body, peri: float, apo: float, craftAlt: float) -> float = {  
+  let rad = bod.radius
+  let RV = rad + craftAlt // ship's altitude from Kerbin's center of mass
+  let RP = rad + peri // ship's periapsis from Kerbin's center of mass
+  let RA = rad + apo // ship's apoapsis from Kerbin's center of mass
+  let mu = bod.grav_parameter
+  let SMA = (RA + RP) / 2 // Semi-Major Axis
+
+  return sqrt(mu * (2/RV - 1/SMA)) // sqrt = SQuare RooT
+}
+
+
+fn compute_inclination (ell: float, inc: float) -> float = {
+    const sin_phi = tan_deg(ell) / tan_deg(inc)
+    const sin_theta = sin_deg(ell) / sin_deg(inc)
+    const cos_inc = cos_deg(inc)
+    const cos_theta = sqrt(1 - sin_theta**2)
+    const cos_phi = sqrt(1 - sin_phi**2)
+
+    const cos_zeta = sin_phi * sin_theta + cos_inc * cos_theta * cos_phi
+    return cos_zeta
 }

@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "MINMUS - LV2.0T + MINOS300KM",
+  "VehicleName": "LV2.0T + MINOS300KM",
+  "Description": "Complete rocket for Orbital Survey of minmus : ~1.98T",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\MINMUS - LV2.0T + MINOS300KM.png",
+  "Mass": 34.49671,
+  "SaveTime": 638504342699028744,
+  "Parts": 45,
+  "Stages": 9,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

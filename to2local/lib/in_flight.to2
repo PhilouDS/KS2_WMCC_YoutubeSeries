@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.8.0
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.5
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -15,6 +15,7 @@ use { Vessel, ConnectionNodeStatus } from ksp::vessel
 // PERSONAL LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { info_gt, info_orbit } from lib::show_info
+use { check_fairing } from lib::prep_launch
 use * from lib::misc
 use * from lib::mission_logs
 use * from lib::system
@@ -26,20 +27,19 @@ use * from lib::system
 //===============================
 //-> Gravity turn
 //===============================
-pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimuth: float, jettison_fairing: bool = false) -> Unit = {
+pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimuth: float, file: LogFile = MAIN_LOG, jettison_fairing: bool = false) -> Unit = {
   CONSOLE.clear()
 
   let from_north = clamp_degrees360(azimuth)
 
-  log_mission_event(craft, "Gravity turn started")
-  add_left_entry($"  · Initial Speed: {craft.vertical_surface_speed:N1} m/s")
-  add_left_entry($"  · Initial Angle: {pitch_angle:N2}°")
+  log_mission_event(craft, "Gravity turn started", file)
+  add_left_entry($"  · Initial Speed: {craft.vertical_surface_speed:N1} m/s", file)
+  add_left_entry($"  · Initial Angle: {pitch_angle:N2}°", file)
 
   notif_orange("Gravity turn started")
 
   print_title("GRAVITY TURN IN PROGRESS", 0, false)
   const this_row = CONSOLE.cursor_row
-  let no_more_fairing = false
   let in_space: bool = false
   
   let angle_update = 0.0
@@ -47,22 +47,22 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
   while(craft.facing.vector.angle_to(craft.heading_direction(from_north, pitch_angle, 0).vector) > 0.5) {
     angle_update = (90 - pitch_angle)*(current_time()-t_gt)/3.0
     craft.autopilot.target_orientation = craft.heading_direction(from_north, 90-angle_update, azimuth).vector
-    check_staging(craft)
+    check_staging(craft, file)
     yield()
   }
 
-  while(craft.facing.vector.angle_to(craft.surface_velocity) > 0.5) {
-    check_staging(craft)
+  while(craft.facing.vector.angle_to(craft.up) > craft.up.angle_to(craft.surface_velocity)) {
+    check_staging(craft, file)
     yield()
   }
 
-  log_mission_event(craft, $"Following surface prograde vector: {craft.surface_velocity.magnitude:N1} m/s")
+  log_mission_event(craft, $"Following surface prograde vector: {craft.surface_velocity.magnitude:N1} m/s", file)
 
   
   let angle_above_horizon = 90 - craft.up.angle_to(craft.surface_velocity)
   
   while (craft.altitude_sealevel < 36000) {
-    check_staging(craft)
+    check_staging(craft, file)
     angle_above_horizon = 90 - craft.up.angle_to(craft.surface_velocity)
     craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
     info_gt(craft, this_row, false)
@@ -70,26 +70,24 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
     yield()
   }
 
-  log_mission_event(craft, $"Following orbital prograde vector: {craft.orbital_velocity.magnitude:N1} m/s")
+  log_mission_event(craft, $"Following orbital prograde vector: {craft.orbital_velocity.magnitude:N1} m/s", file)
 
   while (craft.orbit.apoapsis.value < target_apo) {
-    check_staging(craft)
+    check_staging(craft, file)
     angle_above_horizon = 90 - craft.up.angle_to(craft.orbit.prograde(current_time()))
     craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
     info_gt(craft, this_row)
     info_orbit(craft, this_row + 4)
-    if (craft.orbit.apoapsis.value > 0.95 * target_apo) {craft.set_throttle(max(0.1, 60/craft.available_thrust))}
-    if (craft.altitude_sealevel > craft.main_body.atmosphere_depth && jettison_fairing && !no_more_fairing) {
+    if (craft.orbit.apoapsis.value > 0.95 * target_apo) {craft.set_throttle(max(0.1, 40/craft.available_thrust))}
+    if (craft.altitude_sealevel > craft.main_body.atmosphere_depth && check_fairing(craft) && !in_space) {
       craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
-      log_mission_event(craft, "Fairing jettisoned")
+      log_mission_event(craft, "Fairing jettisoned", file)
       popup("Fairing jettisoned")
-      no_more_fairing = true
       CONSOLE.clear()
       in_space = true
       print_title("IN SPACE", 0)
-      log_mission_event(craft, "In space")
+      log_mission_event(craft, "In space", file)
       popup("In space")
-      deploy_antenna(craft)
       sleep(0.5)
     }
     yield()
@@ -99,7 +97,7 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
   craft.set_throttle(0)
   CONSOLE.clear()
   print_title("GRAVITY TURN DONE", 0)
-  log_mission_event(craft, "End of Gravity turn")
+  log_mission_event(craft, "End of Gravity turn", file)
   notif_orange("Gravity turn finished")
   sleep(1)
 
@@ -114,12 +112,11 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
     yield()
     CONSOLE.clear()
     print_title("IN SPACE", 0)
-      log_mission_event(craft, "In space")
+      log_mission_event(craft, "In space", file)
       popup("In space")
-      deploy_antenna(craft)
-    if (!no_more_fairing && jettison_fairing) {
+    if (check_fairing(craft)) {
       craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
-      log_mission_event(craft, "Fairing jettisoned")
+      log_mission_event(craft, "Fairing jettisoned", file)
       popup("Fairing jettisoned")
     }
   }
@@ -130,7 +127,7 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
 //===============================
 //-> Staging
 //===============================
-pub fn check_staging (craft: Vessel) -> Unit = {
+pub fn check_staging (craft: Vessel, file: LogFile = MAIN_LOG) -> Unit = {
   let check = false
   const engine_in_stage = list_engine_stage(craft, craft.staging.current)
   if (craft.staging.current > 0) {
@@ -147,16 +144,16 @@ pub fn check_staging (craft: Vessel) -> Unit = {
   if (check) {
     CONSOLE.print_at(15,0,"Staging")
     yield()
-    trigger_staging(craft)
+    trigger_staging(craft, file)
   }
   yield()
   CONSOLE.clear_line(15)
 }
 
-pub fn trigger_staging (craft: Vessel) -> Unit = {
+pub fn trigger_staging (craft: Vessel, file: LogFile = MAIN_LOG) -> Unit = {
   wait_until(fn() -> craft.staging.ready)
   craft.staging.next()
-  log_stage(craft)
+  log_stage(craft, file)
   popup("STAGE")
   yield()
 }

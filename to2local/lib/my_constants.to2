@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.7.9
+// Last modification - KONTROL SYSTEM 2 - v0.5.7.9
 
 use { screen_size, Window, Align, CONSOLE_WINDOW } from ksp::ui
 use { CONSOLE, RgbaColor, color } from ksp::console

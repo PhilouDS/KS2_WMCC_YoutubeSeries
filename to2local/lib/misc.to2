@@ -1,4 +1,4 @@
-// KONTROL SYSTEM 2 - v0.5.8.1
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.1
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -33,6 +33,13 @@ pub fn save_now (craft: Vessel) -> Unit = {
   yield()
   craft.autopilot.enabled = false // SAS
   sleep(0.1)
+}
+
+//===============================
+// -> Quick Load
+//===============================
+pub fn reload() -> Unit = {
+  SAVE_LOAD_CONTROL.quick_load()
 }
 
 //===============================

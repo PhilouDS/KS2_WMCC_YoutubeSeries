@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "LV - LV3.4T",
+  "VehicleName": "LV3.4T",
+  "Description": "3.4 T in orbit",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LV - LV3.4T.png",
+  "Mass": 51.2421455,
+  "SaveTime": 638500033089766798,
+  "Parts": 31,
+  "Stages": 6,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/Pod Check"
+  ]
+}
