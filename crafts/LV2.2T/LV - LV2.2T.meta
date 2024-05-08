@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "LV - LV2.2T",
+  "VehicleName": "LV2.2T",
+  "Description": "2.2 T in orbit",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LV - LV2.2T.png",
+  "Mass": 34.0225449,
+  "SaveTime": 638501103016057758,
+  "Parts": 21,
+  "Stages": 6,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/Pod Check"
+  ]
+}

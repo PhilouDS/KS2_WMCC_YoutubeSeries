@@ -1,4 +1,4 @@
-// Last modification - KONTROL SYSTEM 2 - v0.5.8.4
+// Last modification - KONTROL SYSTEM 2 - v0.5.9.1
 // 
 // FORMULAS FROM "Mécanique spatiale - v3" WRITTEN BY ROMAIN POIRIER.
 // Script 90% inspired by him and his kOS script for KSP1
@@ -51,7 +51,7 @@ use * from lib::my_constants
 
 pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: float = 5000, wanted_per: float = 15000, file: LogFile = MAIN_LOG) -> Unit = {
   CONSOLE.clear()
-  CONSOLE_WINDOW.size = vec2(500,500)
+  CONSOLE_WINDOW.size = vec2(400,500)
 
   const throt = craft.set_throttle(0)
   craft.autopilot.enabled = false // SAS
@@ -93,6 +93,12 @@ pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: f
 
   orientation(craft, -1*craft.orbit.orbit_normal)
   do_warp(craft.orbit.next_apoapsis_time(current_time()).value)
+  sleep(1)
+  while (Stage_Info(craft, craft.staging.current).get_thrust() == 0) {
+    craft.staging.next()
+    yield()
+  }
+  sleep(0.25)
 
   //==========================================
   // Correction of the inclination if lower than the target latitude
@@ -160,7 +166,7 @@ pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: f
   // PHASING MANEUVER
   //==========================================
   CONSOLE.clear()
-  CONSOLE_WINDOW.size = vec2(400,600)
+  CONSOLE_WINDOW.size = vec2(400,500)
   
   const n_phase = phasing_mnv(craft, time_phase_to_circ, init_Vper, UT_phase)
 
@@ -239,14 +245,12 @@ pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: f
    
   CONSOLE.print_line(" === SUICID BURN ===")
 
-  suicid_burn(craft, craft.main_body.terrain_height(land_point.lat, land_point.long), pid, 3, 10)
+  suicid_burn(craft, craft.main_body.terrain_height(land_point.lat, land_point.long), pid, 3, 10, true)
 
-  
   yield()
-  notif_green("Vessel has landed")
-  CONSOLE.clear()
   log_landing_with_target(craft, land_point, land_point.distance(craft))
   yield()
+
   const land_stage = Stage_Info(craft, craft.staging.current)
   const estimated_remaining_dv = total_dv_in_craft - dv_budget
   const actual_dv = land_stage.get_total_delta_v()
@@ -497,13 +501,15 @@ fn landing_computations (craft: Vessel, landing_point: Spot, margin: float) ->
   //==========================================
   // PRINT & LOG INFO
   //==========================================
-  add_centered_entry("=== PRECISE LANDING COMPUTATION ===")
+  empty_log()
+  add_centered_entry("<<======= PRECISE LANDING COMPUTATION =======>>")
   CONSOLE.clear()
   CONSOLE.print_line($"=== DATE: {time_to_date(current_time())}  ||  UT = {current_time():N1} s ===")
   skip_line(2)
   CONSOLE.print_line(" === ACTUAL ORBIT ===")
   CONSOLE.print_line($"Periapsis: {craft.orbit.periapsis:N0} m  ||  ETA = {time_to_clock(craft.orbit.next_periapsis_time(current_time())-current_time())}")
   CONSOLE.print_line($" Apoapsis: {craft.orbit.apoapsis.value:N0} m")
+  empty_log()
   log_section("ACTUAL ORBIT")
   add_left_entry($"{"Periapsis",-27} : {craft.orbit.periapsis:N0} m")
   add_left_entry($"{"ETA to periapsis", -27} : {time_to_clock(craft.orbit.next_periapsis_time(current_time())-current_time())}")
@@ -516,6 +522,7 @@ fn landing_computations (craft: Vessel, landing_point: Spot, margin: float) ->
   CONSOLE.print_line($"Longitude: {landing_point.long:N2}°")
   CONSOLE.print_line($" Altitude: {target_alt:N0} m")
   
+  empty_log()
   log_section("TARGET SITE")
   add_left_entry($"{"Name", -27} : {landing_point.name}")
   add_left_entry($"{"Latitude", -27} : {landing_point.lat:N2}°")
@@ -529,6 +536,7 @@ fn landing_computations (craft: Vessel, landing_point: Spot, margin: float) ->
   CONSOLE.print_line($"{"Powered descent: ",27} {descent_deltaV:N1} m/s")
   CONSOLE.print_line($"{"Suicide burn: ",27} {deltaV_suicid_burn:N1} m/s")
   
+  empty_log()
   log_section("DELTA-V BUDGET")
   add_left_entry($"{"Phasing & circularisation",-27} : {abs(deltaV_to_parking):N1} m/s")
   add_left_entry($"{"Approach maneuver",-27} : {abs(deltaV_to_approach):N1} m/s")
@@ -548,11 +556,15 @@ fn landing_computations (craft: Vessel, landing_point: Spot, margin: float) ->
   CONSOLE.print_line($"{"UT approach: ",21} {UT_approach,10:N1} s  ||  ETA: {time_to_clock(UT_approach - current_time())}")
   CONSOLE.print_line($"{"UT landing: ",21} {UT_at_landing,10:N1} s  ||  ETA: {time_to_clock(UT_at_landing - current_time())}")
 
+  empty_log()
   log_section("LANDING CHRONOLOGY")
   add_left_entry($"{"UT phase",-27} :{UT_phase,10:N1} s  ||  ETA: {time_to_clock(UT_phase - current_time())}")
   add_left_entry($"{"UT circularization: ",-27} :{UT_circ,10:N1} s  ||  ETA: {time_to_clock(UT_circ - current_time())}")
   add_left_entry($"{"UT approach: ",-27} :{UT_approach,10:N1} s  ||  ETA: {time_to_clock(UT_approach - current_time())}")
   add_left_entry($"{"UT landing: ",-27} :{UT_at_landing,10:N1} s  ||  ETA: {time_to_clock(UT_at_landing - current_time())}")
+  empty_log()
+  add_centered_entry("<<==============>>")
+  empty_log()
 
   (time_phase_to_circ: time_phase_to_circ,
   UT_circ: UT_circ,
@@ -671,9 +683,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
     } else {
       set_warp_index(floor(log10(ground_distance - delta_d)).to_int - 2)
     }
-    vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
     ground_distance = ground_dist(craft, land_point)
-    craft.autopilot.target_orientation = -1*craft.orbital_velocity
     CONSOLE.print_at(2, 0, $"  ETA Periapsis: {(craft.orbit.next_periapsis_time(current_time()) - current_time()):N2} s        ")
     CONSOLE.print_at(3, 0, $"Distance target: {ground_distance:N1} m        ")
     yield()
@@ -691,9 +701,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
     } else {
       set_warp_index(floor(log10(ground_distance - delta_d)).to_int - 2)
     }
-    vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
     ground_distance = ground_dist(craft, land_point)
-    craft.autopilot.target_orientation = -1*craft.orbital_velocity
     CONSOLE.print_at(2, 0, $"  ETA Periapsis: {(craft.orbit.next_periapsis_time(current_time()) - current_time()):N2} s        ")
     CONSOLE.print_at(3, 0, $"Distance target: {ground_distance:N1} m        ")
     yield()
@@ -714,11 +722,9 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
   while (ground_distance > (delta_d + margin_dist)) {
     set_warp_index(floor(log10(ground_distance - delta_d - margin_dist)).to_int - 2)
     if ((ground_distance - delta_d - margin_dist) > 250000) {set_warp_index(floor(log10(ground_distance - delta_d - margin_dist)).to_int)}
-    vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
     ground_distance = ground_dist(craft, land_point)  
-    craft.autopilot.target_orientation = -1*craft.orbital_velocity
     CONSOLE.print_at(2, 0, $"Surface velocity: {craft.surface_velocity.magnitude:N1} m/s        ")
-    CONSOLE.print_at(3, 0, $" Distance target: {vector_to_target.magnitude:N1} m        ")
+    CONSOLE.print_at(3, 0, $" Distance target: {ground_distance:N1} m        ")
     CONSOLE.print_at(5, 0, $" Burn in: {ground_distance - delta_d:N1} m        ")
     yield()
   }
@@ -726,7 +732,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
   wait_until(fn() -> current_warp_rate() < 1.1)
   yield()
 
-  approach_angle(craft, land_point)
+  approach_angle(craft, land_point, 0.0005)
   yield()
 
   orientation(craft, -1* craft.surface_velocity)

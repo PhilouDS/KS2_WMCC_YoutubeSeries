@@ -186,7 +186,7 @@ pub fn cancel_surface_velocity_with_target (craft: Vessel, land_point: Spot) -> 
   const throt = craft.set_throttle(1)
   sleep(0.25)
 
-  while (craft.surface_velocity.magnitude > 5) {
+  while (craft.surface_velocity.magnitude > 2) {
     check_staging(craft)
 
     guidance_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
@@ -226,7 +226,7 @@ pub fn cancel_surface_velocity_with_target (craft: Vessel, land_point: Spot) -> 
   CONSOLE.clear_line(7)
 }
 
-pub fn suicid_burn (craft: Vessel, terrain_alt: float, pid: PIDLoop, wanted_twr: float = 3, margin_alt: float = 10) -> Unit = {
+pub fn suicid_burn (craft: Vessel, terrain_alt: float, pid: PIDLoop, wanted_twr: float = 3, margin_alt: float = 10, log_target: bool = false) -> Unit = {
   const target_alt = terrain_alt
   const g_at_ldg_site = craft.main_body.grav_parameter / (craft.main_body.radius + target_alt)**2
 
@@ -307,7 +307,7 @@ pub fn suicid_burn (craft: Vessel, terrain_alt: float, pid: PIDLoop, wanted_twr:
   yield()
   notif_green("Vessel has landed")
   CONSOLE.clear()
-  log_landing(craft)
+  if (!log_target) {log_landing(craft)}
   yield()
 }
 

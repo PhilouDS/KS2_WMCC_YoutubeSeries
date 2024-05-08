@@ -1,0 +1,344 @@
+﻿Kerbal Space Program 2 with Kontrol System v. 0.5.9.1
+·_________________________________________________________________________________________·
+|                                   ~ MINMUS MONUMENT ~                                   |
+·‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾·
+|                                                                                         |
+|# GENERAL INFORMATION                                                                    |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|DATE              : 60 d 00 h 07 min 03 sec                                              |
+|                                                                                         |
+|CRAFT             : LV2.2T + MINLD0.49T                                                  |
+|                                                                                         |
+|MASS              : 35.604 t                                                             |
+|Theoric TWR       : 1.64                                                                 |
+|Delta-V Vaccum    : 6,436.28 m/s                                                         |
+|STAGE number      : 7                                                                    |
+|                                                                                         |
+|# LAUNCH - INITIAL DATA                                                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|WANTED APOAPSIS   : 160,000 m                                                            |
+|LAUNCH LATITUDE   : -0.55°                                                               |
+|WANTED INCLINATION: 6.0°                                                                 |
+|LAUNCH AZIMUTH    : 83.22°                                                               |
+|LAUNCH DATE       : 60 d 00 h 07 min 45 sec                                              |
+|                                                                                         |
+|# MISSION EVENTS                                                                         |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 01 sec: Liftoff                                                       |
+|  · Actual TWR    : 1.14                                                                 |
+|  · Actual Delta-V: 7,005.50 m/s                                                         |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 11 sec: Gravity turn started                                          |
+|  · Initial Speed: 46.0 m/s                                                              |
+|  · Initial Angle: 85.00°                                                                |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 19 sec: Following surface prograde vector: 87.3 m/s                   |
+|                                                                                         |
+|T+ 0 d 00 h 00 min 56 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 1.38                                                           |
+|  · ACTUAL Delta-V      : 5,582.40 m/s                                                   |
+|  · ALTITUDE            : 9,578.9 m                                                      |
+|  · SURFACE VELOCITY    : 462.65 m/s                                                     |
+|  · ORBITAL VELOCITY    : 776.46 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 44.868 kPa                                                     |
+|                                                                                         |
+|T+ 0 d 00 h 01 min 56 sec: Following orbital prograde vector: 1,391.3 m/s                |
+|                                                                                         |
+|T+ 0 d 00 h 03 min 26 sec: End of Gravity turn                                           |
+|                                                                                         |
+|T+ 0 d 00 h 03 min 59 sec: In space                                                      |
+|                                                                                         |
+|T+ 0 d 00 h 03 min 59 sec: Fairing jettisoned                                            |
+|                                                                                         |
+|T+ 0 d 00 h 04 min 00 sec: Hohmann transfer                                              |
+|  · Initial velocity: 3,336.41 m/s                                                       |
+|  · Final velocity  : 3,696.25 m/s                                                       |
+|  · Delta-V         : 359.84 m/s                                                         |
+|                                                                                         |
+|T+ 0 d 00 h 04 min 02 sec: New maneuver node                                             |
+|  · Delta-V             : 359.8 m/s                                                      |
+|  · Maneuver duration   : 12.22 s                                                        |
+|  · Time before maneuver: 0 d 00 h 04 min 04 sec                                         |
+|                                                                                         |
+|T+ 0 d 00 h 08 min 07 sec: Engine Ignition - maneuver started                            |
+|                                                                                         |
+|T+ 0 d 00 h 08 min 08 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 2.78                                                           |
+|  · ACTUAL Delta-V      : 2,595.77 m/s                                                   |
+|  · ALTITUDE            : 130,206.6 m                                                    |
+|  · SURFACE VELOCITY    : 2,908.22 m/s                                                   |
+|  · ORBITAL VELOCITY    : 3,380.82 m/s                                                   |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|                                                                                         |
+|T+ 0 d 00 h 08 min 09 sec: STAGING                                                       |
+|  · ACTUAL TWR          : 2.78                                                           |
+|  · ACTUAL Delta-V      : 2,595.77 m/s                                                   |
+|  · ALTITUDE            : 130,204.9 m                                                    |
+|  · SURFACE VELOCITY    : 2,912.68 m/s                                                   |
+|  · ORBITAL VELOCITY    : 3,385.84 m/s                                                   |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|T+ 0 d 00 h 08 min 26 sec: MECO - end of maneuver                                        |
+|T+ 0 d 00 h 08 min 26 sec: Actual velocity: 3,696.42 m/s                                 |
+|                                                                                         |
+|T+ 0 d 00 h 08 min 28 sec: Hohmann transfer                                              |
+|  · Initial velocity: 3,629.56 m/s                                                       |
+|  · Final velocity  : 3,646.30 m/s                                                       |
+|  · Delta-V         : 16.75 m/s                                                          |
+|                                                                                         |
+|T+ 0 d 00 h 08 min 46 sec: New maneuver node                                             |
+|  · Delta-V             : 16.7 m/s                                                       |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 23 min 57 sec                                         |
+|                                                                                         |
+|T+ 0 d 00 h 32 min 44 sec: Engine Ignition - maneuver started                            |
+|T+ 0 d 00 h 32 min 57 sec: MECO - end of maneuver                                        |
+|T+ 0 d 00 h 32 min 57 sec: Actual velocity: 3,646.39 m/s                                 |
+|                                                                                         |
+|# ORBIT CARACTERISTICS - (Body: Kerbin)                                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 160,374.66 m                                                |
+|Periapsis                  : 160,069.43 m                                                |
+|Argument of periapsis      : 167.1°                                                      |
+|Eccentricity               : 0.92 x 10^(-4)                                              |
+|Period                     : 0 d 00 h 47 min 40 sec                                      |
+|Inclination                : 5.84°                                                       |
+|Longitude of Ascending Node: 80.59°                                                      |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 0 d 00 h 57 min 18 sec: Transfer to Minmus started                                    |
+|                                                                                         |
+|T+ 0 d 01 h 19 min 48 sec: Hohmann transfer                                              |
+|  · Initial velocity: 3,646.44 m/s                                                       |
+|  · Final velocity  : 5,120.64 m/s                                                       |
+|  · Delta-V         : 1,474.20 m/s                                                       |
+|                                                                                         |
+|T+ 0 d 01 h 19 min 49 sec: New maneuver node                                             |
+|  · Delta-V             : 1,474.2 m/s                                                    |
+|  · Maneuver duration   : 39.54 s                                                        |
+|  · Time before maneuver: 0 d 00 h 03 min 54 sec                                         |
+|                                                                                         |
+|T+ 0 d 01 h 23 min 44 sec: Engine Ignition - transfer maneuver started                   |
+|T+ 0 d 01 h 24 min 29 sec: MECO - end of maneuver                                        |
+|T+ 0 d 01 h 24 min 30 sec: Actual velocity: 5,112.88 m/s                                 |
+|                                                                                         |
+|T+ 0 d 01 h 24 min 33 sec: End of the transfer maneuver in destination to: Minmus        |
+|                                                                                         |
+|T+ 0 d 01 h 24 min 47 sec: New maneuver node                                             |
+|  · Delta-V             : 1.3 m/s                                                        |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 59 min 36 sec                                         |
+|                                                                                         |
+|T+ 0 d 02 h 24 min 24 sec: Engine Ignition - maneuver started                            |
+|T+ 0 d 02 h 24 min 37 sec: MECO - end of maneuver                                        |
+|T+ 0 d 02 h 24 min 37 sec: Actual velocity: 2,084.62 m/s                                 |
+|                                                                                         |
+|T+ 15 d 05 h 47 min 03 sec: SOI of Minmus reached                                        |
+|                                                                                         |
+|T+ 15 d 05 h 47 min 15 sec: Science experiment started                                   |
+|  *** EnvironmentSurvey ***                                                              |
+|  · Location        : Minmus_HighOrbit_MinmusSnowdrifts                                  |
+|  · Data value      : 5.00                                                               |
+|  · Sample value    : 5.00                                                               |
+|  · Report size     : 10.00                                                              |
+|  · Time to complete: 0.00 s                                                             |
+|                                                                                         |
+|T+ 15 d 05 h 47 min 46 sec: New maneuver node                                            |
+|  · Delta-V             : 24.3 m/s                                                       |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 02 min 22 sec                                         |
+|                                                                                         |
+|T+ 15 d 05 h 50 min 09 sec: Engine Ignition - maneuver started                           |
+|T+ 15 d 05 h 50 min 22 sec: MECO - end of maneuver                                       |
+|T+ 15 d 05 h 50 min 22 sec: Actual velocity: 367.95 m/s                                  |
+|                                                                                         |
+|T+ 16 d 03 h 45 min 10 sec: Science experiment started                                   |
+|  *** EnvironmentSurvey ***                                                              |
+|  · Location        : Minmus_LowOrbit_MinmusSnowdrifts                                   |
+|  · Data value      : 5.00                                                               |
+|  · Sample value    : 5.00                                                               |
+|  · Report size     : 10.00                                                              |
+|  · Time to complete: 0.00 s                                                             |
+|                                                                                         |
+|# CAPTURE ORBIT - (Body: Minmus)                                                         |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 1,840,524.74 m                                              |
+|Periapsis                  : 10,357.24 m                                                 |
+|Argument of periapsis      : 294.1°                                                      |
+|Eccentricity               : 8,508.92 x 10^(-4)                                          |
+|Period                     : 3 d 00 h 31 min 44 sec                                      |
+|Inclination                : 58.87°                                                      |
+|Longitude of Ascending Node: 296.52°                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 18 d 01 h 00 min 00 sec: New maneuver node                                            |
+|  · Delta-V             : 10.0 m/s                                                       |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 00 min 53 sec                                         |
+|                                                                                         |
+|T+ 18 d 01 h 00 min 55 sec: Engine Ignition - maneuver started                           |
+|T+ 18 d 01 h 01 min 07 sec: MECO - end of maneuver                                       |
+|T+ 18 d 01 h 01 min 07 sec: Actual velocity: 26.04 m/s                                   |
+|                                                                                         |
+|                     <<======= PRECISE LANDING COMPUTATION =======>>                     |
+|# ACTUAL ORBIT                                                                           |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Periapsis                   : 10,700 m                                                   |
+|ETA to periapsis            : 1 d 03 h 19 min 29 sec                                     |
+|Apoapsis                    : 1,840,599 m                                                |
+|                                                                                         |
+|# TARGET SITE                                                                            |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Name                        : Minmus Monument                                            |
+|Latitude                    : 63.68°                                                     |
+|Longitude                   : -56.67°                                                    |
+|Altitude                    : 3,344 m                                                    |
+|                                                                                         |
+|# DELTA-V BUDGET                                                                         |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Phasing & circularisation   : 94.4 m/s                                                   |
+|Approach maneuver           : 0.6 m/s                                                    |
+|Powered descent             : 263.7 m/s                                                  |
+|Suicide burn                : 75.4 m/s                                                   |
+|=> Total                    : 434.1 m/s                                                  |
+|                                                                                         |
+|# LANDING CHRONOLOGY                                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|UT phase                    :1,700,918.9 s  ||  ETA: 1 d 03 h 19 min 28 sec              |
+|UT circularization:         :1,708,457.4 s  ||  ETA: 1 d 05 h 25 min 07 sec              |
+|UT approach:                :1,711,775.9 s  ||  ETA: 2 d 00 h 20 min 25 sec              |
+|UT landing:                 :1,714,015.1 s  ||  ETA: 2 d 00 h 57 min 44 sec              |
+|                                                                                         |
+|                                    <<==============>>                                   |
+|                                                                                         |
+|T+ 18 d 01 h 02 min 05 sec: New maneuver node                                            |
+|  · Delta-V             : 50.8 m/s                                                       |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 1 d 03 h 18 min 43 sec                                         |
+|                                                                                         |
+|T+ 19 d 04 h 20 min 49 sec: Engine Ignition - maneuver started                           |
+|                                                                                         |
+|T+ 19 d 04 h 20 min 51 sec: STAGING                                                      |
+|  · ACTUAL TWR          : 0.17                                                           |
+|  · ACTUAL Delta-V      : 610.21 m/s                                                     |
+|  · ALTITUDE            : 10,701.0 m                                                     |
+|  · SURFACE VELOCITY    : 308.41 m/s                                                     |
+|  · ORBITAL VELOCITY    : 317.12 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|                                                                                         |
+|T+ 19 d 04 h 20 min 52 sec: STAGING                                                      |
+|  · ACTUAL TWR          : 0.17                                                           |
+|  · ACTUAL Delta-V      : 610.21 m/s                                                     |
+|  · ALTITUDE            : 10,700.0 m                                                     |
+|  · SURFACE VELOCITY    : 308.16 m/s                                                     |
+|  · ORBITAL VELOCITY    : 316.76 m/s                                                     |
+|  · ATMOSPHERIC PRESSURE: 0.000 kPa                                                      |
+|T+ 19 d 04 h 21 min 01 sec: MECO - end of maneuver                                       |
+|T+ 19 d 04 h 21 min 01 sec: Actual velocity: 305.44 m/s                                  |
+|                                                                                         |
+|# PHASE ORBIT - (Body: Minmus)                                                           |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 190,222.05 m                                                |
+|Periapsis                  : 10,693.71 m                                                 |
+|Argument of periapsis      : 304.0°                                                      |
+|Eccentricity               : 3,584.00 x 10^(-4)                                          |
+|Period                     : 0 d 02 h 04 min 56 sec                                      |
+|Inclination                : 68.89°                                                      |
+|Longitude of Ascending Node: 276.28°                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 19 d 04 h 21 min 11 sec: New maneuver node                                            |
+|  · Delta-V             : 43.4 m/s                                                       |
+|  · Maneuver duration   : 10.62 s                                                        |
+|  · Time before maneuver: 0 d 02 h 04 min 44 sec                                         |
+|                                                                                         |
+|T+ 20 d 00 h 25 min 56 sec: Engine Ignition - maneuver started                           |
+|T+ 20 d 00 h 26 min 09 sec: MECO - end of maneuver                                       |
+|T+ 20 d 00 h 26 min 09 sec: Actual velocity: 261.83 m/s                                  |
+|                                                                                         |
+|# CIRCULAR ORBIT - (Body: Minmus)                                                        |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 10,831.11 m                                                 |
+|Periapsis                  : 9,959.53 m                                                  |
+|Argument of periapsis      : 77.7°                                                       |
+|Eccentricity               : 27.17 x 10^(-4)                                             |
+|Period                     : 0 d 01 h 04 min 01 sec                                      |
+|Inclination                : 68.76°                                                      |
+|Longitude of Ascending Node: 276.50°                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 20 d 00 h 26 min 14 sec: New maneuver node                                            |
+|  · Delta-V             : 0.6 m/s                                                        |
+|  · Maneuver duration   : 10.00 s                                                        |
+|  · Time before maneuver: 0 d 00 h 54 min 35 sec                                         |
+|                                                                                         |
+|T+ 20 d 01 h 20 min 50 sec: Engine Ignition - maneuver started                           |
+|T+ 20 d 01 h 21 min 01 sec: MECO - end of maneuver                                       |
+|T+ 20 d 01 h 21 min 01 sec: Actual velocity: 261.04 m/s                                  |
+|                                                                                         |
+|# APPROACH ORBIT - (Body: Minmus)                                                        |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|Apoapsis                   : 10,836.35 m                                                 |
+|Periapsis                  : 8,582.99 m                                                  |
+|Argument of periapsis      : 66.9°                                                       |
+|Eccentricity               : 70.55 x 10^(-4)                                             |
+|Period                     : 0 d 01 h 03 min 37 sec                                      |
+|Inclination                : 68.80°                                                      |
+|Longitude of Ascending Node: 276.64°                                                     |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|T+ 20 d 01 h 53 min 01 sec: Data calculation for last burn                               |
+|                                                                                         |
+|# LANDING PROCEDURE                                                                      |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|TWR              : 3.00                                                                  |
+|Delta-v needed   : 48.69 m/s                                                             |
+|Ignition duration: 52.82 s                                                               |
+|Ignition altitude: 1,285.93 m                                                            |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|                                                                                         |
+|# LANDING DONE                                                                           |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|T+ 20 d 01 h 55 min 45 sec: Vessel stable                                                |
+|LOCATION                                                                                 |
+|  · Minmus / Minmus_Landed_MinmusMonument                                                |
+|  · Landed                                                                               |
+|COORDINATES                                                                              |
+|  · latitude    : 63.61°                                                                 |
+|  · longitude   : -56.57°                                                                |
+|  · altitude asl: 4,542.5 m                                                              |
+|                                                                                         |
+|LANDING POINT                                                                            |
+|  · Minmus Monument / Minmus                                                             |
+|  · latitude    : 63.68°                                                                 |
+|  · longitude   : -56.67°                                                                |
+|  · Distance    : 286.7 m                                                                |
+|                                                                                         |
+|T+ 20 d 01 h 55 min 56 sec: Science experiment started                                   |
+|  *** wmcc_telemetry_report ***                                                          |
+|  · Location        : Minmus_Landed_MinmusMonument                                       |
+|  · Data value      : 3.00                                                               |
+|  · Sample value    : 0.00                                                               |
+|  · Report size     : 4.00                                                               |
+|  · Time to complete: 30.00 s                                                            |
+|                                                                                         |
+|T+ 20 d 01 h 55 min 56 sec: Science experiment started                                   |
+|  *** EnvironmentSurvey ***                                                              |
+|  · Location        : Minmus_Landed_MinmusMonument                                       |
+|  · Data value      : 5.00                                                               |
+|  · Sample value    : 5.00                                                               |
+|  · Report size     : 10.00                                                              |
+|  · Time to complete: 0.00 s                                                             |
+|_________________________________________________________________________________________|
+|                                 ~ END OF THE MISSION ~                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾|
+|                                                                                         |
+|# RECAP                                                                                  |
+|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾                                             |
+|END UT      : 80 d 02 h 04 min 11 sec                                                    |
+|MISSION TIME: 20 d 01 h 56 min 27 sec                                                    |
+|                                                                                         |
+|DATA VALUE  : 18.00                                                                      |
+|SAMPLE VALUE: 15.00                                                                      |
+|                                                                                         |
+·_________________________________________________________________________________________·

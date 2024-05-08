@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "MINMUS - LV2.2T + MINLD0.49T",
+  "VehicleName": "LV2.2T + MINLD0.49T",
+  "Description": "Launch Vehicle -> Minmus lander 0.49T - dv ~6700 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\MINMUS - LV2.2T + MINLD0.49T.png",
+  "Mass": 35.6537247,
+  "SaveTime": 638507658484532577,
+  "Parts": 43,
+  "Stages": 7,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

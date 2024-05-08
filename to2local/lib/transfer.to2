@@ -344,7 +344,7 @@ pub fn adjust_periapsis (craft: Vessel, wanted_per: float, margin_value: float =
   CONSOLE.clear()
   let per_node = craft.maneuver.add(current_time() + 180, 0, 0, 0).value
   
-  let delta_applied = 0.1
+  let delta_applied = 1.0
 
   let value_list: float[] = []
 
@@ -356,6 +356,7 @@ pub fn adjust_periapsis (craft: Vessel, wanted_per: float, margin_value: float =
 
   while (abs(old_per - wanted_per) > margin_value) {
     if (abs(old_per - wanted_per) < 5*margin_value) {delta_applied = delta_change}
+    else if (abs(old_per - wanted_per) < 30*margin_value) {delta_applied = 0.1}
     CONSOLE.print_at(0,0,$"    Delta: {delta_applied:N2} m/s   ")
     CONSOLE.print_at(4,0,$"Periapsis: {old_per:N2} m               ")
     CONSOLE.print_at(6,0,$" Prograde: {per_node.prograde:N2} m/s   ")

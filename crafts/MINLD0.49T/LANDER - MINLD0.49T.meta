@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "LANDER - MINLD0.49T",
+  "VehicleName": "MINLD0.49T",
+  "Description": "Minmus Lander -> 0.49T with Science Jr & Telemetry report",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LANDER - MINLD0.49T.png",
+  "Mass": 0.494625,
+  "SaveTime": 638507657792441529,
+  "Parts": 23,
+  "Stages": 1,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}
