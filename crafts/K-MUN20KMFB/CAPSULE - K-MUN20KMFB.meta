@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "CAPSULE - K-MUN20KMFB",
+  "VehicleName": "LV5.9T + K-MUN20KMFB",
+  "Description": "Fly-by of the mun",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\CAPSULE - K-MUN20KMFB.png",
+  "Mass": 70.15328,
+  "SaveTime": 638500050544692899,
+  "Parts": 37,
+  "Stages": 7,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

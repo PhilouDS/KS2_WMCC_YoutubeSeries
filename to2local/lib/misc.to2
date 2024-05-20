@@ -10,7 +10,7 @@ use { CONSOLE } from ksp::console
 use { CONSOLE_WINDOW, screen_size, open_window, Align, Window, Container } from ksp::ui
 use { wait_until, sleep, notification_alert, notification_passive, Importance, yield, wait_while } from ksp::game
 use { warp_to, current_warp_rate, set_warp_index } from ksp::game::warp
-use { Vessel } from ksp::vessel
+use { Vessel, AutopilotMode } from ksp::vessel
 use { SAVE_LOAD_CONTROL } from ksp::debug
 
 //____________________________________________________
@@ -32,6 +32,7 @@ pub fn save_now (craft: Vessel) -> Unit = {
   CONSOLE.print_at(15, 0, "quick save done")
   yield()
   craft.autopilot.enabled = false // SAS
+  craft.autopilot.mode = AutopilotMode.Autopilot
   sleep(0.1)
 }
 
@@ -107,7 +108,7 @@ pub fn manual_action (craft: Vessel, title: string) -> Unit = {
 //===============================
 //-> end of mission to close the terminal
 //===============================
-pub fn end_of_mission (craft: Vessel, recover: bool = false) -> Unit = {
+pub fn end_of_mission (craft: Vessel, recover: bool = false, new_name: string = "") -> Unit = {
   CONSOLE.clear()
   craft.set_throttle(0)
   print_title("End of the mission.", CONSOLE.cursor_row, false)
@@ -120,6 +121,7 @@ pub fn end_of_mission (craft: Vessel, recover: bool = false) -> Unit = {
   notif_green("Script finished")
   yield()
   CONSOLE_WINDOW.close()
+  craft.name = new_name
   yield()
   if (recover) {
     SAVE_LOAD_CONTROL.try_recover_vessel()
@@ -164,7 +166,7 @@ pub sync fn hms (f: float) -> string = {
 //===============================
 // -> Minimum of a list
 //===============================
-pub fn min_of_list (list: float[]) -> (min: float, idx: int) = {
+pub sync fn min_of_list (list: float[]) -> (min: float, idx: int) = {
   let temp_min = list[0]
   let temp_idx = 0
   for (i in 0..list.length) {

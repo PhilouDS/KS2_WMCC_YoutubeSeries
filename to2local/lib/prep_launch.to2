@@ -1,4 +1,4 @@
-// Last modification - KONTROL SYSTEM 2 - v0.5.8.5
+// Last modification - KONTROL SYSTEM 2 - v0.5.9.2
 //____________________________________________________
 // CORE LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -8,11 +8,12 @@ use { format } from core::str
 // KSP LIBRARIES
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 use { CONSOLE } from ksp::console
-use { CONSOLE_WINDOW } from ksp::ui
+use { CONSOLE_WINDOW, screen_size, open_window, open_centered_window, Align, Window, Container, StringInputField } from ksp::ui
 use { MAINFRAME, Process, sleep, yield, current_time } from ksp::game
 use { open_log_file, LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
 use { Vessel, DeltaVSituation, AutopilotMode, Targetable } from ksp::vessel
-use { Orbit, Body } from ksp::orbit
+use { get_vessels_in_range, get_all_owned_vessels } from ksp::vessel
+use { Orbit, Body, find_body } from ksp::orbit
 
 //____________________________________________________
 // PERSONAL LIBRARIES
@@ -22,11 +23,87 @@ use { Stage_Info } from lib::my_structures
 use * from lib::mission_logs
 use * from lib::my_constants
 
+pub const window_width: float = 500
+pub const window_height: float = 250
+
+pub const last_modification: string = "0.5.9.2"
+
 
 //____________________________________________________
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+//===============================
+//-> find specific vessel
+//===============================
+
+pub fn find_vessels(info: string, body_name: string = "a") -> Vessel[] = {
+  let vessels = get_all_owned_vessels().filter(fn(v) -> v.name.to_lower().contains(info.to_lower()))
+  if (find_body(body_name).success) {
+    vessels = vessels.filter(fn(v) -> v.main_body.name == body_name)
+  }
+  vessels
+}
+
+//===============================
+//-> find specific vessel with UI
+//===============================
+
+pub fn choose_vessel (craft: Vessel) -> Vessel = {
+  const vessels: Vessel[] = get_all_owned_vessels()
+  const names_of_vessels = vessels.sort_by(fn(v) -> v.main_body.name).map(fn(v) -> v.name)
+  const names_and_body = vessels.sort_by(fn(v) -> v.main_body.name).map(fn(v) -> $"{v.main_body.name, 10} -- {v.name}")
+
+  const selected_vessel = Cell(craft.name)
+  const different_vessel_selected = Cell(false)
+  const vessel_window = open_centered_window("<b>CHOOSE VESSEL TO TARGET</b>", window_width, window_height)
+  
+  vessel_window.add_spacer(5)
+
+  create_version_box(vessel_window, last_modification)
+
+  vessel_window.add_spacer(10)
+
+  const dropdown = vessel_window.add_dropdown(names_and_body)
+
+  vessel_window.add_spacer(10)
+
+  const button_box = vessel_window.add_vertical(gap_box, Align.Stretch)
+  
+  const validate_button = button_box.add_button("Choose vessel", Align.Stretch)
+  validate_button.font_size = button_font_size
+
+  while (!vessel_window.is_closed) { 
+    validate_button.on_click(fn() -> {
+      vessel_window.close()
+    })
+    dropdown.on_change(fn(i) -> {
+      selected_vessel.value = names_of_vessels[i]
+      if (selected_vessel.value != craft.name) {
+        different_vessel_selected.value = true
+      }
+    })
+    yield()
+  }
+
+  const choice = find_vessels(selected_vessel.value)[0]
+
+  if (different_vessel_selected.value) {
+    CONSOLE.print_line($"Targeting the vessel:\n   {choice.name} on {choice.main_body.name}")
+  } else {
+    CONSOLE.clear()
+    console_size(600,400)
+    yield()
+    CONSOLE.print_line(" === ERROR ===")
+    CONSOLE.print_line("   Please select a different vessel or a new script.")
+    yield()
+    MAINFRAME.available_processes.filter(fn(p) -> (p.name.contains("missions") && p.is_running))[0].stop()
+  }
+
+  sleep(1)
+
+  choice
+}
 
 //===============================
 //-> check for particular parts
@@ -44,6 +121,7 @@ pub fn start_with_target (craft: Vessel, title: string, targ: Body, refresh_log:
   CONSOLE_WINDOW.open()
   console_size(400,500)
   notif_green("Initialisation of the script")
+  CONSOLE.print_line($" => {craft.name} is the active vessel.")
   const this_mission = MAINFRAME.available_processes.filter(fn(p) -> p.is_running)[0]
   sleep(0.5)
   craft.target = targ
@@ -89,12 +167,11 @@ pub fn start (craft: Vessel, title: string, refresh_log: bool = true) -> Unit = 
   craft.autopilot.mode = AutopilotMode.Autopilot
 }
 
-pub fn go_to_orbit(craft: Vessel, targetApo: float, launcher: string) -> Unit = {
-  MAINFRAME.available_processes.filter(fn(p) -> p.name == "to_orbit")[0].start(craft, [targetApo.to_string(), launcher])
+pub fn go_to_orbit(craft: Vessel, targetApo: float, launcher: string, perc: float = 0.95) -> Unit = {
+  MAINFRAME.available_processes.filter(fn(p) -> p.name == "to_orbit")[0].start(craft, [targetApo.to_string(), launcher, perc.to_string()])
   yield()
   MAINFRAME.available_processes.filter(fn(p) -> (p.name.contains("missions") && p.is_running))[0].stop()
 }
-
 
 // //===============================
 // //-> logs GT parameters of the craft and returns it

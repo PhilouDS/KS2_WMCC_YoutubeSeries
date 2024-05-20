@@ -1,0 +1,120 @@
+// Last modification - KONTROL SYSTEM 2 - v0.5.8.1
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round, clamp_degrees360, floor, log10, acos_deg } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { MAINFRAME, sleep, wait_until, yield, current_time, wait_while } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index, cancel_warp } from ksp::game::warp
+use { LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation, ManeuverNode, ParachuteDeployState } from ksp::vessel
+use { Orbit, find_body, Body } from ksp::orbit
+use { pid_loop, PIDLoop } from ksp::control
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::prep_launch
+use * from lib::show_info
+use * from lib::science
+use * from lib::system
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::transfer
+use * from lib::landing
+use * from lib::precise_landing
+use { Spot } from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, targetApo: float = 170000) -> Unit = {  
+  CONSOLE.clear()
+  CONSOLE_WINDOW.open()
+  console_size(400,500)
+  sleep(0.5)
+
+  const launcher = "LV42T"
+  ship.name = "K_MUNLD9.2T"
+
+  // LANDING POINT
+  const targ = choose_vessel(ship)
+  const targeted_vessel = Spot(targ.name, targ.geo_coordinates.latitude, targ.geo_coordinates.longitude, targ.main_body.name)
+
+  const preLaunch = ship.situation == VesselSituation.PreLaunch
+
+  const ship_target = start_with_target(ship, $"A KERBAL ON THE SURFACE OF THE MUN", Mun, preLaunch)
+
+  if (preLaunch) {go_to_orbit(ship, targetApo, launcher, 0.99)}
+
+  let final_science = 0.0
+
+  if (ship.main_body.name == "Kerbin") {
+    deploy_systems(ship)
+    transfer_to_orbiting_body(ship, ship_target, 30_000, true, true)
+    yield()
+  }
+  
+  if (ship.main_body.name == ship_target.name && ship.situation != VesselSituation.Landed && ship.situation != VesselSituation.Splashed) {
+    save_now(ship)
+    do_warp(ship.orbit.next_periapsis_time(current_time()) - 20)
+
+    capture_SOI(ship, 0.95)
+    sleep(0.1)
+    
+    const suicid_burn_pid = pid_loop(1.65, 6.741573, 0.100959, 0.01, 1)
+    sleep(0.1)
+
+    precise_landing(ship, targeted_vessel, suicid_burn_pid, 7_000, 10_000, 1.2)
+    sleep(0.1)
+    
+    final_science += run_science(ship, true, false)      
+    final_science += run_env_survey(ship, true, false)
+    yield()
+  }
+
+  if (ship.situation == VesselSituation.Landed || ship.situation == VesselSituation.Splashed) {
+    manual_action(ship, "Ready to go?")
+    yield()
+
+    transfer_from_orbiting_body(ship, 20000, 3.5)
+    yield()
+  }
+
+  while (ship.altitude_sealevel > 500_000) {
+    set_warp_index(floor(log10(ship.altitude_sealevel)).to_int)
+    yield()
+  }
+  cancel_warp()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  yield()
+  CONSOLE.clear()
+
+  reentry_and_landing(ship)
+  yield()
+
+  final_science += run_science(ship, true, false)      
+  yield()
+  
+  log_end_mission(ship, final_science)
+  yield()
+
+  end_of_mission(ship, false)
+}

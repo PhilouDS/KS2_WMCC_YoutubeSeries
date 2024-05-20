@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "CAPSULE - LV3.4T + K-OBT200KM",
+  "VehicleName": "LV3.4T + K-OBT200KM",
+  "Description": "Capsule OBT + Launcher",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\CAPSULE - LV3.4T + K-OBT200KM.png",
+  "Mass": 54.59557,
+  "SaveTime": 638499238400218566,
+  "Parts": 44,
+  "Stages": 9,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

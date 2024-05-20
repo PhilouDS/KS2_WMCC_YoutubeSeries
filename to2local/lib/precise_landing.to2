@@ -49,7 +49,7 @@ use * from lib::my_constants
 // MAIN FUNCTION
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
-pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: float = 5000, wanted_per: float = 15000, file: LogFile = MAIN_LOG) -> Unit = {
+pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: float = 5000, wanted_per: float = 15000, coef_delta_d: float = 0.92, file: LogFile = MAIN_LOG) -> Unit = {
   CONSOLE.clear()
   CONSOLE_WINDOW.size = vec2(400,500)
 
@@ -115,7 +115,7 @@ pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: f
   
 
   CONSOLE.clear()
-  yield()
+  sleep(0.1)
   info_orbit(craft, 1)
   yield()
   sleep(2)
@@ -229,7 +229,7 @@ pub fn precise_landing (craft: Vessel, land_point: Spot, pid: PIDLoop, margin: f
   CONSOLE.clear()
   CONSOLE.print_line(" === GOING TO BRAKING POINT ===")
 
-  prepare_to_brake(craft, land_point, target_alt)
+  prepare_to_brake(craft, land_point, target_alt, coef_delta_d)
 
   yield()
 
@@ -641,7 +641,7 @@ fn phasing_mnv (craft: Vessel, time_to_circ: float, vel_per: float, UT: float) -
 }
 
 
-fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: LogFile = MAIN_LOG) -> Unit = {
+fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, coef_delta_d: float = 0.92, file: LogFile = MAIN_LOG) -> Unit = {
   const frame = craft.main_body.celestial_frame
   const throt = craft.set_throttle(0)
 
@@ -674,7 +674,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
     yield()
   }
 
-  delta_d = 0.92*delta_d
+  delta_d = coef_delta_d*delta_d
   yield()
 
   while (ground_distance > delta_d + 80_000) {
@@ -717,7 +717,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
   
   CONSOLE.clear_line(2)
 
-  const margin_dist = 7500.0
+  const margin_dist = 10000.0
 
   while (ground_distance > (delta_d + margin_dist)) {
     set_warp_index(floor(log10(ground_distance - delta_d - margin_dist)).to_int - 2)
@@ -732,7 +732,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
   wait_until(fn() -> current_warp_rate() < 1.1)
   yield()
 
-  approach_angle(craft, land_point, 0.0005)
+  approach_angle(craft, land_point, 0.0005, delta_d)
   yield()
 
   orientation(craft, -1* craft.surface_velocity)
@@ -754,7 +754,7 @@ fn prepare_to_brake (craft: Vessel, land_point: Spot, target_alt: float, file: L
 
 
 
-fn approach_angle (craft: Vessel, land_point: Spot, delta_margin: float = 0.0005, file:LogFile = MAIN_LOG) -> Unit = {
+fn approach_angle (craft: Vessel, land_point: Spot, delta_margin: float = 0.0005, delta_d: float = 0.0, file:LogFile = MAIN_LOG) -> Unit = {
   const frame = craft.main_body.celestial_frame
   const target_alt = craft.main_body.terrain_height(land_point.lat, land_point.long)
   let vector_to_target = (land_point.geo_coord().global_altitude_position(target_alt) - craft.global_position)
@@ -769,13 +769,21 @@ fn approach_angle (craft: Vessel, land_point: Spot, delta_margin: float = 0.0005
   let dir = euler(st_p, st_y, st_r).to_global(craft.horizon_frame).to_local(frame)
 
   orientation(craft, dir.vector)
+  let last_distance = ground_dist(craft, land_point)
+  let min_delta = 50.0
   yield()
   
-  while (abs(delta) > delta_margin) {
+  while (abs(delta) > delta_margin && last_distance > delta_d + 5000) {
     throt.throttle = abs(delta)/2.5
     local_vec_to_target_nav = navball(craft, vector_to_target.to_local(frame).to_direction())
     wanted_yaw = deg360(180 + local_vec_to_target_nav.y)
+    min_delta = min(min_delta, abs(navball(craft, (-1*craft.surface_velocity).to_direction()).y - wanted_yaw))
     delta = navball(craft, (-1*craft.surface_velocity).to_direction()).y - wanted_yaw
+    if (abs(delta) > min_delta) {break}
+    last_distance = ground_dist(craft, land_point)
+    CONSOLE.print_at(2, 0, $"Surface velocity: {craft.surface_velocity.magnitude:N1} m/s        ")
+    CONSOLE.print_at(3, 0, $" Distance target: {vector_to_target.magnitude:N1} m        ")
+    CONSOLE.print_at(5, 0, $" Burn in: {last_distance - delta_d:N1} m        ")
     CONSOLE.print_at(10, 0, $"delta: {delta:N4}°")
     check_staging(craft, file)
     yield()

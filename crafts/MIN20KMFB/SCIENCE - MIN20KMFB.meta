@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "SCIENCE - MIN20KMFB",
+  "VehicleName": "MIN20KMFB",
+  "Description": "Fly by to Minmus. dv = 1934 m/s // Mass = 3.37T",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\SCIENCE - MIN20KMFB.png",
+  "Mass": 3.3715,
+  "SaveTime": 638508487742464776,
+  "Parts": 24,
+  "Stages": 3,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}

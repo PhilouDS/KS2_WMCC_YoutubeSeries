@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "MINMUS - LV4.1T + MIN20KMFB",
+  "VehicleName": "LV4.1T + MIN20KMFB",
+  "Description": "Minmus flyby + Launcher : dv 6200 m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\MINMUS - LV4.1T + MIN20KMFB.png",
+  "Mass": 63.7128029,
+  "SaveTime": 638513054900888949,
+  "Parts": 52,
+  "Stages": 7,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

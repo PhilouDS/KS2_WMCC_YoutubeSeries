@@ -1,0 +1,148 @@
+// Last modification - KONTROL SYSTEM 2 - v0.5.9.1
+//____________________________________________________
+// CORE LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { sqrt, max, min, abs, round, clamp_degrees360, floor, log10, acos_deg } from core::math
+use { format } from core::str
+
+//____________________________________________________
+// KSP LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use { MAINFRAME, Process, sleep, wait_until, yield, current_time, wait_while } from ksp::game
+use { warp_to, current_warp_rate, set_warp_index, cancel_warp } from ksp::game::warp
+use { open_log_file, LogFile, MAIN_LOG, SAVE_LOAD_CONTROL } from ksp::debug
+use { CONSOLE } from ksp::console
+use { CONSOLE_WINDOW } from ksp::ui
+use { vec2 } from ksp::math
+use { Vessel, AutopilotMode, DeltaVSituation, VesselSituation, ManeuverNode, ParachuteDeployState } from ksp::vessel
+use { Orbit, find_body, Body } from ksp::orbit
+use { pid_loop, PIDLoop } from ksp::control
+
+//____________________________________________________
+// PERSONAL LIBRARIES
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+use * from lib::misc
+use * from lib::mission_logs
+use * from lib::prep_launch
+use * from lib::show_info
+use * from lib::science
+use * from lib::system
+use * from lib::in_flight
+use * from lib::adjusted_mnv
+use * from lib::transfer
+use * from lib::landing
+use * from lib::precise_landing
+use { Spot } from lib::my_structures
+
+//____________________________________________________
+// GLOBAL CONSTANTS
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+use * from lib::my_constants
+
+
+//____________________________________________________
+// MAIN FUNCTION
+//‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+
+pub fn main_flight (ship: Vessel, targetApo: float = 130000) -> Unit = {
+  CONSOLE.clear()
+  CONSOLE_WINDOW.open()
+  console_size(400,500)
+  sleep(0.5)
+
+  const launcher = "LV5.9T"
+  ship.name = "K-MUN20KMFB"
+
+  const preLaunch = ship.situation == VesselSituation.PreLaunch
+
+  const ship_target = start_with_target(ship, "A KERBAL AROUND THE MUN", Mun, preLaunch)
+
+  if (preLaunch) {go_to_orbit(ship, targetApo, launcher)}
+
+  let final_science = 0.0
+
+  gears_on_off(ship)
+  sleep(1)
+  deploy_panels(ship)
+  sleep(1)
+  deploy_antenna(ship)
+  sleep(1)
+  lights_on_off(ship)
+  sleep(1)
+
+  precise_orbit_node(ship, ship_target)
+
+  transfer_to_orbiting_body(ship, ship_target, -2000, false, false)
+  yield()
+
+  fly_by(ship)
+  sleep(0.1)
+
+  warp_SOI(ship, ship_target)
+  yield()
+
+  save_now(ship)
+  yield()
+
+  final_science += run_science(ship, true, false)      
+  yield()
+
+  if (ship.orbit.periapsis > 25000 || ship.orbit.periapsis < 0) {
+    const precise_periapsis = adjust_periapsis(ship, 15000, 1500, 0.01)
+    yield()
+    CONSOLE.clear()
+    exe_mnv(ship, precise_periapsis.burn_vector.magnitude, false)
+    yield()
+    CONSOLE.clear()
+  }
+
+  let kerbin_per_node = set_periapsis_next_patch(ship, 600_000, ship.maneuver.add(ship.orbit.next_periapsis_time(), 0, 0, 0).value, 100000, 20)
+  kerbin_per_node = set_periapsis_next_patch(ship, 100_000, kerbin_per_node, 5000, 5)
+  kerbin_per_node = set_periapsis_next_patch(ship, 60_000, kerbin_per_node, 2500, 1)
+
+  manual_action(ship, "Adjust next maneuver node")
+  
+  do_warp(kerbin_per_node.time - 90)
+
+  wait_until(fn() -> ship.altitude_sealevel < 70_000)
+  sleep(0.25)
+
+  final_science += run_science(ship, true, false)      
+  yield()
+
+  ship.autopilot.enabled = false // SAS
+  ship.autopilot.mode = AutopilotMode.Autopilot
+  yield()
+
+  exe_mnv(ship, kerbin_per_node.burn_vector.magnitude, false)
+
+  warp_SOI(ship, Kerbin)
+  yield()
+
+  const precise_periapsis = adjust_periapsis(ship, 45000, 1500, 0.05)
+  yield()
+  CONSOLE.clear()
+  exe_mnv(ship, precise_periapsis.burn_vector.magnitude, false)
+  yield()
+  CONSOLE.clear()
+
+  while (ship.altitude_sealevel > 500_000) {
+    set_warp_index(floor(log10(ship.altitude_sealevel)).to_int)
+    yield()
+  }
+  cancel_warp()
+  wait_until(fn() -> current_warp_rate() < 1.1)
+  yield()
+  CONSOLE.clear()
+
+  reentry_and_landing(ship)
+  yield()
+
+  final_science += run_science(ship, true, false)
+
+  log_end_mission_old(ship, final_science)
+  yield()
+
+  end_of_mission(ship, false)
+}

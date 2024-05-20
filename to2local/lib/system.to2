@@ -10,6 +10,17 @@ use * from lib::misc
 // FUNCTIONS
 //‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 
+pub fn deploy_systems (craft: ksp::vessel::Vessel) -> Unit = {
+  gears_on_off(craft)
+  sleep(1)
+  deploy_panels(craft)
+  sleep(1)
+  deploy_antenna(craft)
+  sleep(1)
+  lights_on_off(craft)
+  sleep(1)
+}
+
 pub fn gears_on_off (craft: ksp::vessel::Vessel, on: bool = true) -> Unit = {
   craft.actions.gear = on
   yield()

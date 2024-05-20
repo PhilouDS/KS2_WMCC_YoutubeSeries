@@ -105,9 +105,11 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true, file: Log
   orientation(craft, nextNode.burn_vector)
   log_mission_event(craft, "Engine Ignition - maneuver started", file)
 
+  craft.autopilot.mode = AutopilotMode.Maneuver
+
   while (dv_min.value >= 0.01) {
     const ut = current_time()
-    craft.autopilot.target_orientation = nextNode.burn_vector
+    //craft.autopilot.target_orientation = nextNode.burn_vector
     check_staging(craft, file)
     const dv = target_orbit.orbital_velocity(ut) - craft.orbit.orbital_velocity(ut)
     let max_acc = craft.available_thrust / craft.mass
@@ -122,8 +124,11 @@ pub fn exe_mnv (craft: Vessel, dv_mnv: float, adjust_mnv: bool = true, file: Log
     yield()
   }
   craft_throttle.release()
+  craft.autopilot.mode = AutopilotMode.Autopilot
   yield()
-  CONSOLE.print_at(13,0, $"    Throttle: 0.00%  ")
+  CONSOLE.clear_line(13)
+  yield()
+  CONSOLE.print_at(13,0, $"    Throttle: 0.00%")
   sleep(1)
   while (craft.maneuver.next_node().success) {
     craft.maneuver.next_node().value.remove()
@@ -393,7 +398,7 @@ pub fn change_periapsis_here (craft: Vessel, wanted_pe: float) -> Unit = {
   if (craft.orbit.periapsis < wanted_pe) {
     orientation(craft, craft.orbital_velocity)
     while (craft.orbit.periapsis < wanted_pe) {
-      craft.set_throttle(0.01)
+      craft.set_throttle(max(0.01, 30 * (abs(wanted_pe - craft.orbit.periapsis))/craft.available_thrust))
       yield()
     }
     craft.set_throttle(0)

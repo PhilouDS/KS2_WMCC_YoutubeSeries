@@ -1,0 +1,15 @@
+{
+  "VersionString": "0.2",
+  "Name": "LANDER - K-MUNLD9T",
+  "VehicleName": "K-MUNLD9T",
+  "Description": "Kerballed Lander for the mun. ~1800m/s",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\LANDER - K-MUNLD9T.png",
+  "Mass": 9.5955,
+  "SaveTime": 638514902534459171,
+  "Parts": 38,
+  "Stages": 3,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": []
+}

@@ -34,8 +34,8 @@ pub fn info_gt(craft: Vessel, start_row: int, obt: bool = true) -> Unit = {
 }
 
 pub fn info_orbit(craft: Vessel, start_row: int) -> Unit = {
-  CONSOLE.print_at(start_row, 0, format("{0,14} {1:N1} m", ("Apoapsis: ", craft.orbit.apoapsis.value)))
-  CONSOLE.print_at(start_row + 1,0, format("{0,14} {1:N1} m", ("Periapsis: ", craft.orbit.periapsis)))
-  CONSOLE.print_at(start_row + 2,0, format("{0,14} {1:N5}", ("Eccentricity: ", craft.orbit.eccentricity)))
-  CONSOLE.print_at(start_row + 3,0, format("{0,14} {1:N1}°", ("Inclination: ", craft.orbit.inclination)))
+  CONSOLE.print_at(start_row, 0, format("{0,14} {1:N1} m       ", ("Apoapsis: ", craft.orbit.apoapsis.value)))
+  CONSOLE.print_at(start_row + 1,0, format("{0,14} {1:N1} m          ", ("Periapsis: ", craft.orbit.periapsis)))
+  CONSOLE.print_at(start_row + 2,0, format("{0,14} {1:N5}          ", ("Eccentricity: ", craft.orbit.eccentricity)))
+  CONSOLE.print_at(start_row + 3,0, format("{0,14} {1:N2}°     ", ("Inclination: ", craft.orbit.inclination)))
 }

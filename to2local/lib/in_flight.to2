@@ -27,7 +27,7 @@ use * from lib::system
 //===============================
 //-> Gravity turn
 //===============================
-pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimuth: float, file: LogFile = MAIN_LOG, jettison_fairing: bool = false) -> Unit = {
+pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimuth: float, file: LogFile = MAIN_LOG, jettison_fairing: bool = false, perc: float = 0.95) -> Unit = {
   CONSOLE.clear()
 
   let from_north = clamp_degrees360(azimuth)
@@ -78,7 +78,7 @@ pub fn gravity_turn (craft: Vessel, target_apo: float, pitch_angle: float, azimu
     craft.autopilot.target_orientation = craft.heading_direction(from_north, angle_above_horizon, azimuth).vector
     info_gt(craft, this_row)
     info_orbit(craft, this_row + 4)
-    if (craft.orbit.apoapsis.value > 0.95 * target_apo) {craft.set_throttle(max(0.1, 40/craft.available_thrust))}
+    if (craft.orbit.apoapsis.value > perc * target_apo) {craft.set_throttle(max(0.1, 40/craft.available_thrust))}
     if (craft.altitude_sealevel > craft.main_body.atmosphere_depth && check_fairing(craft) && !in_space) {
       craft.parts.filter_map(fn(p) -> p.fairing)[0].jettison()
       log_mission_event(craft, "Fairing jettisoned", file)

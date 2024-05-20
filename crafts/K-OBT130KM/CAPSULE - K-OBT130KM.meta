@@ -1,0 +1,17 @@
+{
+  "VersionString": "0.2",
+  "Name": "CAPSULE - K-OBT130KM",
+  "VehicleName": "K-OBT130KM",
+  "Description": "Kerbal in orbit at 130 KM",
+  "ThumbnailPath": "\\Saves\\SinglePlayer\\WMCC+KS2_2.5x\\Workspaces\\CAPSULE - K-OBT130KM.png",
+  "Mass": 3.3645,
+  "SaveTime": 638496677487603569,
+  "Parts": 13,
+  "Stages": 3,
+  "IsAutoSave": false,
+  "CampaignName": "WMCC+KS2_2.5x",
+  "IsBackupWorkspace": false,
+  "CriticalConcernLocTerms": [
+    "VAB/EngineersReport/Flaws/NotEnoughThrust"
+  ]
+}
